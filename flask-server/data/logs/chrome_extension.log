@@ -1,0 +1,617 @@
+2025-06-06 13:00:20,451 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 13:00:20,451 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 13:00:20,451 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 13:00:20,452 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 13:00:20,452 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:00:20,452 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 13:00:20,455 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 13:00:20,456 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T13:00:20.455198', 'status': 'running'}
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 13:00:20,459 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 13:00:20,460 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 13:00:20,460 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T13:00:20.459698', 'status': 'running'}
+2025-06-06 13:01:21,565 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 13:01:21,566 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 13:01:21,566 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 13:01:21,566 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 13:01:21,566 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:01:21,566 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 13:01:21,567 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:01:21,567 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 13:01:21,568 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 13:01:21,568 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 13:01:21,568 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 13:01:21,568 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 13:01:21,568 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T13:01:21.567809', 'status': 'running'}
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 13:01:47,622 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 13:01:47,623 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 19:41:27,514 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:41:27,516 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:41:27,517 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:41:27.517043', 'status': 'running'}
+2025-06-06 19:41:50,829 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:41:50,829 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:41:50,829 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 19:41:50,830 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 19:48:47,230 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:48:47,231 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:48:47.231456', 'status': 'running'}
+2025-06-06 19:50:02,394 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:02,395 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:02,396 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:02,396 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:02,396 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:02,396 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:02,396 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:02.395849', 'status': 'running'}
+2025-06-06 19:50:02,397 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:02,398 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:02.398394', 'status': 'running'}
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:05,402 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:05,403 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:05,403 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:05,403 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:05,403 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:05.402828', 'status': 'running'}
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:08,407 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:08.407708', 'status': 'running'}
+2025-06-06 19:50:28,765 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:28,765 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:28,765 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:28,765 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:28,765 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:28,766 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:28,766 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:28,766 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:28,767 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:28,767 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:28,767 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:28,767 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:28,767 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:28.766409', 'status': 'running'}
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:28,769 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:28.769605', 'status': 'running'}
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:31,774 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:31,775 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:31,776 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:31.775452', 'status': 'running'}
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:50:34,781 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:50:34,782 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:50:34,782 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:50:34,782 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:50:34,782 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:50:34,782 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:50:34.782048', 'status': 'running'}
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:51:34,285 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 19:51:34,286 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T19:51:34.286383', 'status': 'running'}
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 19:51:37,857 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 19:51:37,858 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 19:51:37,858 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 19:51:37,858 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 19:51:37,858 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 19:51:37,858 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:02:15,307 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:02:15,308 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:02:15,308 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:02:15,308 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:02:15,308 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:02:59,639 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:02:59,639 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:02:59,639 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:02:59,639 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:02:59,639 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:02:59,640 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:02:59,640 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:02:59,640 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:02:59,641 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:02:59,641 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:02:59,641 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:02:59,641 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:02:59,641 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:02:59.640880', 'status': 'running'}
+2025-06-06 20:02:59,646 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:02:59,647 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:02:59,648 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:02:59,648 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:02:59,648 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:02:59,648 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:02:59,648 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:02:59,649 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:02:59.648233', 'status': 'running'}
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:04:27,666 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:04:27,667 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:04:27,667 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:04:27,667 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:04:27.666798', 'status': 'running'}
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:20:40,279 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:20:40.279633', 'status': 'running'}
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:40,281 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:20:40,282 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:20:40.282256', 'status': 'running'}
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:46,857 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:20:46,858 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:20:46.858284', 'status': 'running'}
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:46,859 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:20:46,860 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:20:46.860176', 'status': 'running'}
+2025-06-06 20:21:02,587 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:21:02,587 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:21:02,587 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:21:02,588 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:21:02,588 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:21:02,588 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:21:02,588 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:21:02,588 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:21:02,589 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:21:02,589 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:21:02,589 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:21:02,589 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:21:02,589 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:21:02.589064', 'status': 'running'}
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:21:25,200 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:21:25,201 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:21:25,201 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:21:25,201 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:21:25,201 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:21:25,201 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:21:25.200816', 'status': 'running'}
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:21:39,232 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:21:39,233 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:21:39,233 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:21:39,233 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:28:57,202 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:28:57,202 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:28:57,202 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:28:57,203 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:28:57,203 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:28:57,203 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:28:57,203 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:28:57,203 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:28:57,204 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:28:57,204 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:28:57,204 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:28:57,204 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:28:57,204 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:28:57.203945', 'status': 'running'}
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:28:57,209 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:28:57,210 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:28:57,210 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:28:57,210 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:28:57,210 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:28:57,210 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:28:57.209892', 'status': 'running'}
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:30:25,226 [CHROME-EXT] INFO: Current connections - Chrome: False, VSCode: False, Total: 0
+2025-06-06 20:30:25,227 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:30:25,227 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:30:25,227 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:30:25,227 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:30:25,227 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:30:25.226930', 'status': 'running'}
+2025-06-06 20:45:27,299 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:45:27,300 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:45:27,300 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:45:27,300 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:45:27,300 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:45:27,300 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:45:27,301 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:45:27,302 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:45:27,302 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:45:27,302 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:45:27,302 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:45:27,302 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:45:27.301693', 'status': 'running'}
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:45:27,306 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:45:27,307 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:45:27,308 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:45:27,308 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:45:27,308 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:45:27,308 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:45:27,308 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:45:27.307502', 'status': 'running'}
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:46:55,325 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:46:55,326 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:46:55,326 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:46:55,326 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:46:55,326 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:46:55,326 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:46:55.326042', 'status': 'running'}
+2025-06-06 20:54:00,930 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:54:00,931 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:54:00,931 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:54:00,931 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:54:00,931 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:54:00,931 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:54:00,932 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:54:00,932 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:54:00,932 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:54:00,932 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:54:00,932 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:54:16,637 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:54:16,637 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:54:16,637 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:54:16,637 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:54:16,637 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:54:16,638 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:54:16.638287', 'status': 'running'}
+2025-06-06 20:54:17,768 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:54:17,768 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:54:17,769 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:54:17,770 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:54:36,637 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:54:36,638 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:54:36,638 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:54:36,638 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:54:36,638 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:54:36,638 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:57:09,710 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:57:09.710651', 'status': 'running'}
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:58:20,915 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 20:58:20,916 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:58:20,916 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 20:58:20,916 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T20:58:20.915827', 'status': 'running'}
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 20:58:33,183 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 20:58:33,184 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 20:58:33,184 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 20:58:33,184 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 20:58:33,184 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 20:58:33,184 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 21:00:30,579 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T21:00:30.579569', 'status': 'running'}
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:00:46,585 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:00:46,586 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:00:46,586 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:00:46,586 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:00:46,586 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:00:46,586 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:00:57,261 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:00:57,262 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:00:57,262 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:00:57,262 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:00:57,262 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:00:57,262 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:01:42,771 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:01:42,772 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:01:42,773 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:01:42,773 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:01:42,773 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:01:42,773 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:10:14,546 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:10:14,547 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:10:14,548 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:10:14,548 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:10:14,548 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:10:14,548 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:13:41,976 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO: Status check from Chrome Extension - User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO:    Response Size: 158 bytes
+2025-06-06 21:13:41,977 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'total': 0, 'vscode': False}, 'serverTime': '2025-06-06T21:13:41.977173', 'status': 'running'}
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:13:56,257 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:13:56,258 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:13:56,258 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:13:56,258 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:13:56,258 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 21:24:29,590 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 21:24:29,591 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 21:24:29,591 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 21:24:29,591 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 21:24:29,591 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 21:24:29,591 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 21:24:29,592 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 21:24:29,592 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 21:24:29,592 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 21:24:29,592 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 21:24:29,593 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 22:37:36,118 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 22:37:36,119 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 22:37:36,119 [CHROME-EXT] INFO:    Status Code: 200
+2025-06-06 22:37:36,119 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 22:37:36,119 [CHROME-EXT] INFO:    Response Size: 142 bytes
+2025-06-06 22:37:36,120 [CHROME-EXT] INFO:    Response Data: {'connectedClients': {'chrome': False, 'vscode': False}, 'serverTime': '2025-06-06T22:37:36.119586', 'status': 'running'}
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO: 📥 Incoming Request from Chrome Extension
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO:    Method: GET
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO:    Path: /api/status
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO:    Origin: 
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO:    User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+2025-06-06 22:37:37,099 [CHROME-EXT] INFO:    Remote Address: 127.0.0.1
+2025-06-06 22:37:37,100 [CHROME-EXT] INFO: 📤 Response to Chrome Extension
+2025-06-06 22:37:37,100 [CHROME-EXT] INFO:    Status Code: 400
+2025-06-06 22:37:37,100 [CHROME-EXT] INFO:    Content-Type: application/json
+2025-06-06 22:37:37,100 [CHROME-EXT] INFO:    Response Size: 29 bytes
+2025-06-06 22:37:37,100 [CHROME-EXT] INFO:    Response Data: {'error': 'Bad request'}

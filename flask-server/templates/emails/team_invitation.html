@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Invitation - Code Snippet Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyber-blue: #00d4ff;
+            --cyber-purple: #b794f6;
+            --cyber-pink: #ff0080;
+            --cyber-green: #00ff41;
+            --cyber-orange: #ff6b35;
+            --dark-bg: #0a0a0a;
+            --glass-bg: rgba(0, 212, 255, 0.1);
+            --glass-border: rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background Grid */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 212, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, 
+                rgba(0, 212, 255, 0.1) 0%, 
+                rgba(0, 0, 0, 0.8) 50%, 
+                rgba(183, 148, 246, 0.1) 100%);
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 3rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 
+                0 0 50px rgba(0, 212, 255, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* Holographic Scan Effect */
+        .email-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 212, 255, 0.4), 
+                transparent);
+            animation: hologramScan 3s infinite;
+            z-index: -1;
+        }
+
+        @keyframes hologramScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .cyber-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .cyber-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--cyber-blue), var(--cyber-purple));
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+            animation: titleGlow 2s ease-in-out infinite alternate;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes titleGlow {
+            0% { 
+                filter: brightness(1) drop-shadow(0 0 10px rgba(0, 212, 255, 0.8)); 
+            }
+            100% { 
+                filter: brightness(1.2) drop-shadow(0 0 20px rgba(0, 212, 255, 1)); 
+            }
+        }
+
+        .team-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--cyber-blue), var(--cyber-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 0 auto 2rem;
+            box-shadow: 
+                0 0 30px rgba(0, 212, 255, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            animation: avatarPulse 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes avatarPulse {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+            }
+            50% { 
+                transform: scale(1.05);
+                box-shadow: 0 0 50px rgba(0, 212, 255, 0.9);
+            }
+        }
+
+        .invitation-details {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--cyber-blue);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: white;
+            font-weight: 500;
+            text-align: right;
+        }
+
+        .action-buttons {
+            text-align: center;
+            margin: 3rem 0;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .cyber-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .cyber-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.2), 
+                transparent);
+            transition: left 0.5s;
+        }
+
+        .cyber-btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, var(--cyber-green), #00cc33);
+            color: white;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+
+        .btn-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(0, 255, 65, 0.6);
+        }
+
+        .btn-decline {
+            background: linear-gradient(135deg, #ff4757, #ff3742);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
+        }
+
+        .btn-decline:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(255, 71, 87, 0.6);
+        }
+
+        .cyber-footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .expiry-warning {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 71, 87, 0.2));
+            border: 1px solid rgba(255, 107, 53, 0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        /* Glitch Effect for Important Text */
+        .glitch {
+            position: relative;
+            animation: glitch 2s infinite;
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .email-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .cyber-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .cyber-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="cyber-header">
+            <div class="cyber-title glitch">TEAM INVITATION</div>
+            <div class="team-avatar">{{ team.avatar or team.name[:2] }}</div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: var(--cyber-blue); margin-bottom: 1rem; font-family: 'Orbitron', monospace;">
+                🚀 ACCESS GRANTED
+            </h2>
+            <p style="font-size: 1.1rem; line-height: 1.6;">
+                <strong>{{ inviter_name }}</strong> has granted you access to the 
+                <span style="color: var(--cyber-green); font-weight: bold;">{{ team_name }}</span> 
+                neural network.
+            </p>
+        </div>
+
+        <div class="invitation-details">
+            <div class="detail-row">
+                <span class="detail-label">🏢 Team Network</span>
+                <span class="detail-value">{{ team_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">🔑 Access Level</span>
+                <span class="detail-value">{{ role.upper() }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">👤 Authorized By</span>
+                <span class="detail-value">{{ inviter_name }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">📡 Network ID</span>
+                <span class="detail-value">#{{ team.id[:8] }}</span>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ accept_url }}" class="cyber-btn btn-accept">
+                <span>✅</span>
+                <span>ACCEPT ACCESS</span>
+            </a>
+            <a href="{{ decline_url }}" class="cyber-btn btn-decline">
+                <span>❌</span>
+                <span>DENY ACCESS</span>
+            </a>
+        </div>
+
+        <div class="cyber-footer">
+            <div class="footer-text">
+                Welcome to the future of code collaboration.<br>
+                Your neural link awaits activation.
+            </div>
+            
+            <div class="expiry-warning">
+                ⚠️ <strong>SECURITY PROTOCOL:</strong> This access token expires in 7 days for security purposes.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some dynamic cyberpunk effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Random glitch effect on title
+            const title = document.querySelector('.cyber-title');
+            setInterval(() => {
+                if (Math.random() < 0.1) {
+                    title.style.textShadow = `
+                        ${Math.random() * 10 - 5}px ${Math.random() * 10 - 5}px 0 #ff0080,
+                        ${Math.random() * 10 - 5}px ${Math.random() * 10 - 5}px 0 #00d4ff
+                    `;
+                    setTimeout(() => {
+                        title.style.textShadow = '0 0 30px rgba(0, 212, 255, 0.8)';
+                    }, 100);
+                }
+            }, 2000);
+
+            // Animate buttons on hover
+            document.querySelectorAll('.cyber-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px) scale(1.05)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

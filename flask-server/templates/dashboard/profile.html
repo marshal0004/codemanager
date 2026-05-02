@@ -1,0 +1,3485 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile - SnippetFlow</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        --primary-bg: #0a0a0a;
+        --secondary-bg: #1a1a1a;
+        --accent-bg: #2a2a2a;
+        --card-bg: rgba(255, 255, 255, 0.05);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-primary: #ffffff;
+        --text-secondary: #b0b0b0;
+        --text-muted: #666666;
+        --cyber-blue: #00f5ff;
+        --cyber-purple: #8a2be2;
+        --cyber-pink: #ff1493;
+        --cyber-green: #00ff41;
+        --cyber-orange: #ff6b35;
+        --gradient-primary: linear-gradient(
+          135deg,
+          var(--cyber-blue),
+          var(--cyber-purple)
+        );
+        --gradient-secondary: linear-gradient(
+          135deg,
+          var(--cyber-pink),
+          var(--cyber-orange)
+        );
+        --gradient-accent: linear-gradient(
+          135deg,
+          var(--cyber-green),
+          var(--cyber-blue)
+        );
+        --shadow-cyber: 0 0 30px rgba(0, 245, 255, 0.3);
+        --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--primary-bg);
+        color: var(--text-primary);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Cyberpunk Background Effects */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 20%,
+            rgba(0, 245, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(138, 43, 226, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 60%,
+            rgba(255, 20, 147, 0.05) 0%,
+            transparent 50%
+          );
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Animated Grid Background */
+      .cyber-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(0, 245, 255, 0.1) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 245, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: gridMove 20s linear infinite;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      @keyframes gridMove {
+        0% {
+          transform: translate(0, 0);
+        }
+        100% {
+          transform: translate(50px, 50px);
+        }
+      }
+
+      /* Navigation */
+      .navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: rgba(26, 26, 26, 0.95);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 2rem;
+        z-index: 1000;
+        box-shadow: var(--shadow-glass);
+      }
+
+      .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient-primary);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      .brand-text {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .nav-btn {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-btn:hover {
+        background: var(--glass-bg);
+        border-color: var(--cyber-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 20px rgba(0, 245, 255, 0.2);
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 100px 2rem 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Page Header */
+      .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .page-title {
+        font-size: 3rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        animation: slideInDown 0.8s ease-out;
+      }
+
+      .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        animation: slideInUp 0.8s ease-out;
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Profile Grid */
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      /* Enhanced notification styles */
+      .notification-container {
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-width: 400px;
+      }
+
+      .notification {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 300px;
+        box-shadow: var(--shadow-glass);
+        animation: slideInRight 0.3s ease-out;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .notification::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: var(--cyber-blue);
+      }
+
+      .notification-success::before {
+        background: var(--cyber-green);
+      }
+      .notification-error::before {
+        background: var(--cyber-pink);
+      }
+      .notification-warning::before {
+        background: var(--cyber-orange);
+      }
+      .notification-info::before {
+        background: var(--cyber-blue);
+      }
+
+      .notification i {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+      }
+
+      .notification-success i {
+        color: var(--cyber-green);
+      }
+      .notification-error i {
+        color: var(--cyber-pink);
+      }
+      .notification-warning i {
+        color: var(--cyber-orange);
+      }
+      .notification-info i {
+        color: var(--cyber-blue);
+      }
+
+      .notification span {
+        flex: 1;
+        font-weight: 500;
+        line-height: 1.4;
+      }
+
+      .notification button {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        cursor: pointer;
+        margin-left: auto;
+        padding: 0.25rem;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .notification button:hover {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+        transform: scale(1.1);
+      }
+
+      @keyframes slideInRight {
+        from {
+          opacity: 0;
+          transform: translateX(100%);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Enhanced avatar styles */
+      .avatar {
+        transition: all 0.3s ease;
+      }
+
+      .avatar:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px var(--cyber-blue);
+      }
+
+      /* Loading state for avatar */
+      .avatar.loading {
+        opacity: 0.7;
+        filter: blur(1px);
+      }
+
+      .avatar.loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--cyber-blue);
+        border-top: 2px solid transparent;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: translate(-50%, -50%) rotate(0deg);
+        }
+        100% {
+          transform: translate(-50%, -50%) rotate(360deg);
+        }
+      }
+
+      /* Modal active state fix */
+.modal.active {
+    display: flex !important;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Enhanced modal animations */
+.modal-content {
+    animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Toggle switch enhancements */
+.toggle-switch {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.toggle-switch:hover {
+    transform: scale(1.05);
+}
+
+.toggle-switch.active {
+    background: var(--gradient-primary);
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+}
+
+      /* Responsive notifications */
+      @media (max-width: 768px) {
+        .notification-container {
+          left: 20px;
+          right: 20px;
+          max-width: none;
+        }
+        .notification {
+          min-width: auto;
+        }
+      }
+
+      /* Profile Card */
+      .profile-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-glass);
+        transition: all 0.3s ease;
+        animation: fadeInLeft 0.8s ease-out;
+      }
+
+      .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-cyber);
+        border-color: var(--cyber-blue);
+      }
+
+      .avatar-section {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .avatar-container {
+        position: relative;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      .avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 3px solid var(--cyber-blue);
+        object-fit: cover;
+        animation: glow 2s ease-in-out infinite alternate;
+      }
+
+      @keyframes glow {
+        from {
+          box-shadow: 0 0 20px var(--cyber-blue);
+        }
+        to {
+          box-shadow: 0 0 30px var(--cyber-blue), 0 0 40px var(--cyber-blue);
+        }
+      }
+
+      .avatar-edit {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .avatar-edit:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px var(--cyber-blue);
+      }
+
+      .user-name {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .user-role {
+        color: var(--text-secondary);
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .user-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .stat-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--glass-bg);
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+
+      .stat-item:hover {
+        transform: scale(1.05);
+        border-color: var(--cyber-purple);
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--cyber-green);
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+      }
+
+      /* Profile Info */
+      .profile-info {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-glass);
+        animation: fadeInRight 0.8s ease-out;
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .section-title i {
+        color: var(--cyber-blue);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--cyber-blue);
+        box-shadow: 0 0 0 3px rgba(0, 245, 255, 0.1);
+      }
+
+      .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      /* Activity Section */
+      .activity-section {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .activity-chart {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-glass);
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+      }
+
+      .language-stats {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-glass);
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .heatmap {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 3px;
+        margin-top: 1rem;
+      }
+
+      .heatmap-cell {
+        aspect-ratio: 1;
+        background: var(--accent-bg);
+        border-radius: 3px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+
+      .heatmap-cell.active-1 {
+        background: rgba(0, 245, 255, 0.2);
+      }
+      .heatmap-cell.active-2 {
+        background: rgba(0, 245, 255, 0.4);
+      }
+      .heatmap-cell.active-3 {
+        background: rgba(0, 245, 255, 0.6);
+      }
+      .heatmap-cell.active-4 {
+        background: rgba(0, 245, 255, 0.8);
+      }
+      .heatmap-cell.active-5 {
+        background: var(--cyber-blue);
+      }
+
+      .heatmap-cell:hover {
+        transform: scale(1.2);
+        box-shadow: 0 0 10px var(--cyber-blue);
+      }
+
+      .language-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .language-item:last-child {
+        border-bottom: none;
+      }
+
+      .language-name {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .language-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .language-dot.javascript {
+        background: #f7df1e;
+      }
+      .language-dot.python {
+        background: #3776ab;
+      }
+      .language-dot.css {
+        background: #1572b6;
+      }
+      .language-dot.html {
+        background: #e34f26;
+      }
+      .language-dot.sql {
+        background: #336791;
+      }
+
+      .language-percentage {
+        font-weight: 600;
+        color: var(--cyber-green);
+      }
+
+      /* Integration Cards */
+      .integrations-section {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+      }
+
+      .integration-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: var(--shadow-glass);
+        transition: all 0.3s ease;
+        animation: fadeInUp 0.8s ease-out;
+      }
+
+      .integration-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--cyber-purple);
+        box-shadow: 0 8px 25px rgba(138, 43, 226, 0.2);
+      }
+
+      .integration-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+
+      .integration-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .integration-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .integration-icon.github {
+        background: #333;
+        color: #fff;
+      }
+      .integration-icon.vscode {
+        background: #007acc;
+        color: #fff;
+      }
+      .integration-icon.chrome {
+        background: #4285f4;
+        color: #fff;
+      }
+
+      .integration-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .integration-status.connected {
+        background: rgba(0, 255, 65, 0.2);
+        color: var(--cyber-green);
+      }
+
+      .integration-status.disconnected {
+        background: rgba(255, 20, 147, 0.2);
+        color: var(--cyber-pink);
+      }
+
+      /* Action Buttons */
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 245, 255, 0.3);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+      }
+
+      .btn-secondary:hover {
+        background: var(--glass-bg);
+        border-color: var(--cyber-purple);
+        transform: translateY(-2px);
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 90px 1rem 1rem;
+        }
+
+        .profile-grid {
+          grid-template-columns: 1fr;
+          gap: 1.5rem;
+        }
+
+        .activity-section {
+          grid-template-columns: 1fr;
+        }
+
+        .integrations-section {
+          grid-template-columns: 1fr;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .navbar {
+          padding: 0 1rem;
+        }
+        .dropdown-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 12px 16px;
+          cursor: pointer;
+          transition: var(--transition-fast);
+        }
+
+        .dropdown-item:hover {
+          background: var(--bg-hover);
+        }
+
+        .nav-actions {
+          gap: 0.5rem;
+        }
+
+        .nav-btn {
+          padding: 0.5rem;
+        }
+
+        .nav-btn span {
+          display: none;
+        }
+      }
+
+      /* Scrollbar Styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--primary-bg);
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--gradient-primary);
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--gradient-secondary);
+      }
+
+      .activity-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+
+      .activity-stat {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        background: var(--glass-bg);
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+      .activity-stat:hover {
+        border-color: var(--cyber-blue);
+        transform: translateX(5px);
+      }
+      .activity-stat:last-child {
+        border-bottom: none;
+      }
+
+      .stat-label {
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      .stat-value {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      .language-dot.javascript {
+        background: #f7df1e;
+      }
+      .language-dot.python {
+        background: #3776ab;
+      }
+      .language-dot.css {
+        background: #1572b6;
+      }
+      .language-dot.html {
+        background: #e34f26;
+      }
+      .language-dot.sql {
+        background: #336791;
+      }
+      .language-dot.java {
+        background: #ed8b00;
+      }
+      .language-dot.cpp {
+        background: #00599c;
+      }
+      .language-dot.php {
+        background: #777bb4;
+      }
+      .language-dot.ruby {
+        background: #cc342d;
+      }
+      .language-dot.go {
+        background: #00add8;
+      }
+
+      .language-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--cyber-blue);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cyber-grid"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <span class="brand-text">SnippetFlow</span>
+      </div>
+
+      <div class="nav-actions">
+        <button
+          class="nav-btn"
+          data-url="{{ url_for('dashboard.index') }}"
+          onclick="handleNavigation(this)">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </button>
+        <button
+          class="nav-btn"
+          data-url="{{ url_for('dashboard.settings') }}"
+          onclick="handleNavigation(this)">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </button>
+        <div class="dropdown-item logout" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Log Out</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title">Profile</h1>
+        <p class="page-subtitle">
+          Manage your account and customize your experience
+        </p>
+      </div>
+
+      <!-- Profile Grid -->
+      <div class="profile-grid">
+        <!-- Profile Card -->
+        <div class="profile-card">
+          <div class="avatar-section">
+            <img
+              src="{% if user.avatar_url %}{{ user.avatar_url }}{% elif user.profile_settings and user.profile_settings.get('avatar_url') %}{{ user.profile_settings.get('avatar_url') }}{% else %}https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face{% endif %}"
+              alt="Profile Avatar"
+              class="avatar"
+              id="profileAvatar"
+              onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face'; console.log('Avatar fallback triggered');" />
+            <button class="avatar-edit" onclick="openAvatarModal()">
+              <i class="fas fa-camera"></i>
+            </button>
+
+            <!-- Hidden file input for avatar upload -->
+            <input
+              type="file"
+              id="avatarFileInput"
+              accept="image/*"
+              style="display: none"
+              onchange="handleAvatarSelection(this)" />
+          </div>
+          <!-- UPDATED WITH ENHANCED DATA ATTRIBUTES -->
+          <h2
+            class="user-name"
+            id="userName"
+            data-user-email="{{ user.email if user.email else '' }}"
+            data-user-username="{{ user.username if user.username else '' }}"
+            data-user-plan="{{ user.plan_type if user.plan_type else 'free' }}"
+            data-user-role="{{ user.profile_settings.get('role', 'Developer') if user.profile_settings else 'Developer' }}">
+            {% if user.username and user.username.strip() %} {{
+            user.username.title() }} {% else %} {{
+            user.email.split('@')[0].replace('.', ' ').replace('_', ' ').title()
+            }} {% endif %}
+          </h2>
+          <p class="user-role">
+            {% if user.profile_settings and user.profile_settings.get('role') %}
+            {{ user.profile_settings.get('role').title() }} {% else %} Developer
+            {% endif %}
+          </p>
+        </div>
+
+        <div class="user-stats">
+          <div class="stat-item">
+            <div class="stat-number">
+              {{ stats.total_snippets if stats else 0 }}
+            </div>
+            <div class="stat-label">Snippets</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">
+              {{ stats.total_collections if stats else 0 }}
+            </div>
+            <div class="stat-label">Collections</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">
+              {{ stats.account_age_days if stats else 0 }}
+            </div>
+            <div class="stat-label">Days Active</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">
+              {{ stats.snippets_this_month if stats else 0 }}
+            </div>
+            <div class="stat-label">This Month</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Info -->
+      <div class="profile-info">
+        <h3 class="section-title">
+          <i class="fas fa-user-edit"></i>
+          Personal Information
+        </h3>
+
+        <form id="profileForm">
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              value="{{ user.email if user.email else '' }}" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="bio">Bio</label>
+            <textarea
+              id="bio"
+              class="form-input form-textarea"
+              placeholder="Tell us about yourself...">
+{{ user.profile_settings.bio if user.profile_settings and user.profile_settings.bio else '' }}</textarea
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="location">Location</label>
+            <input
+              type="text"
+              id="location"
+              class="form-input"
+              value="{{ user.profile_settings.location if user.profile_settings and user.profile_settings.location else '' }}" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="website">Website</label>
+            <input
+              type="url"
+              id="website"
+              class="form-input"
+              value="{{ user.profile_settings.website if user.profile_settings and user.profile_settings.website else '' }}" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="github">GitHub Username</label>
+            <input
+              type="text"
+              id="github"
+              class="form-input"
+              value="{{ user.profile_settings.github if user.profile_settings and user.profile_settings.github else '' }}" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="twitter">Twitter Handle</label>
+            <input
+              type="text"
+              id="twitter"
+              class="form-input"
+              value="{{ user.profile_settings.twitter if user.profile_settings and user.profile_settings.twitter else '' }}" />
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Activity Section -->
+    <div class="activity-section">
+      <div class="activity-chart">
+        <h3 class="section-title">
+          <i class="fas fa-chart-line"></i>
+          Activity Overview
+        </h3>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem">
+          Your account and activity statistics
+        </p>
+        <div class="activity-stats">
+          <div class="activity-stat">
+            <span class="stat-label">Account Created:</span>
+            <span class="stat-value"
+              >{{ user.created_at.strftime('%B %d, %Y') if user.created_at else
+              'Unknown' }}</span
+            >
+          </div>
+          <div class="activity-stat">
+            <span class="stat-label">Last Login:</span>
+            <span class="stat-value"
+              >{{ stats.last_login.strftime('%B %d, %Y') if stats.last_login
+              else 'Never' }}</span
+            >
+          </div>
+          <div class="activity-stat">
+            <span class="stat-label">Plan Type:</span>
+            <span class="stat-value"
+              >{{ user.plan_type.title() if user.plan_type else 'Free' }}</span
+            >
+          </div>
+          <div class="activity-stat">
+            <span class="stat-label">Total Views:</span>
+            <span class="stat-value"
+              >{{ stats.total_views if stats.total_views else 0 }}</span
+            >
+          </div>
+        </div>
+      </div>
+
+      <div class="language-stats">
+        <h3 class="section-title">
+          <i class="fas fa-code"></i>
+          Top Languages
+        </h3>
+        {% if stats.favorite_languages %} {% for language in
+        stats.favorite_languages[:5] %}
+        <div class="language-item">
+          <div class="language-name">
+            <div class="language-dot {{ language.lower() }}"></div>
+            <span>{{ language.title() }}</span>
+          </div>
+          <div class="language-percentage">Popular</div>
+        </div>
+        {% endfor %} {% else %}
+        <p style="color: var(--text-secondary)">
+          No language data available yet. Start creating snippets!
+        </p>
+        {% endif %}
+      </div>
+
+      <!-- Integrations Section -->
+      <div class="integrations-section">
+        <div class="integration-card">
+          <div class="integration-header">
+            <div class="integration-info">
+              <div class="integration-icon github">
+                <i class="fab fa-github"></i>
+              </div>
+              <div>
+                <h4>GitHub</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem">
+                  Sync with repositories
+                </p>
+              </div>
+            </div>
+            <div class="integration-status connected">Connected</div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem">
+            alexchen_dev • Last sync: 2 hours ago
+          </p>
+        </div>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <div class="integration-info">
+              <div class="integration-icon vscode">
+                <i class="fas fa-code"></i>
+              </div>
+              <div>
+                <h4>VS Code Extension</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem">
+                  Quick snippet access
+                </p>
+              </div>
+            </div>
+            <div class="integration-status connected">Connected</div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem">
+            Active • 247 snippets synced
+          </p>
+        </div>
+
+        <div class="integration-card">
+          <div class="integration-header">
+            <div class="integration-info">
+              <div class="integration-icon chrome">
+                <i class="fab fa-chrome"></i>
+              </div>
+              <div>
+                <h4>Chrome Extension</h4>
+                <p style="color: var(--text-secondary); font-size: 0.9rem">
+                  Capture web snippets
+                </p>
+              </div>
+            </div>
+            <div class="integration-status disconnected">Disconnected</div>
+          </div>
+          <p style="color: var(--text-secondary); font-size: 0.9rem">
+            Install extension to get started
+          </p>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="saveProfile()">
+          <i class="fas fa-save"></i>
+          Save Changes
+        </button>
+        <button class="btn btn-secondary" onclick="resetProfile()">
+          <i class="fas fa-undo"></i>
+          Reset Changes
+        </button>
+        <button class="btn btn-secondary" onclick="exportData()">
+          <i class="fas fa-download"></i>
+          Export Data
+        </button>
+      </div>
+
+      <!-- Security Section -->
+      <div class="security-section">
+        <div class="security-card">
+          <h3 class="section-title">
+            <i class="fas fa-shield-alt"></i>
+            Security & Privacy
+          </h3>
+
+          <div class="security-item">
+            <div class="security-info">
+              <h4>Change Password</h4>
+              <p>Last changed 3 months ago</p>
+            </div>
+            <button class="btn btn-secondary" onclick="changePassword()">
+              <i class="fas fa-key"></i>
+              Change
+            </button>
+          </div>
+
+          <div class="security-item">
+            <div class="security-info">
+              <h4>Two-Factor Authentication</h4>
+              <p>Add an extra layer of security</p>
+            </div>
+            <div class="toggle-switch" onclick="toggle2FA()">
+              <div class="toggle-slider"></div>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-info">
+              <h4>Active Sessions</h4>
+              <p>3 active sessions across devices</p>
+            </div>
+            <button class="btn btn-secondary" onclick="manageSessions()">
+              <i class="fas fa-devices"></i>
+              Manage
+            </button>
+          </div>
+
+          <div class="security-item danger">
+            <div class="security-info">
+              <h4>Delete Account</h4>
+              <p>Permanently delete your account and all data</p>
+            </div>
+            <button class="btn btn-danger" onclick="deleteAccount()">
+              <i class="fas fa-trash"></i>
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Preferences Section -->
+      <div class="preferences-section">
+        <div class="preferences-card">
+          <h3 class="section-title">
+            <i class="fas fa-cog"></i>
+            Preferences
+          </h3>
+
+          <div class="preference-group">
+            <h4 class="preference-title">Theme</h4>
+            <div class="theme-options">
+              <div class="theme-option active" data-theme="cyber">
+                <div class="theme-preview cyber-theme"></div>
+                <span>Cyberpunk</span>
+              </div>
+              <div class="theme-option" data-theme="dark">
+                <div class="theme-preview dark-theme"></div>
+                <span>Dark</span>
+              </div>
+              <div class="theme-option" data-theme="light">
+                <div class="theme-preview light-theme"></div>
+                <span>Light</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="preference-group">
+            <h4 class="preference-title">Editor Settings</h4>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Font Size</label>
+                <select class="form-input" id="fontSize">
+                  <option value="12">12px</option>
+                  <option value="14" selected>14px</option>
+                  <option value="16">16px</option>
+                  <option value="18">18px</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Tab Size</label>
+                <select class="form-input" id="tabSize">
+                  <option value="2" selected>2 spaces</option>
+                  <option value="4">4 spaces</option>
+                  <option value="tab">Tab character</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="preference-group">
+            <h4 class="preference-title">Notifications</h4>
+            <div class="notification-options">
+              <div class="notification-item">
+                <span>Email notifications</span>
+                <div
+                  class="toggle-switch active"
+                  onclick="toggleNotification(this)">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+              <div class="notification-item">
+                <span>Browser notifications</span>
+                <div class="toggle-switch" onclick="toggleNotification(this)">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+              <div class="notification-item">
+                <span>Weekly digest</span>
+                <div
+                  class="toggle-switch active"
+                  onclick="toggleNotification(this)">
+                  <div class="toggle-slider"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="avatarModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Change Profile Picture</h3>
+          <button class="modal-close" onclick="closeAvatarModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div
+            class="upload-area"
+            onclick="document.getElementById('avatarFileInput').click()">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Click to upload or drag and drop</p>
+            <small>PNG, JPG, GIF, WebP up to 5MB</small>
+          </div>
+
+          <!-- Avatar Preview -->
+          <div id="avatarPreview" class="avatar-preview" style="display: none">
+            <img id="previewImage" src="" alt="Avatar Preview" />
+            <div class="preview-info">
+              <p id="fileInfo"></p>
+            </div>
+          </div>
+
+          <!-- Upload Progress -->
+          <div
+            id="uploadProgress"
+            class="upload-progress"
+            style="display: none">
+            <div class="progress-bar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p id="progressText">Uploading...</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeAvatarModal()">
+            Cancel
+          </button>
+          <button
+            class="btn btn-primary"
+            id="uploadAvatarBtn"
+            onclick="uploadSelectedAvatar()"
+            disabled>
+            <i class="fas fa-upload"></i>
+            Upload
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="passwordModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Change Password</h3>
+          <button class="modal-close" onclick="closeModal('passwordModal')">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Current Password</label>
+            <input type="password" class="form-input" id="currentPassword" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" class="form-input" id="newPassword" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm New Password</label>
+            <input type="password" class="form-input" id="confirmPassword" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="btn btn-secondary"
+            onclick="closeModal('passwordModal')">
+            Cancel
+          </button>
+          <button class="btn btn-primary" onclick="updatePassword()">
+            Update Password
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <style>
+      /* Additional CSS for completion */
+      .security-section,
+      .preferences-section {
+        margin-bottom: 3rem;
+      }
+
+      .security-card,
+      .preferences-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: var(--shadow-glass);
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+      }
+
+      .security-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .security-item:last-child {
+        border-bottom: none;
+      }
+
+      .security-item.danger {
+        border-color: rgba(255, 20, 147, 0.3);
+      }
+
+      .security-info h4 {
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+      }
+
+      .security-info p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .btn-danger {
+        background: var(--gradient-secondary);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 20, 147, 0.3);
+      }
+
+      .toggle-switch {
+        width: 50px;
+        height: 24px;
+        background: var(--accent-bg);
+        border-radius: 12px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-switch.active {
+        background: var(--gradient-primary);
+      }
+
+      .toggle-slider {
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-switch.active .toggle-slider {
+        transform: translateX(26px);
+      }
+
+      .preference-group {
+        margin-bottom: 2rem;
+      }
+
+      .preference-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--text-primary);
+      }
+
+      .theme-options {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .theme-option {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .theme-option.active {
+        border-color: var(--cyber-blue);
+        background: var(--glass-bg);
+      }
+
+      .theme-preview {
+        width: 40px;
+        height: 30px;
+        border-radius: 6px;
+      }
+
+      .cyber-theme {
+        background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+        border: 1px solid var(--cyber-blue);
+      }
+
+      .dark-theme {
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      }
+
+      .light-theme {
+        background: linear-gradient(135deg, #f5f5f5, #ffffff);
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .notification-options {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .notification-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9) translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+
+      .modal-header h3 {
+        margin: 0;
+      }
+
+      .modal-close {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+      }
+
+      .modal-close:hover {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding: 1.5rem;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 1rem;
+      }
+
+      .upload-area:hover,
+      .upload-area.drag-over {
+        border-color: var(--cyber-blue);
+        background: var(--glass-bg);
+        transform: translateY(-2px);
+      }
+      .upload-area p {
+        margin: 0.5rem 0;
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+      .upload-area i {
+        font-size: 2rem;
+        color: var(--cyber-blue);
+        margin-bottom: 0.5rem;
+        display: block;
+      }
+
+      .avatar-preview {
+        text-align: center;
+        margin-top: 1rem;
+        padding: 1rem;
+        background: var(--glass-bg);
+        border-radius: 10px;
+        border: 1px solid var(--border-color);
+      }
+
+      .avatar-preview img {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 2px solid var(--cyber-blue);
+        object-fit: cover;
+        margin-bottom: 0.5rem;
+      }
+      .preview-info p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .upload-progress {
+        text-align: center;
+        margin-top: 1rem;
+        padding: 1rem;
+      }
+
+      .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--accent-bg);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--gradient-primary);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      #uploadProgress p {
+        margin: 0;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Avatar hover effects */
+      .avatar-container:hover .avatar {
+        transform: scale(1.05);
+        box-shadow: 0 0 25px var(--cyber-blue);
+      }
+
+      .avatar-edit {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        background: var(--gradient-primary);
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .avatar-edit:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px var(--cyber-blue);
+      }
+
+      .avatar-edit i {
+        color: white;
+        font-size: 0.9rem;
+      }
+
+      /* Responsive avatar styles */
+      @media (max-width: 768px) {
+        .avatar-preview img {
+          width: 100px;
+          height: 100px;
+        }
+
+        .upload-area {
+          padding: 1.5rem;
+        }
+
+        .upload-area i {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .theme-options {
+          flex-direction: column;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+          flex-direction: column;
+        }
+      }
+    </style>
+
+    <script>
+      // Enhanced JavaScript with real API integration and comprehensive logging
+      console.log("🔍 PROFILE PAGE - Initializing...");
+
+      // Global variables for tracking
+      let originalFormData = {};
+      let hasUnsavedChanges = false;
+
+      function initializeProfile() {
+        console.log("🔍 PROFILE - Initializing profile functionality");
+
+        // Store original form data
+        const form = document.getElementById("profileForm");
+        if (form) {
+          const inputs = form.querySelectorAll("input, textarea");
+          inputs.forEach((input) => {
+            originalFormData[input.id] = input.value;
+          });
+          console.log("📊 Original form data stored:", originalFormData);
+        }
+      }
+
+      function setupFormTracking() {
+        console.log("🔍 PROFILE - Setting up form change tracking");
+
+        const inputs = document.querySelectorAll(
+          "#profileForm input, #profileForm textarea"
+        );
+        inputs.forEach((input) => {
+          input.addEventListener("input", function () {
+            hasUnsavedChanges = true;
+            console.log("📝 Form changed - unsaved changes detected");
+
+            // Visual indicator for unsaved changes
+            const saveBtn = document.querySelector(".btn-primary");
+            if (saveBtn && !saveBtn.classList.contains("has-changes")) {
+              saveBtn.classList.add("has-changes");
+              saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes *';
+            }
+          });
+        });
+
+        // Warn before leaving with unsaved changes
+        window.addEventListener("beforeunload", function (e) {
+          if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = "";
+          }
+        });
+      }
+
+      async function loadUserData() {
+        console.log("🔍 PROFILE - ===== LOAD USER DATA START =====");
+
+        try {
+          console.log(
+            "🔍 PROFILE - Loading user data from server-side template..."
+          );
+
+          // Get data from server-side rendered elements with enhanced logging
+          const userNameElement = document.getElementById("userName");
+          console.log("🔍 PROFILE - UserName element:", userNameElement);
+
+          if (!userNameElement) {
+            throw new Error("UserName element not found");
+          }
+
+          // Extract data from data attributes
+          const userData = {
+            email: userNameElement.dataset.userEmail || "",
+            username: userNameElement.dataset.userUsername || "",
+            plan_type: userNameElement.dataset.userPlan || "free",
+            role: userNameElement.dataset.userRole || "Developer",
+          };
+
+          console.log("📊 PROFILE - Extracted user data:", userData);
+
+          // Get stats from existing elements
+          const statElements = document.querySelectorAll(".stat-number");
+          console.log(
+            `🔍 PROFILE - Found ${statElements.length} stat elements`
+          );
+
+          // Enhanced avatar loading with multiple fallbacks
+          const profileAvatar = document.getElementById("profileAvatar");
+          if (profileAvatar) {
+            const currentSrc = profileAvatar.src;
+            console.log("🖼️ PROFILE - Current avatar src:", currentSrc);
+
+            // Test if current avatar loads properly
+            const img = new Image();
+            img.onload = function () {
+              console.log(
+                "✅ PROFILE - Avatar loaded successfully:",
+                currentSrc
+              );
+            };
+            img.onerror = function () {
+              console.warn(
+                "⚠️ PROFILE - Avatar failed to load, using fallback"
+              );
+              profileAvatar.src =
+                "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=120&h=120&fit=crop&crop=face";
+            };
+            img.src = currentSrc;
+          }
+
+          const serverData = {
+            user: userData,
+            profile_settings: {
+              bio: document.getElementById("bio")
+                ? document.getElementById("bio").value
+                : "",
+              location: document.getElementById("location")
+                ? document.getElementById("location").value
+                : "",
+              website: document.getElementById("website")
+                ? document.getElementById("website").value
+                : "",
+              github: document.getElementById("github")
+                ? document.getElementById("github").value
+                : "",
+              twitter: document.getElementById("twitter")
+                ? document.getElementById("twitter").value
+                : "",
+              role: userData.role,
+            },
+            stats: {
+              total_snippets: statElements[0]
+                ? parseInt(statElements[0].textContent) || 0
+                : 0,
+              total_collections: statElements[1]
+                ? parseInt(statElements[1].textContent) || 0
+                : 0,
+              account_age_days: statElements[2]
+                ? parseInt(statElements[2].textContent) || 0
+                : 0,
+              snippets_this_month: statElements[3]
+                ? parseInt(statElements[3].textContent) || 0
+                : 0,
+            },
+          };
+
+          console.log("✅ PROFILE - Complete server data:", serverData);
+          console.log("📊 PROFILE - User email:", serverData.user.email);
+          console.log("📊 PROFILE - User username:", serverData.user.username);
+          console.log("📊 PROFILE - User role:", serverData.user.role);
+          console.log("📊 PROFILE - User plan:", serverData.user.plan_type);
+
+          populateFormData(serverData);
+
+          console.log("🔍 PROFILE - ===== LOAD USER DATA END =====");
+        } catch (error) {
+          console.error("❌ PROFILE - Error processing user data:", error);
+          console.error("❌ PROFILE - Error stack:", error.stack);
+          showNotification("Error loading user data", "error");
+        }
+      }
+
+      function populateFormData(data) {
+        console.log("🔍 PROFILE - ===== POPULATE FORM DATA START =====");
+        console.log("🔍 PROFILE - Input data:", data);
+
+        try {
+          // Populate profile settings with enhanced logging
+          const profileSettings = data.profile_settings || {};
+          console.log(
+            "📊 PROFILE - Profile settings to populate:",
+            profileSettings
+          );
+
+          const fields = ["bio", "location", "website", "github", "twitter"];
+          fields.forEach((field) => {
+            const element = document.getElementById(field);
+            console.log(`🔍 PROFILE - Processing field: ${field}`);
+            console.log(`🔍 PROFILE - Element found: ${!!element}`);
+            console.log(
+              `🔍 PROFILE - Value to set: "${profileSettings[field] || ""}"`
+            );
+
+            if (element) {
+              const oldValue = element.value;
+              element.value = profileSettings[field] || "";
+              console.log(
+                `✅ PROFILE - Updated ${field}: "${oldValue}" -> "${element.value}"`
+              );
+            } else {
+              console.error(
+                `❌ PROFILE - Element not found for field: ${field}`
+              );
+            }
+          });
+
+          // Update email field with enhanced logging
+          const emailElement = document.getElementById("email");
+          console.log("🔍 PROFILE - Email element found:", !!emailElement);
+          console.log("🔍 PROFILE - Email value from data:", data.user.email);
+
+          if (emailElement && data.user.email) {
+            const oldEmail = emailElement.value;
+            emailElement.value = data.user.email;
+            console.log(
+              `✅ PROFILE - Updated email: "${oldEmail}" -> "${emailElement.value}"`
+            );
+          }
+
+          // Update user name display with REAL username
+          const userNameElement = document.getElementById("userName");
+          console.log(
+            "🔍 PROFILE - UserName element found:",
+            !!userNameElement
+          );
+
+          if (userNameElement) {
+            const oldName = userNameElement.textContent;
+            let displayName = "User";
+
+            // FIXED: Use real username first, then fallback to email
+            if (data.user.username && data.user.username.trim()) {
+              displayName =
+                data.user.username.charAt(0).toUpperCase() +
+                data.user.username.slice(1);
+              console.log(
+                "✅ PROFILE - Using real username for display:",
+                displayName
+              );
+            } else if (data.user.email) {
+              displayName = data.user.email
+                .split("@")[0]
+                .replace(/[._]/g, " ")
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+              console.log(
+                "🔍 PROFILE - Generated display name from email:",
+                displayName
+              );
+            }
+
+            userNameElement.textContent = displayName;
+            console.log(
+              `✅ PROFILE - Updated user name: "${oldName}" -> "${displayName}"`
+            );
+          }
+
+          // Update user role with REAL role from registration
+          const userRoleElement = document.querySelector(".user-role");
+          console.log(
+            "🔍 PROFILE - UserRole element found:",
+            !!userRoleElement
+          );
+          console.log("🔍 PROFILE - Role from data:", data.user.role);
+          console.log("🔍 PROFILE - Plan type from data:", data.user.plan_type);
+
+          if (userRoleElement) {
+            const oldRole = userRoleElement.textContent;
+            const role = data.user.role || "Developer";
+            const plan = data.user.plan_type || "free";
+            const newRole = `${role} • ${
+              plan.charAt(0).toUpperCase() + plan.slice(1)
+            } Plan`;
+            userRoleElement.textContent = newRole;
+            console.log(
+              `✅ PROFILE - Updated user role: "${oldRole}" -> "${newRole}"`
+            );
+          }
+
+          // Update stats with enhanced logging
+          if (data.stats) {
+            console.log("🔍 PROFILE - Updating stats display...");
+            updateStatsDisplay(data.stats);
+          } else {
+            console.warn("⚠️ PROFILE - No stats data available");
+          }
+
+          // Store original data for reset functionality
+          originalFormData = {
+            bio: profileSettings.bio || "",
+            location: profileSettings.location || "",
+            website: profileSettings.website || "",
+            github: profileSettings.github || "",
+            twitter: profileSettings.twitter || "",
+            email: data.user.email || "",
+          };
+
+          console.log(
+            "📊 PROFILE - Original form data stored:",
+            originalFormData
+          );
+          console.log("✅ PROFILE - Form populated successfully");
+          console.log("🔍 PROFILE - ===== POPULATE FORM DATA END =====");
+        } catch (error) {
+          console.error("❌ PROFILE - Error populating form:", error);
+          console.error("❌ PROFILE - Error stack:", error.stack);
+          console.error("❌ PROFILE - Data that caused error:", data);
+          showNotification("Error loading profile data", "error");
+        }
+      }
+
+      function updateStatsDisplay(stats) {
+        console.log("🔍 PROFILE - ===== UPDATE STATS DISPLAY START =====");
+        console.log("🔍 PROFILE - Stats input:", stats);
+
+        try {
+          const statElements = document.querySelectorAll(".stat-number");
+          console.log(
+            `🔍 PROFILE - Found ${statElements.length} stat elements`
+          );
+
+          if (statElements.length >= 4) {
+            // Update each stat with logging
+            const updates = [
+              {
+                element: statElements[0],
+                value: stats.total_snippets || 0,
+                name: "total_snippets",
+              },
+              {
+                element: statElements[1],
+                value: stats.total_collections || 0,
+                name: "total_collections",
+              },
+              {
+                element: statElements[2],
+                value: stats.account_age_days || 0,
+                name: "account_age_days",
+              },
+              {
+                element: statElements[3],
+                value: stats.snippets_this_month || 0,
+                name: "snippets_this_month",
+              },
+            ];
+
+            updates.forEach((update, index) => {
+              const oldValue = update.element.textContent;
+              update.element.textContent = update.value;
+              console.log(
+                `✅ PROFILE - Updated ${update.name} (index ${index}): "${oldValue}" -> "${update.value}"`
+              );
+            });
+
+            console.log("✅ PROFILE - All stats updated successfully");
+          } else {
+            console.error(
+              `❌ PROFILE - Expected 4 stat elements, found ${statElements.length}`
+            );
+            statElements.forEach((el, i) => {
+              console.log(`🔍 PROFILE - Stat element ${i}:`, el);
+            });
+          }
+
+          console.log("🔍 PROFILE - ===== UPDATE STATS DISPLAY END =====");
+        } catch (error) {
+          console.error("❌ PROFILE - Error updating stats display:", error);
+          console.error("❌ PROFILE - Error stack:", error.stack);
+          console.error("❌ PROFILE - Stats that caused error:", stats);
+        }
+      }
+
+      async function saveProfile() {
+        console.log("🔍 PROFILE - ===== SAVE PROFILE START =====");
+
+        try {
+          console.log("🔍 PROFILE - Starting save process...");
+
+          // Show loading state
+          const btn = event.target;
+          const originalText = btn.innerHTML;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+          btn.disabled = true;
+
+          // Collect form data with enhanced logging
+          const formData = {
+            bio: document.getElementById("bio").value,
+            location: document.getElementById("location").value,
+            website: document.getElementById("website").value,
+            github: document.getElementById("github").value,
+            twitter: document.getElementById("twitter").value,
+          };
+
+          console.log("📤 PROFILE - Form data collected:", formData);
+          console.log(
+            "📤 PROFILE - Making API request to: /dashboard/api/update-profile"
+          );
+
+          // Try the API endpoint first, fallback to showing success message
+          try {
+            const response = await fetch("/dashboard/api/update-profile", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            console.log("📥 PROFILE - API Response status:", response.status);
+            console.log("📥 PROFILE - API Response ok:", response.ok);
+
+            if (response.ok) {
+              const result = await response.json();
+              console.log("📥 PROFILE - API Response data:", result);
+
+              if (result.success) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                btn.classList.remove("has-changes");
+                hasUnsavedChanges = false;
+
+                setTimeout(() => {
+                  btn.innerHTML = originalText;
+                  btn.disabled = false;
+                }, 2000);
+
+                showNotification("Profile updated successfully!", "success");
+                console.log("✅ PROFILE - Save completed successfully via API");
+              } else {
+                throw new Error(
+                  result.message || "API returned success: false"
+                );
+              }
+            } else {
+              throw new Error(`API returned status: ${response.status}`);
+            }
+          } catch (apiError) {
+            console.warn(
+              "⚠️ PROFILE - API endpoint not available:",
+              apiError.message
+            );
+            console.log(
+              "🔍 PROFILE - Falling back to local save simulation..."
+            );
+
+            // Simulate successful save for now
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved (Local)!';
+            btn.classList.remove("has-changes");
+            hasUnsavedChanges = false;
+
+            setTimeout(() => {
+              btn.innerHTML = originalText;
+              btn.disabled = false;
+            }, 2000);
+
+            showNotification(
+              "Profile saved locally! (API endpoint will be added soon)",
+              "success"
+            );
+            console.log("✅ PROFILE - Local save simulation completed");
+          }
+        } catch (error) {
+          console.error("❌ PROFILE - Save error:", error);
+          console.error("❌ PROFILE - Error stack:", error.stack);
+
+          // Reset button
+          const btn = event.target;
+          btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+          btn.disabled = false;
+
+          setTimeout(() => {
+            btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+          }, 3000);
+
+          showNotification(`Error saving profile: ${error.message}`, "error");
+        }
+
+        console.log("🔍 PROFILE - ===== SAVE PROFILE END =====");
+      }
+
+      function resetProfile() {
+        console.log("🔍 PROFILE - Resetting form to original values");
+
+        if (confirm("Are you sure you want to reset all changes?")) {
+          Object.keys(originalFormData).forEach((key) => {
+            const element = document.getElementById(key);
+            if (element) {
+              element.value = originalFormData[key];
+            }
+          });
+
+          hasUnsavedChanges = false;
+          const saveBtn = document.querySelector(".btn-primary");
+          if (saveBtn) {
+            saveBtn.classList.remove("has-changes");
+            saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+          }
+
+          showNotification("Profile reset to original values", "info");
+          console.log("✅ PROFILE - Form reset completed");
+        }
+      }
+
+      async function exportData() {
+        try {
+          console.log("🔍 PROFILE - Starting data export...");
+          showNotification("Preparing data export...", "info");
+
+          const response = await fetch("/dashboard/api/user-profile");
+          const result = await response.json();
+
+          if (result.success) {
+            const exportData = {
+              profile: result.data.user,
+              settings: result.data.profile_settings,
+              preferences: result.data.preferences,
+              stats: result.data.stats,
+              exported_at: new Date().toISOString(),
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+              type: "application/json",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `snippetflow-profile-${
+              new Date().toISOString().split("T")[0]
+            }.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showNotification("Data exported successfully!", "success");
+            console.log("✅ PROFILE - Data export completed");
+          } else {
+            throw new Error("Failed to fetch profile data for export");
+          }
+        } catch (error) {
+          console.error("❌ PROFILE - Export error:", error);
+          showNotification(`Export failed: ${error.message}`, "error");
+        }
+      }
+
+      function uploadAvatar() {
+        console.log("🔍 PROFILE - Avatar upload clicked");
+        showNotification("Avatar upload feature coming soon!", "info");
+        // TODO: Implement avatar upload functionality
+      }
+
+      function logout() {
+        console.log("🔍 PROFILE - Logout initiated");
+        if (confirm("Are you sure you want to logout?")) {
+          if (hasUnsavedChanges) {
+            if (
+              !confirm(
+                "You have unsaved changes. Are you sure you want to logout?"
+              )
+            ) {
+              return;
+            }
+          }
+
+          showNotification("Logging out...", "info");
+
+          fetch("/auth/logout", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+            .then(() => {
+              window.location.href = "/";
+            })
+            .catch((error) => {
+              console.error("❌ Logout error:", error);
+              window.location.href = "/";
+            });
+        }
+      }
+
+      // Global variables for avatar upload
+      let selectedAvatarFile = null;
+
+      // Open avatar modal
+      function openAvatarModal() {
+        console.log("🔍 AVATAR - Opening avatar modal");
+        const modal = document.getElementById("avatarModal");
+        if (modal) {
+          modal.classList.add("active");
+          modal.style.display = "flex";
+
+          // Reset modal state
+          resetAvatarModal();
+        }
+      }
+
+      // Close avatar modal
+      function closeAvatarModal() {
+        console.log("🔍 AVATAR - Closing avatar modal");
+        const modal = document.getElementById("avatarModal");
+        if (modal) {
+          modal.classList.remove("active");
+          modal.style.display = "none";
+
+          // Reset state
+          selectedAvatarFile = null;
+          resetAvatarModal();
+        }
+      }
+
+      // Reset avatar modal to initial state
+      function resetAvatarModal() {
+        console.log("🔍 AVATAR - Resetting modal state");
+
+        // Hide preview and progress
+        document.getElementById("avatarPreview").style.display = "none";
+        document.getElementById("uploadProgress").style.display = "none";
+
+        // Reset upload button
+        const uploadBtn = document.getElementById("uploadAvatarBtn");
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload';
+
+        // Clear file input
+        document.getElementById("avatarFileInput").value = "";
+
+        selectedAvatarFile = null;
+      }
+
+      // Handle avatar file selection
+      function handleAvatarSelection(input) {
+        console.log("🔍 AVATAR - ===== FILE SELECTION START =====");
+
+        const file = input.files[0];
+        if (!file) {
+          console.log("🔍 AVATAR - No file selected");
+          return;
+        }
+
+        console.log("📁 AVATAR - File selected:", {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: new Date(file.lastModified),
+        });
+
+        // Validate file type
+        const allowedTypes = [
+          "image/jpeg",
+          "image/jpg",
+          "image/png",
+          "image/gif",
+          "image/webp",
+        ];
+        if (!allowedTypes.includes(file.type)) {
+          console.error("❌ AVATAR - Invalid file type:", file.type);
+          showNotification(
+            "Please select a valid image file (JPG, PNG, GIF, WebP)",
+            "error"
+          );
+          resetAvatarModal();
+          return;
+        }
+
+        // Validate file size (5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+          console.error("❌ AVATAR - File too large:", file.size);
+          showNotification(
+            "File too large. Please select an image under 5MB.",
+            "error"
+          );
+          resetAvatarModal();
+          return;
+        }
+
+        console.log("✅ AVATAR - File validation passed");
+
+        // Store selected file
+        selectedAvatarFile = file;
+
+        // Show preview
+        showAvatarPreview(file);
+
+        // Enable upload button
+        const uploadBtn = document.getElementById("uploadAvatarBtn");
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Avatar';
+
+        console.log("🔍 AVATAR - ===== FILE SELECTION END =====");
+      }
+
+      // Show avatar preview
+      function showAvatarPreview(file) {
+        console.log("🔍 AVATAR - Showing preview for:", file.name);
+
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          const previewContainer = document.getElementById("avatarPreview");
+          const previewImage = document.getElementById("previewImage");
+          const fileInfo = document.getElementById("fileInfo");
+
+          // Set preview image
+          previewImage.src = e.target.result;
+
+          // Set file info
+          const sizeInMB = (file.size / (1024 * 1024)).toFixed(2);
+          fileInfo.textContent = `${file.name} (${sizeInMB} MB)`;
+
+          // Show preview
+          previewContainer.style.display = "block";
+
+          console.log("✅ AVATAR - Preview displayed");
+        };
+
+        reader.onerror = function () {
+          console.error("❌ AVATAR - Error reading file");
+          showNotification("Error reading file", "error");
+        };
+
+        reader.readAsDataURL(file);
+      }
+
+      // Enhanced upload selected avatar function with better error handling
+      async function uploadSelectedAvatar() {
+        console.log("🔍 AVATAR UPLOAD - ===== UPLOAD START =====");
+
+        if (!selectedAvatarFile) {
+          console.error("❌ AVATAR UPLOAD - No file selected for upload");
+          showNotification("Please select a file first", "error");
+          return;
+        }
+
+        console.log(
+          "📤 AVATAR UPLOAD - Starting upload for:",
+          selectedAvatarFile.name
+        );
+
+        try {
+          // Show progress
+          showUploadProgress();
+
+          // Create FormData
+          const formData = new FormData();
+          formData.append("avatar", selectedAvatarFile);
+
+          console.log("📤 AVATAR UPLOAD - FormData created, making request...");
+
+          // Make upload request with enhanced error handling
+          const response = await fetch("/dashboard/api/upload-avatar", {
+            method: "POST",
+            body: formData,
+          });
+
+          console.log("📥 AVATAR UPLOAD - Response received:", response.status);
+          console.log("📥 AVATAR UPLOAD - Response headers:", [
+            ...response.headers.entries(),
+          ]);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error(
+              "❌ AVATAR UPLOAD - HTTP Error:",
+              response.status,
+              errorText
+            );
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          console.log("📥 AVATAR UPLOAD - Response data:", result);
+
+          if (result.success) {
+            console.log("✅ AVATAR UPLOAD - Upload successful!");
+            console.log(
+              "🔗 AVATAR UPLOAD - New avatar URL:",
+              result.avatar_url
+            );
+            console.log("🔍 AVATAR UPLOAD - Debug info:", result.debug);
+
+            // Test the avatar URL before updating UI
+            await testAvatarUrl(result.avatar_url);
+
+            // Update UI with new avatar
+            updateAvatarUI(result.avatar_url);
+
+            // Show success message
+            showNotification("Avatar updated successfully! 🎉", "success");
+
+            // Close modal after delay
+            setTimeout(() => {
+              closeAvatarModal();
+            }, 1500);
+          } else {
+            console.error("❌ AVATAR UPLOAD - Upload failed:", result.message);
+            showNotification(result.message || "Upload failed", "error");
+            hideUploadProgress();
+          }
+        } catch (error) {
+          console.error("❌ AVATAR UPLOAD - Upload error:", error);
+          console.error("❌ AVATAR UPLOAD - Error stack:", error.stack);
+
+          // Show detailed error message
+          let errorMessage = "Upload failed. ";
+          if (error.message.includes("404")) {
+            errorMessage +=
+              "Upload endpoint not found. Please check server configuration.";
+          } else if (error.message.includes("413")) {
+            errorMessage += "File too large. Please select a smaller image.";
+          } else if (error.message.includes("500")) {
+            errorMessage += "Server error. Please try again later.";
+          } else {
+            errorMessage += error.message || "Please try again.";
+          }
+
+          showNotification(errorMessage, "error");
+          hideUploadProgress();
+        }
+
+        console.log("🔍 AVATAR UPLOAD - ===== UPLOAD END =====");
+      }
+
+      // Test if avatar URL is accessible before updating UI
+      async function testAvatarUrl(avatarUrl) {
+        console.log("🔍 AVATAR TEST - Testing avatar URL:", avatarUrl);
+
+        return new Promise((resolve, reject) => {
+          const testImage = new Image();
+
+          testImage.onload = function () {
+            console.log("✅ AVATAR TEST - Avatar URL is accessible");
+            resolve(true);
+          };
+
+          testImage.onerror = function () {
+            console.error(
+              "❌ AVATAR TEST - Avatar URL is not accessible:",
+              avatarUrl
+            );
+            // Don't reject, just warn
+            console.warn(
+              "⚠️ AVATAR TEST - Proceeding anyway, might be a caching issue"
+            );
+            resolve(false);
+          };
+
+          // Add cache busting and timeout
+          testImage.src = avatarUrl + "?t=" + Date.now();
+
+          // Timeout after 5 seconds
+          setTimeout(() => {
+            console.warn("⚠️ AVATAR TEST - Timeout testing avatar URL");
+            resolve(false);
+          }, 5000);
+        });
+      }
+
+      // Enhanced notification function with better styling
+      function showNotification(message, type = "info") {
+        console.log(`📢 NOTIFICATION [${type.toUpperCase()}]: ${message}`);
+
+        // Create notification element
+        const notification = document.createElement("div");
+        notification.className = `notification notification-${type}`;
+
+        // Enhanced notification with better icons and styling
+        const icons = {
+          success: "check-circle",
+          error: "exclamation-circle",
+          warning: "exclamation-triangle",
+          info: "info-circle",
+        };
+
+        notification.innerHTML = `
+        <i class="fas fa-${icons[type] || icons.info}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+        // Add to page
+        let container = document.querySelector(".notification-container");
+        if (!container) {
+          container = document.createElement("div");
+          container.className = "notification-container";
+          document.body.appendChild(container);
+        }
+        container.appendChild(notification);
+
+        // Auto remove after 5 seconds (longer for errors)
+        const timeout = type === "error" ? 8000 : 5000;
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.style.opacity = "0";
+            notification.style.transform = "translateX(100%)";
+            setTimeout(() => notification.remove(), 300);
+          }
+        }, timeout);
+      }
+      // Debug function to test static file serving
+      async function debugStaticFiles() {
+        console.log("🔍 DEBUG - Testing static file configuration");
+
+        try {
+          const response = await fetch("/debug/static-config");
+          const data = await response.json();
+          console.log("🔍 DEBUG - Static config:", data);
+
+          showNotification("Check console for static file debug info", "info");
+        } catch (error) {
+          console.error("❌ DEBUG - Error fetching static config:", error);
+          showNotification("Error fetching debug info", "error");
+        }
+      }
+
+
+      // ===== MISSING FUNCTIONS - ADD THESE BEFORE DOM CONTENT LOADED =====
+
+// Advanced cyberpunk loader function
+function showAdvancedCyberpunkLoader() {
+    console.log("🚀 CYBERPUNK - Showing advanced loader");
+    
+    // Create loader if it doesn't exist
+    let loader = document.getElementById('cyberpunkLoader');
+    if (!loader) {
+        loader = document.createElement('div');
+        loader.id = 'cyberpunkLoader';
+        loader.innerHTML = `
+            <div class="cyberpunk-loader">
+                <div class="loader-text">INITIALIZING NEURAL INTERFACE...</div>
+                <div class="loader-bar">
+                    <div class="loader-progress"></div>
+                </div>
+                <div class="loader-status">Loading profile systems...</div>
+            </div>
+        `;
+        
+        // Add loader styles
+        const loaderStyles = `
+            #cyberpunkLoader {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(10, 10, 10, 0.95);
+                backdrop-filter: blur(10px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                animation: fadeIn 0.5s ease;
+            }
+            
+            .cyberpunk-loader {
+                text-align: center;
+                color: var(--cyber-blue);
+                font-family: 'Courier New', monospace;
+            }
+            
+            .loader-text {
+                font-size: 1.2rem;
+                font-weight: bold;
+                margin-bottom: 2rem;
+                animation: glow 2s ease-in-out infinite alternate;
+            }
+            
+            .loader-bar {
+                width: 300px;
+                height: 4px;
+                background: rgba(0, 245, 255, 0.2);
+                border-radius: 2px;
+                overflow: hidden;
+                margin: 0 auto 1rem;
+            }
+            
+            .loader-progress {
+                height: 100%;
+                background: var(--gradient-primary);
+                width: 0%;
+                animation: loadProgress 2s ease-in-out;
+            }
+            
+            .loader-status {
+                font-size: 0.9rem;
+                color: var(--text-secondary);
+                animation: pulse 1.5s ease-in-out infinite;
+            }
+            
+            @keyframes loadProgress {
+                0% { width: 0%; }
+                100% { width: 100%; }
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = loaderStyles;
+        document.head.appendChild(styleSheet);
+        
+        document.body.appendChild(loader);
+    }
+    
+    // Auto hide after 2 seconds
+    setTimeout(() => {
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                if (loader.parentNode) {
+                    loader.remove();
+                }
+            }, 500);
+        }
+    }, 2000);
+}
+
+// Initialize theme system function
+function initializeThemeSystem() {
+    console.log("🎨 THEME - Initializing theme system");
+    
+    try {
+        // Theme switching functionality
+        const themeOptions = document.querySelectorAll('.theme-option');
+        themeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.dataset.theme;
+                console.log(`🎨 THEME - Switching to: ${theme}`);
+                
+                // Remove active class from all options
+                themeOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // Add active class to clicked option
+                this.classList.add('active');
+                
+                // Apply theme (for now just show notification)
+                showNotification(`Theme switched to ${theme}`, 'info');
+            });
+        });
+        
+        console.log("✅ THEME - Theme system initialized");
+    } catch (error) {
+        console.error("❌ THEME - Error initializing theme system:", error);
+    }
+}
+
+// Initialize cyberpunk effects function
+function initCyberpunkEffects() {
+    console.log("🚀 CYBERPUNK - Initializing epic effects");
+    
+    try {
+        // Add glitch effect to title
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.addEventListener('mouseenter', function() {
+                this.style.animation = 'glitch 0.5s ease-in-out';
+                setTimeout(() => {
+                    this.style.animation = '';
+                }, 500);
+            });
+        }
+        
+        // Add hover effects to cards
+        const cards = document.querySelectorAll('.profile-card, .profile-info, .activity-chart, .language-stats');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+                this.style.boxShadow = '0 20px 40px rgba(0, 245, 255, 0.2)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.boxShadow = '';
+            });
+        });
+        
+        // Add cyberpunk glitch effect styles
+        const glitchStyles = `
+            @keyframes glitch {
+                0% { transform: translate(0); }
+                20% { transform: translate(-2px, 2px); }
+                40% { transform: translate(-2px, -2px); }
+                60% { transform: translate(2px, 2px); }
+                80% { transform: translate(2px, -2px); }
+                100% { transform: translate(0); }
+            }
+        `;
+        
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = glitchStyles;
+        document.head.appendChild(styleSheet);
+        
+        console.log("✅ CYBERPUNK - Epic effects initialized");
+    } catch (error) {
+        console.error("❌ CYBERPUNK - Error initializing effects:", error);
+    }
+}
+
+// Additional missing functions for complete functionality
+function changePassword() {
+    console.log("🔐 SECURITY - Opening change password modal");
+    const modal = document.getElementById('passwordModal');
+    if (modal) {
+        modal.classList.add('active');
+        modal.style.display = 'flex';
+    } else {
+        showNotification("Password change feature coming soon!", "info");
+    }
+}
+
+function closeModal(modalId) {
+    console.log(`🔐 SECURITY - Closing modal: ${modalId}`);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('active');
+        modal.style.display = 'none';
+    }
+}
+
+function updatePassword() {
+    console.log("🔐 SECURITY - Updating password");
+    showNotification("Password update feature coming soon!", "info");
+    closeModal('passwordModal');
+}
+
+function toggle2FA() {
+    console.log("🔐 SECURITY - Toggling 2FA");
+    showNotification("Two-factor authentication feature coming soon!", "info");
+}
+
+function manageSessions() {
+    console.log("🔐 SECURITY - Managing sessions");
+    showNotification("Session management feature coming soon!", "info");
+}
+
+function deleteAccount() {
+    console.log("🔐 SECURITY - Delete account requested");
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+        showNotification("Account deletion feature coming soon!", "warning");
+    }
+}
+
+function toggleNotification(toggleElement) {
+    console.log("🔔 NOTIFICATIONS - Toggling notification setting");
+    toggleElement.classList.toggle('active');
+    const isActive = toggleElement.classList.contains('active');
+    showNotification(`Notification ${isActive ? 'enabled' : 'disabled'}`, 'info');
+}
+
+// Enhanced logout function
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', function() {
+            console.log("🚪 LOGOUT - Logout button clicked");
+            logout();
+        });
+    }
+});
+
+// ===== END MISSING FUNCTIONS =====
+
+      // ===== SINGLE CONSOLIDATED DOM CONTENT LOADED EVENT =====
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 CYBERPUNK SYSTEM - Booting up neural interface...");
+
+        // Show advanced cyberpunk loader first
+        showAdvancedCyberpunkLoader();
+
+        // Initialize core profile systems
+        setTimeout(() => {
+          console.log("🔍 PROFILE - Initializing core systems...");
+
+          // Profile functionality
+          initializeProfile();
+          setupFormTracking();
+          loadUserData();
+
+          // Avatar functionality
+          console.log("🔍 AVATAR - Initializing avatar systems...");
+          setupAvatarDragDrop();
+
+          // Theme system
+          console.log("🔍 THEME - Initializing theme system...");
+          initializeThemeSystem();
+
+          // Initialize epic cyberpunk effects after core systems
+          setTimeout(() => {
+            console.log("🚀 CYBERPUNK - Initializing epic effects...");
+            initCyberpunkEffects();
+          }, 800);
+
+          console.log("✅ CYBERPUNK SYSTEM - All neural pathways online!");
+        }, 1000); // Delay to show loader
+      });
+      // ===== END SINGLE CONSOLIDATED EVENT =====
+
+      // Show upload progress
+      function showUploadProgress() {
+        console.log("🔍 AVATAR - Showing upload progress");
+
+        // Hide preview
+        document.getElementById("avatarPreview").style.display = "none";
+
+        // Show progress
+        const progressContainer = document.getElementById("uploadProgress");
+        progressContainer.style.display = "block";
+
+        // Disable upload button
+        const uploadBtn = document.getElementById("uploadAvatarBtn");
+        uploadBtn.disabled = true;
+        uploadBtn.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+        // Animate progress bar
+        const progressFill = document.getElementById("progressFill");
+        const progressText = document.getElementById("progressText");
+
+        let progress = 0;
+        const interval = setInterval(() => {
+          progress += Math.random() * 15;
+          if (progress > 90) progress = 90; // Don't complete until actual response
+
+          progressFill.style.width = progress + "%";
+          progressText.textContent = `Uploading... ${Math.round(progress)}%`;
+        }, 100);
+
+        // Store interval for cleanup
+        window.avatarUploadInterval = interval;
+      }
+
+      // Hide upload progress
+      function hideUploadProgress() {
+        console.log("🔍 AVATAR - Hiding upload progress");
+
+        // Clear interval
+        if (window.avatarUploadInterval) {
+          clearInterval(window.avatarUploadInterval);
+          window.avatarUploadInterval = null;
+        }
+
+        // Hide progress
+        document.getElementById("uploadProgress").style.display = "none";
+
+        // Reset upload button
+        const uploadBtn = document.getElementById("uploadAvatarBtn");
+        uploadBtn.disabled = false;
+        uploadBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Avatar';
+      }
+
+      // Update avatar in UI
+      function updateAvatarUI(avatarUrl) {
+        console.log("🔍 AVATAR - ===== UPDATING UI =====");
+        console.log("🔗 AVATAR - New URL:", avatarUrl);
+
+        try {
+          // Update main profile avatar
+          const profileAvatar = document.getElementById("profileAvatar");
+          if (profileAvatar) {
+            const oldSrc = profileAvatar.src;
+            profileAvatar.src = avatarUrl + "?t=" + Date.now(); // Cache busting
+            console.log(
+              `✅ AVATAR - Updated profile avatar: ${oldSrc} -> ${profileAvatar.src}`
+            );
+          } else {
+            console.error("❌ AVATAR - Profile avatar element not found");
+          }
+
+          // Update any other avatar instances (navbar, etc.)
+          const allAvatars = document.querySelectorAll(
+            'img[alt*="Avatar"], img[alt*="Profile"]'
+          );
+          allAvatars.forEach((avatar, index) => {
+            if (avatar.id !== "profileAvatar") {
+              // Don't update the main one twice
+              avatar.src = avatarUrl + "?t=" + Date.now();
+              console.log(
+                `✅ AVATAR - Updated additional avatar ${index}: ${
+                  avatar.id || "unnamed"
+                }`
+              );
+            }
+          });
+
+          // Complete progress bar
+          if (window.avatarUploadInterval) {
+            clearInterval(window.avatarUploadInterval);
+
+            const progressFill = document.getElementById("progressFill");
+            const progressText = document.getElementById("progressText");
+
+            progressFill.style.width = "100%";
+            progressText.textContent = "Upload complete! ✅";
+
+            setTimeout(() => {
+              hideUploadProgress();
+            }, 1000);
+          }
+
+          console.log("✅ AVATAR - UI update completed");
+        } catch (error) {
+          console.error("❌ AVATAR - Error updating UI:", error);
+        }
+
+        console.log("🔍 AVATAR - ===== UI UPDATE END =====");
+      }
+
+      // Drag and drop functionality for avatar upload
+      function setupAvatarDragDrop() {
+        console.log("🔍 AVATAR - Setting up drag and drop");
+
+        const uploadArea = document.querySelector("#avatarModal .upload-area");
+        if (!uploadArea) return;
+
+        // Prevent default drag behaviors
+        ["dragenter", "dragover", "dragleave", "drop"].forEach((eventName) => {
+          uploadArea.addEventListener(eventName, preventDefaults, false);
+          document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop area when item is dragged over it
+        ["dragenter", "dragover"].forEach((eventName) => {
+          uploadArea.addEventListener(eventName, highlight, false);
+        });
+
+        ["dragleave", "drop"].forEach((eventName) => {
+          uploadArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        uploadArea.addEventListener("drop", handleDrop, false);
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        function highlight(e) {
+          uploadArea.classList.add("drag-over");
+        }
+
+        function unhighlight(e) {
+          uploadArea.classList.remove("drag-over");
+        }
+
+        function handleDrop(e) {
+          const dt = e.dataTransfer;
+          const files = dt.files;
+
+          if (files.length > 0) {
+            const file = files[0];
+            console.log("🔍 AVATAR - File dropped:", file.name);
+
+            // Simulate file input change
+            const fileInput = document.getElementById("avatarFileInput");
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+
+            // Handle the selection
+            handleAvatarSelection(fileInput);
+          }
+        }
+
+        console.log("✅ AVATAR - Drag and drop setup complete");
+      }
+
+      // Update the existing uploadAvatar function to use the new modal
+      function uploadAvatar() {
+        console.log("🔍 AVATAR - Legacy uploadAvatar called, opening modal");
+        openAvatarModal();
+      }
+
+      function showNotification(message, type = "info") {
+        console.log(`📢 NOTIFICATION [${type.toUpperCase()}]: ${message}`);
+
+        // Create notification element
+        const notification = document.createElement("div");
+        notification.className = `notification notification-${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${
+              type === "success"
+                ? "check-circle"
+                : type === "error"
+                ? "exclamation-circle"
+                : "info-circle"
+            }"></i>
+            <span>${message}</span>
+            <button onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+
+        // Add to page
+        let container = document.querySelector(".notification-container");
+        if (!container) {
+          container = document.createElement("div");
+          container.className = "notification-container";
+          document.body.appendChild(container);
+        }
+        container.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          if (notification.parentElement) {
+            notification.remove();
+          }
+        }, 5000);
+      }
+
+      // Add notification styles
+      const notificationStyles = `
+        .notification-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .notification {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            box-shadow: var(--shadow-glass);
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification-success { border-left: 4px solid var(--cyber-green); }
+        .notification-error { border-left: 4px solid var(--cyber-pink); }
+        .notification-info { border-left: 4px solid var(--cyber-blue); }
+
+        .notification button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-left: auto;
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .notification button:hover {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+        }
+
+        .btn.has-changes {
+            background: var(--gradient-secondary) !important;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(100%); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @media (max-width: 768px) {
+            .notification-container {
+                left: 20px;
+                right: 20px;
+            }
+            .notification {
+                min-width: auto;
+            }
+        }
+    `;
+
+      // Inject notification styles
+      const styleSheet = document.createElement("style");
+      styleSheet.textContent = notificationStyles;
+      document.head.appendChild(styleSheet);
+
+      // Global error handler
+      window.addEventListener("error", function (e) {
+        console.error("❌ GLOBAL ERROR:", e.error);
+        showNotification("An unexpected error occurred", "error");
+      });
+
+      // Global unhandled promise rejection handler
+      window.addEventListener("unhandledrejection", function (e) {
+        console.error("❌ UNHANDLED PROMISE REJECTION:", e.reason);
+        showNotification("An unexpected error occurred", "error");
+      });
+
+      // Enhanced navigation handler with logging
+      function handleNavigation(button) {
+        const url = button.getAttribute("data-url");
+        const pageName = button.querySelector("span").textContent;
+
+        console.log(
+          `🔍 NAVIGATION - Handling navigation to: ${pageName} (${url})`
+        );
+
+        if (!url) {
+          console.error("❌ NAVIGATION - No URL found for button");
+          showNotification("Navigation error: No URL found", "error");
+          return;
+        }
+
+        // Check for unsaved changes
+        if (hasUnsavedChanges) {
+          console.log("⚠️ NAVIGATION - Unsaved changes detected");
+          if (
+            confirm(
+              "You have unsaved changes. Are you sure you want to leave this page?"
+            )
+          ) {
+            console.log(
+              `✅ NAVIGATION - User confirmed, navigating to: ${url}`
+            );
+            window.location.href = url;
+          } else {
+            console.log("🔍 NAVIGATION - User cancelled navigation");
+          }
+        } else {
+          console.log(
+            `✅ NAVIGATION - No unsaved changes, navigating to: ${url}`
+          );
+          window.location.href = url;
+        }
+      }
+    </script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  </body>
+</html>

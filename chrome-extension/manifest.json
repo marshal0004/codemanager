@@ -1,0 +1,108 @@
+{
+  "manifest_version": 3,
+  "name": "Code Snippet Manager",
+  "version": "1.0.0",
+  "description": "Capture, organize, and sync code snippets across all your devices. The ultimate developer productivity tool.",
+
+  "permissions": [
+    "activeTab",
+    "system.cpu",
+    "system.memory",
+    "scripting",
+    "storage",
+    "contextMenus",
+    "tabs",
+    "notifications",
+    "webNavigation",
+    "webSocket"
+  ],
+
+  "host_permissions": [
+    "http://localhost:*/*",
+    "https://github.com/*",
+    "https://stackoverflow.com/*",
+    "https://codepen.io/*",
+    "https://jsfiddle.net/*",
+     "http://localhost:5000/*",
+    "http://127.0.0.1:5000/*",
+    "ws://localhost:5000/*",
+    "ws://127.0.0.1:5000/*",
+    "https://repl.it/*",
+    "https://codesandbox.io/*",
+    "https://glitch.com/*",
+    "https://jsbin.com/*",
+    "https://plnkr.co/*",
+    "<all_urls>"
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*" , "<all_urls>"],
+      "js": [
+        "utils.js",
+        "content-script.js",
+        "auth-content-script.js"
+      ],
+      "css": ["assets/css/content.css"],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Code Snippet Manager"
+  },
+  "commands": {
+    "save-snippet": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Save selected code as snippet"
+    },
+    "quick-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Quick search snippets"
+    },
+    "toggle-popup": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "Command+Shift+Space"
+      },
+      "description": "Toggle extension popup"
+    }
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/icons/*", "assets/css/*", "scripts/utils.js"],
+      "matches": ["http://*/*", "http://localhost:*/*"]
+    }
+  ],
+
+  "externally_connectable": {
+    "matches": ["http://localhost:5000/*", "https://your-domain.com/*"]
+  },
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+
+  "minimum_chrome_version": "88",
+
+  "options_page": "popup.html#settings",
+
+  "author": "Code Snippet Manager Team",
+
+  "homepage_url": "https://your-website.com",
+
+  "short_name": "SnipManager"
+}

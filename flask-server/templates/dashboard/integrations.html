@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations - Code Snippet Manager</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-card: #1e293b;
+            --dark-lighter: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --border: #374151;
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 105, 180, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 255, 214, 0.1) 0%, transparent 50%);
+            animation: backgroundMove 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes backgroundMove {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5)); }
+            to { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.8)); }
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Integration Grid */
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .integration-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .integration-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .integration-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--glow);
+            border-color: var(--primary);
+        }
+
+        .integration-card:hover::before {
+            opacity: 1;
+        }
+
+        .integration-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .integration-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .integration-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .integration-icon::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: xor;
+        }
+
+        .github { background: linear-gradient(135deg, #24292e, #40464e); }
+        .vscode { background: linear-gradient(135deg, #007acc, #005a9e); }
+        .slack { background: linear-gradient(135deg, #4a154b, #611f69); }
+        .webhook { background: linear-gradient(135deg, #ff6b35, #f7931e); }
+
+        .integration-details h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .integration-details p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-connected {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-disconnected {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        .integration-content {
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li::before {
+            content: '✨';
+            font-size: 0.8rem;
+        }
+
+        .config-section {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+            border: 1px solid var(--dark-lighter);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--dark-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .integration-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--dark-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--dark-lighter);
+            border-color: var(--primary);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* API Keys Section */
+        .api-keys-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .api-keys-section h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .api-key-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: var(--dark-card);
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+
+        .api-key-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .api-key-name {
+            font-weight: 600;
+        }
+
+        .api-key-value {
+            font-family: 'Courier New', monospace;
+            background: var(--dark);
+            padding: 0.25rem 0.5rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Success/Error Messages */
+        .message {
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        .message-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .message-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .integrations-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .integration-card {
+                padding: 1.5rem;
+            }
+
+            .integration-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        /* Hide/Show Config Sections */
+        .config-section.hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-plug"></i> Integrations</h1>
+            <p>Connect your favorite developer tools and streamline your workflow with powerful integrations.</p>
+        </header>
+
+        <div class="integrations-grid">
+            <!-- GitHub Integration -->
+            <div class="integration-card" id="github-integration">
+                <div class="integration-header">
+                    <div class="integration-info">
+                        <div class="integration-icon github">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div class="integration-details">                            <h3>GitHub</h3>
+                            <p>Save snippets directly to your repositories</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-disconnected" id="github-status">
+                        Disconnected
+                    </div>
+                </div>
+
+                <div class="integration-content">
+                    <ul class="feature-list">
+                        <li>Create gists from snippets</li>
+                        <li>Save to specific repositories</li>
+                        <li>Auto-commit snippet updates</li>
+                        <li>Branch-based organization</li>
+                    </ul>
+
+                    <div class="config-section hidden" id="github-config">
+                        <div class="form-group">
+                            <label for="github-token">Personal Access Token</label>
+                            <input type="password" id="github-token" class="form-input" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                        </div>
+                        <div class="form-group">
+                            <label for="github-repo">Default Repository</label>
+                            <input type="text" id="github-repo" class="form-input" placeholder="username/repository-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="github-branch">Default Branch</label>
+                            <input type="text" id="github-branch" class="form-input" value="main">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="integration-actions">
+                    <button class="btn btn-primary" onclick="toggleGitHubIntegration()">
+                        <i class="fab fa-github"></i> Connect GitHub
+                    </button>
+                    <button class="btn btn-secondary" onclick="testGitHubConnection()" style="display: none;">
+                        <i class="fas fa-vial"></i> Test Connection
+                    </button>
+                </div>
+            </div>
+
+            <!-- VS Code Extension -->
+            <div class="integration-card" id="vscode-integration">
+                <div class="integration-header">
+                    <div class="integration-info">
+                        <div class="integration-icon vscode">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="integration-details">
+                            <h3>VS Code Extension</h3>
+                            <p>Insert snippets directly in your editor</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-connected" id="vscode-status">
+                        Installed
+                    </div>
+                </div>
+
+                <div class="integration-content">
+                    <ul class="feature-list">
+                        <li>Quick snippet insertion</li>
+                        <li>Smart language detection</li>
+                        <li>Inline snippet preview</li>
+                        <li>Custom keyboard shortcuts</li>
+                    </ul>
+
+                    <div class="config-section" id="vscode-config">
+                        <div class="form-group">
+                            <label for="vscode-shortcut">Keyboard Shortcut</label>
+                            <input type="text" id="vscode-shortcut" class="form-input" value="Ctrl+Shift+S">
+                        </div>
+                        <div class="form-group">
+                            <label for="vscode-auto-sync">Auto-sync on save</label>
+                            <select id="vscode-auto-sync" class="form-input">
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="integration-actions">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Download Extension
+                    </a>
+                    <button class="btn btn-secondary" onclick="updateVSCodeSettings()">
+                        <i class="fas fa-cog"></i> Update Settings
+                    </button>
+                </div>
+            </div>
+
+            <!-- Slack Bot -->
+            <div class="integration-card" id="slack-integration">
+                <div class="integration-header">
+                    <div class="integration-info">
+                        <div class="integration-icon slack">
+                            <i class="fab fa-slack"></i>
+                        </div>
+                        <div class="integration-details">
+                            <h3>Slack Bot</h3>
+                            <p>Share snippets with your team instantly</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-disconnected" id="slack-status">
+                        Disconnected
+                    </div>
+                </div>
+
+                <div class="integration-content">
+                    <ul class="feature-list">
+                        <li>Share snippets in channels</li>
+                        <li>Search team snippets</li>
+                        <li>Quick snippet commands</li>
+                        <li>Team collaboration</li>
+                    </ul>
+
+                    <div class="config-section hidden" id="slack-config">
+                        <div class="form-group">
+                            <label for="slack-webhook">Webhook URL</label>
+                            <input type="url" id="slack-webhook" class="form-input" placeholder="https://hooks.slack.com/services/...">
+                        </div>
+                        <div class="form-group">
+                            <label for="slack-channel">Default Channel</label>
+                            <input type="text" id="slack-channel" class="form-input" placeholder="#code-snippets">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="integration-actions">
+                    <button class="btn btn-primary" onclick="toggleSlackIntegration()">
+                        <i class="fab fa-slack"></i> Connect Slack
+                    </button>
+                    <button class="btn btn-secondary" onclick="testSlackConnection()" style="display: none;">
+                        <i class="fas fa-paper-plane"></i> Send Test Message
+                    </button>
+                </div>
+            </div>
+
+            <!-- Webhook Integration -->
+            <div class="integration-card" id="webhook-integration">
+                <div class="integration-header">
+                    <div class="integration-info">
+                        <div class="integration-icon webhook">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="integration-details">
+                            <h3>Webhooks</h3>
+                            <p>Custom integrations with any service</p>
+                        </div>
+                    </div>
+                    <div class="status-badge status-connected" id="webhook-status">
+                        2 Active
+                    </div>
+                </div>
+
+                <div class="integration-content">
+                    <ul class="feature-list">
+                        <li>Custom HTTP endpoints</li>
+                        <li>Real-time notifications</li>
+                        <li>Flexible payload formats</li>
+                        <li>Event-driven automation</li>
+                    </ul>
+
+                    <div class="config-section" id="webhook-config">
+                        <div class="webhook-list" id="webhook-list">
+                            <div class="webhook-item">
+                                <div class="form-group">
+                                    <label>Webhook URL</label>
+                                    <input type="url" class="form-input" value="https://api.example.com/webhook">
+                                </div>
+                                <div class="form-group">
+                                    <label>Events</label>
+                                    <select class="form-input">
+                                        <option value="snippet.created">Snippet Created</option>
+                                        <option value="snippet.updated">Snippet Updated</option>
+                                        <option value="collection.created">Collection Created</option>
+                                    </select>
+                                </div>
+                                <button class="btn btn-danger btn-sm" onclick="removeWebhook(this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary" onclick="addWebhook()">
+                            <i class="fas fa-plus"></i> Add Webhook
+                        </button>
+                    </div>
+                </div>
+
+                <div class="integration-actions">
+                    <button class="btn btn-primary" onclick="saveWebhooks()">
+                        <i class="fas fa-save"></i> Save Webhooks
+                    </button>
+                    <button class="btn btn-secondary" onclick="testWebhooks()">
+                        <i class="fas fa-bolt"></i> Test All
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Keys Management -->
+        <section class="api-keys-section">
+            <h2><i class="fas fa-key"></i> API Keys</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                Manage your API keys for external integrations. Keep these secure and rotate them regularly.
+            </p>
+            
+            <div class="api-key-item">
+                <div class="api-key-info">
+                    <div>
+                        <div class="api-key-name">GitHub Personal Access Token</div>
+                        <div class="api-key-value">ghp_**********************</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="regenerateKey('github')">
+                        <i class="fas fa-sync"></i> Regenerate
+                    </button>
+                    <button class="btn btn-danger" onclick="revokeKey('github')">
+                        <i class="fas fa-trash"></i> Revoke
+                    </button>
+                </div>
+            </div>
+
+            <div class="api-key-item">
+                <div class="api-key-info">
+                    <div>
+                        <div class="api-key-name">Slack App Token</div>
+                        <div class="api-key-value">xapp-**********************</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-secondary" onclick="regenerateKey('slack')">
+                        <i class="fas fa-sync"></i> Regenerate
+                    </button>
+                    <button class="btn btn-danger" onclick="revokeKey('slack')">
+                        <i class="fas fa-trash"></i> Revoke
+                    </button>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="generateNewKey()">
+                <i class="fas fa-plus"></i> Generate New Key
+            </button>
+        </section>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div id="message-container"></div>
+
+    <script>
+        // Integration Management Functions
+        function toggleGitHubIntegration() {
+            const config = document.getElementById('github-config');
+            const status = document.getElementById('github-status');
+            const button = event.target;
+            
+            if (config.classList.contains('hidden')) {
+                config.classList.remove('hidden');
+                button.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
+                button.onclick = saveGitHubConfig;
+            } else {
+                // Simulate connection
+                button.innerHTML = '<div class="loading"></div> Connecting...';
+                button.disabled = true;
+                
+                setTimeout(() => {
+                    status.textContent = 'Connected';
+                    status.className = 'status-badge status-connected';
+                    button.innerHTML = '<i class="fas fa-unlink"></i> Disconnect';
+                    button.disabled = false;
+                    button.onclick = disconnectGitHub;
+                    
+                    // Show test button
+                    const testBtn = button.parentElement.querySelector('button[onclick="testGitHubConnection()"]');
+                    testBtn.style.display = 'flex';
+                    
+                    showMessage('GitHub integration connected successfully!', 'success');
+                }, 2000);
+            }
+        }
+
+        function saveGitHubConfig() {
+            const token = document.getElementById('github-token').value;
+            const repo = document.getElementById('github-repo').value;
+            
+            if (!token || !repo) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Simulate saving
+            const button = event.target;
+            button.innerHTML = '<div class="loading"></div> Saving...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                toggleGitHubIntegration();
+                showMessage('GitHub configuration saved successfully!', 'success');
+            }, 1500);
+        }
+
+        function disconnectGitHub() {
+            const status = document.getElementById('github-status');
+            const button = event.target;
+            const config = document.getElementById('github-config');
+            
+            status.textContent = 'Disconnected';
+            status.className = 'status-badge status-disconnected';
+            button.innerHTML = '<i class="fab fa-github"></i> Connect GitHub';
+            button.onclick = toggleGitHubIntegration;
+            config.classList.add('hidden');
+            
+            // Hide test button
+            const testBtn = button.parentElement.querySelector('button[onclick="testGitHubConnection()"]');
+            testBtn.style.display = 'none';
+            
+            showMessage('GitHub integration disconnected', 'error');
+        }
+
+        function testGitHubConnection() {
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            
+            button.innerHTML = '<div class="loading"></div> Testing...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+                showMessage('GitHub connection test successful!', 'success');
+            }, 2000);
+        }
+
+        function toggleSlackIntegration() {
+            const config = document.getElementById('slack-config');
+            const status = document.getElementById('slack-status');
+            const button = event.target;
+            
+            if (config.classList.contains('hidden')) {
+                config.classList.remove('hidden');
+                button.innerHTML = '<i class="fas fa-save"></i> Save Configuration';
+                button.onclick = saveSlackConfig;
+            }
+        }
+
+        function saveSlackConfig() {
+            const webhook = document.getElementById('slack-webhook').value;
+            const channel = document.getElementById('slack-channel').value;
+            
+            if (!webhook || !channel) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const button = event.target;
+            const status = document.getElementById('slack-status');
+            
+            button.innerHTML = '<div class="loading"></div> Connecting...';
+            button.disabled = true;
+            
+            setTimeout(() => {
+                status.textContent = 'Connected';
+                status.className = 'status-badge status-connected';
+                button.innerHTML = '<i class="fas fa-unlink"></i> Disconnect';
+                button.disabled = false;
+                button.onclick = disconnectSlack;
+                
+                // Show test button
+                const testBtn = button.parentElement.querySelector('button[onclick="testSlackConnection()"]');
+                testBtn.style.display = 'flex';
+                
+                showMessage('Slack integration connected successfully!', 'success');
+            }, 2000);
+        }
+
+        function disconnectSlack() {
+            const status = document.getElementById('slack-status');
+            const button = event.target;
+            const config = document.getElementById('slack-config');
+            
+            status.textContent = 'Disconnected';
+            status.className = 'status-badge status-disconnected';
+            button.innerHTML = '<i class="fab fa-slack"></i> Connect Slack';
+            button.onclick = toggleSlackIntegration;
+            config.classList.add('hidden');
+            
+            // Hide test button
+            const testBtn = button.parentElement.querySelector('button[onclick="testSlackConnection()"]');
+            testBtn.style.display = 'none'}

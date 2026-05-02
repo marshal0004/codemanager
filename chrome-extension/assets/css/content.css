@@ -1,0 +1,335 @@
+/* Content Script Overlay Styles */
+/* Floating Save Button */
+.snippet-save-overlay {
+  position: fixed;
+  z-index: 999999;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  pointer-events: auto;
+}
+
+.snippet-save-overlay:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.snippet-save-overlay:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Selection Highlight */
+.snippet-selection-highlight {
+  position: relative;
+  background-color: rgba(102, 126, 234, 0.1) !important;
+  border: 2px dashed #667eea !important;
+  border-radius: 4px !important;
+  transition: all 0.2s ease;
+}
+
+.snippet-selection-highlight::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #667eea, #764ba2);
+  border-radius: 6px;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Code Block Detection Overlay */
+.snippet-code-detected {
+  position: relative;
+  cursor: pointer;
+}
+
+.snippet-code-detected::after {
+  content: '📋 Save Snippet';
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 10;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.snippet-code-detected:hover::after {
+  opacity: 1;
+}
+
+/* Quick Save Modal */
+.snippet-quick-save-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000000;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.snippet-quick-save-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.snippet-quick-save-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.snippet-quick-save-close:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.snippet-quick-save-body {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.snippet-quick-save-form .form-group {
+  margin-bottom: 16px;
+}
+
+.snippet-quick-save-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.snippet-quick-save-form input,
+.snippet-quick-save-form select,
+.snippet-quick-save-form textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  font-family: inherit;
+}
+
+.snippet-quick-save-form input:focus,
+.snippet-quick-save-form select:focus,
+.snippet-quick-save-form textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.snippet-quick-save-form textarea {
+  resize: vertical;
+  min-height: 60px;
+  max-height: 200px;
+}
+
+.snippet-code-preview {
+  background: #f8fafc;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  max-height: 150px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.snippet-quick-save-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.snippet-btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  flex: 1;
+}
+
+.snippet-btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.snippet-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.snippet-btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.snippet-btn-secondary:hover {
+  background: #e5e7eb;
+}
+
+/* Success/Error Messages */
+.snippet-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000001;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.snippet-toast.show {
+  transform: translateX(0);
+}
+
+.snippet-toast.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.snippet-toast.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Modal Backdrop */
+.snippet-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999999;
+  backdrop-filter: blur(2px);
+}
+
+/* Loading States */
+.snippet-loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .snippet-quick-save-modal {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .snippet-quick-save-body {
+    padding: 16px;
+    max-height: 70vh;
+  }
+  
+  .snippet-save-overlay {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
+
+/* Dark mode support for websites */
+@media (prefers-color-scheme: dark) {
+  .snippet-quick-save-modal {
+    background: #1f2937;
+    color: #f9fafb;
+  }
+  
+  .snippet-quick-save-form label {
+    color: #d1d5db;
+  }
+  
+  .snippet-quick-save-form input,
+  .snippet-quick-save-form select,
+  .snippet-quick-save-form textarea {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .snippet-code-preview {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+  }
+  
+  .snippet-btn-secondary {
+    background: #374151;
+    color: #d1d5db;
+    border-color: #4b5563;
+  }
+  
+  .snippet-btn-secondary:hover {
+    background: #4b5563;
+  }
+}

@@ -1,0 +1,4132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snippets Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #1a1a2e;
+        --bg-tertiary: #16213e;
+        --accent-primary: #00d4ff;
+        --accent-secondary: #7c3aed;
+        --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Animated background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(0, 212, 255, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(124, 58, 237, 0.15) 0%,
+            transparent 50%
+          );
+        animation: bgMove 20s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      @keyframes bgMove {
+        0%,
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+        25% {
+          transform: translateX(10px) translateY(-10px);
+        }
+        50% {
+          transform: translateX(-5px) translateY(10px);
+        }
+        75% {
+          transform: translateX(-10px) translateY(-5px);
+        }
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: 100vh;
+      }
+
+      /* ===== DARK THEME DROPDOWN FIXES ===== */
+
+      /* Target all select elements in the application */
+      select.form-input,
+      select.editor-language-select,
+      #snippetCollection,
+      #advancedSnippetCollection {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        border: 1px solid var(--glass-border) !important;
+        border-radius: 12px !important;
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        backdrop-filter: blur(20px) !important;
+      }
+
+      /* Focus states */
+      select.form-input:focus,
+      select.editor-language-select:focus,
+      #snippetCollection:focus,
+      #advancedSnippetCollection:focus {
+        outline: none !important;
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+        background: var(--bg-secondary) !important;
+      }
+
+      /* Option styling */
+      select.form-input option,
+      select.editor-language-select option,
+      #snippetCollection option,
+      #advancedSnippetCollection option {
+        background: var(--bg-secondary) !important;
+        color: var(--text-primary) !important;
+        padding: 0.75rem !important;
+        border: none !important;
+      }
+
+      /* Webkit browsers (Chrome, Safari) specific fixes */
+      select.form-input,
+      select.editor-language-select {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1rem center !important;
+        background-size: 1rem !important;
+        padding-right: 3rem !important;
+      }
+
+      /* Firefox specific fixes */
+      @-moz-document url-prefix() {
+        select.form-input,
+        select.editor-language-select,
+        #snippetCollection,
+        #advancedSnippetCollection {
+          background: var(--bg-secondary) !important;
+          color: var(--text-primary) !important;
+        }
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+        backdrop-filter: blur(20px);
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 1.5rem 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .header-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      /* Floating Action Button - Centered Bottom Position */
+      .fab-container {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        z-index: 1000;
+        pointer-events: none; /* Allow clicks to pass through container */
+      }
+
+      .fab {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: auto; /* Re-enable clicks on buttons */
+        position: relative;
+      }
+
+      .fab-advanced {
+        /* Remove conflicting positioning - let flexbox handle it */
+        background: linear-gradient(
+          135deg,
+          #7c3aed 0%,
+          #00d4ff 100%
+        ) !important;
+        box-shadow: 0 10px 30px rgba(124, 58, 237, 0.3);
+      }
+
+      .fab:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+      }
+
+      .fab-advanced:hover {
+        box-shadow: 0 15px 40px rgba(124, 58, 237, 0.5);
+      }
+
+      /* Enhanced logging and debugging styles */
+      .fab-container::before {
+        content: "";
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        border: 2px dashed rgba(0, 212, 255, 0.2);
+        border-radius: 20px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+      }
+
+      /* Debug mode - uncomment to see container boundaries */
+      /*
+.fab-container:hover::before {
+  opacity: 1;
+}
+*/
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .fab-container {
+          bottom: 1.5rem;
+          gap: 0.8rem;
+        }
+
+        .fab {
+          width: 60px;
+          height: 60px;
+          font-size: 1.3rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .fab-container {
+          bottom: 1rem;
+          gap: 0.6rem;
+        }
+
+        .fab {
+          width: 55px;
+          height: 55px;
+          font-size: 1.2rem;
+        }
+      }
+
+      /* Search and Filter Bar */
+      .search-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+      }
+
+      .filter-chip {
+        padding: 0.75rem 1.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(20px);
+        white-space: nowrap;
+      }
+
+      .filter-chip:hover,
+      .filter-chip.active {
+        background: var(--accent-gradient);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+      }
+
+      /* Snippet Grid */
+      .snippets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .snippet-card {
+        height: 480px; /* Fixed height for all cards */
+        display: flex;
+        flex-direction: column;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .snippet-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .snippet-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        border-color: var(--accent-primary);
+      }
+
+      .snippet-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .snippet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .snippet-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .snippet-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+
+      .meta-chip {
+        padding: 0.25rem 0.75rem;
+        background: rgba(124, 58, 237, 0.2);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        color: #a855f7;
+      }
+
+      .snippet-code {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 1rem 0;
+        height: 150px; /* Fixed height for code container */
+        max-height: 150px; /* Ensure it doesn't exceed */
+        overflow-y: auto; /* Vertical scrollbar */
+        overflow-x: auto; /* Horizontal scrollbar */
+        flex-shrink: 0; /* Prevent shrinking */
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        position: relative;
+      }
+
+      .snippet-actions {
+        margin-top: auto; /* Push actions to bottom */
+        flex-shrink: 0; /* Prevent shrinking */
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .snippet-card:hover .snippet-actions {
+        opacity: 1;
+      }
+      .snippet-code pre {
+        margin: 0;
+        white-space: pre; /* Preserve formatting */
+        word-wrap: normal; /* Don't break words */
+        min-width: max-content; /* Allow horizontal scroll */
+      }
+      .action-btn {
+        padding: 0.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      /* Custom scrollbar for code blocks */
+      .snippet-code::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .snippet-code::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-secondary);
+      }
+
+      .action-btn:hover {
+        background: var(--accent-primary);
+        color: white;
+        transform: scale(1.1);
+      }
+
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-content {
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 800px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        position: relative;
+        animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(30px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .close-btn:hover {
+        color: var(--text-primary);
+      }
+
+      /* Form Styles */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .form-input,
+      .form-textarea {
+        width: 100%;
+        padding: 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-textarea {
+        min-height: 200px;
+        font-family: "Fira Code", "Consolas", monospace;
+        resize: vertical;
+      }
+
+      .form-input:focus,
+      .form-textarea:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+      }
+
+      .btn-primary {
+        background: var(--accent-gradient);
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        color: white;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .header {
+          flex-direction: column;
+          gap: 1rem;
+          text-align: center;
+        }
+
+        .snippets-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .search-bar {
+          flex-direction: column;
+        }
+
+        .search-input {
+          min-width: auto;
+        }
+      }
+
+      /* Loading States */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--glass-border);
+        border-radius: 50%;
+        border-top-color: var(--accent-primary);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Advanced Editor Styles */
+      .advanced-editor-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.95);
+        backdrop-filter: blur(10px);
+        z-index: 3000;
+        display: none;
+      }
+
+      .advanced-editor-overlay.active {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .snippet-editor-wrapper {
+        width: 100%;
+        height: 100%;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", sans-serif;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .editor-header {
+        background: var(--glass-bg);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .editor-tabs {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .editor-tab {
+        padding: 0.5rem 1rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: var(--text-secondary);
+      }
+
+      .editor-tab.active {
+        background: var(--accent-gradient);
+        color: white;
+      }
+
+      .editor-controls {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .editor-close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+      }
+
+      .editor-close-btn:hover {
+        background: var(--glass-bg);
+        color: var(--text-primary);
+      }
+
+      .editor-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1rem;
+      }
+
+      .editor-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .editor-snippet-title {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
+        color: var(--text-primary);
+        font-size: 1.25rem;
+        font-weight: 600;
+        width: 300px;
+      }
+
+      .editor-language-select {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-primary);
+        cursor: pointer;
+      }
+
+      .editor-actions {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .editor-btn {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        color: var(--text-primary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .editor-btn:hover {
+        background: var(--accent-primary);
+        color: white;
+      }
+
+      .editor-btn.primary {
+        background: var(--accent-gradient);
+        color: white;
+      }
+
+      .code-editor-container {
+        flex: 1;
+        display: flex;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      .advanced-code-editor {
+        flex: 1;
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        font-family: "Fira Code", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        padding: 1rem;
+        resize: none;
+        outline: none;
+      }
+
+      .editor-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-top: 1px solid var(--glass-border);
+        margin-top: 1rem;
+      }
+
+      .editor-status {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* add to collection css  */
+      /* Collection Management Styles */
+      .collection-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+      }
+      /* Enhanced Collection Button Styles */
+      .collection-btn {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        transition: all 0.3s ease;
+      }
+
+      .collection-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+      }
+
+      .collection-btn.remove {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .collection-btn.remove:hover {
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+      }
+
+      /* Collection chip in snippet meta */
+      .meta-chip[style*="rgba(16, 185, 129"] {
+        animation: fadeIn 0.3s ease;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .collection-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+      }
+
+      .collection-btn.remove {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      }
+
+      .collection-btn.remove:hover {
+        box-shadow: 0 5px 15px rgba(239, 68, 68, 0.4);
+      }
+
+      .collection-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        max-height: 200px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+      }
+
+      .collection-dropdown.active {
+        display: block;
+      }
+
+      .collection-option {
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: background 0.2s ease;
+        border-bottom: 1px solid var(--glass-border);
+      }
+
+      .collection-option:hover {
+        background: var(--glass-bg);
+      }
+
+      .collection-option:last-child {
+        border-bottom: none;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+          transform: scale(1);
+        }
+        to {
+          opacity: 0;
+          transform: scale(0.8);
+        }
+      }
+
+      /* Enhanced Card Layout for Variable Tag Counts */
+      .snippet-card {
+        transition: height 0.3s ease;
+        position: relative;
+      }
+
+      .snippet-meta,
+      .tags,
+      .snippet-tags {
+        max-height: none; /* Allow tags to expand */
+        overflow: visible;
+      }
+
+      /* Ensure action buttons are always accessible */
+      .snippet-actions,
+      .card-actions {
+        position: relative;
+        z-index: 10;
+        margin-top: auto;
+      }
+
+      /* Tag wrapping improvements */
+      .meta-chip,
+      .tag {
+        margin-bottom: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      /* Smooth scrolling for cards with many tags */
+      .card-with-scrollbar {
+        scroll-behavior: smooth;
+      }
+
+      /* Team Sharing Styles */
+      .teams-container {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 1rem;
+        background: var(--glass-bg);
+      }
+
+      .team-checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+        border: 1px solid transparent;
+      }
+
+      .team-checkbox-item:hover {
+        background: var(--glass-bg);
+        border-color: var(--accent-primary);
+      }
+
+      .team-checkbox-item input[type="checkbox"] {
+        accent-color: var(--accent-primary);
+        width: 18px;
+        height: 18px;
+      }
+
+      .team-info {
+        flex: 1;
+      }
+
+      .team-name {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.25rem;
+      }
+
+      .team-meta {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .team-role-badge {
+        background: var(--accent-primary);
+        color: var(--bg-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .empty-teams {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-secondary);
+      }
+
+      .empty-teams-icon {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      /* ===== SYNCHRONIZED LINE NUMBERS FOR SNIPPET CARDS ===== */
+
+      .snippet-code {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 0;
+        margin: 1rem 0;
+        height: 150px;
+        max-height: 150px;
+        overflow-y: auto;
+        overflow-x: auto;
+        flex-shrink: 0;
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        position: relative;
+        display: flex;
+      }
+
+      .line-numbers {
+        background: transparent;
+        padding: 1rem 0.5rem;
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        color: var(--text-muted);
+        user-select: none;
+        min-width: 40px;
+        text-align: center;
+
+        white-space: pre;
+        flex-shrink: 0;
+        pointer-events: none;
+      }
+
+      .code-content {
+        flex: 1;
+        margin: 0;
+        padding: 1rem;
+        background: transparent;
+        overflow: visible;
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        white-space: pre;
+        word-wrap: normal;
+        min-width: max-content;
+      }
+
+      .code-content code {
+        background: transparent !important;
+        padding: 0 !important;
+        white-space: pre;
+        word-wrap: normal;
+        min-width: max-content;
+      }
+
+      /* Restore scrollbars for snippet code */
+      .snippet-code::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .snippet-code::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-secondary);
+      }
+
+      /* Firefox scrollbar support */
+      .snippet-code {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-primary) rgba(255, 255, 255, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Header -->
+      <header class="header">
+        <h1 class="header-title">Code Snippets</h1>
+        <div class="header-actions">
+          <div class="loading" id="syncLoader" style="display: none"></div>
+          <span id="snippetCount">0 snippets</span>
+        </div>
+      </header>
+
+      <!-- Search and Filter Bar -->
+      <div class="search-bar">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="🔍 Search snippets..."
+          id="searchInput" />
+        <div class="filter-chip active" data-filter="all">All</div>
+        <div class="filter-chip" data-filter="javascript">JavaScript</div>
+        <div class="filter-chip" data-filter="python">Python</div>
+        <div class="filter-chip" data-filter="css">CSS</div>
+        <div class="filter-chip" data-filter="html">HTML</div>
+        <div class="filter-chip" data-filter="recent">Recent</div>
+        <div class="filter-chip" data-filter="favorites">⭐ Favorites</div>
+      </div>
+
+      <!-- Snippets Grid -->
+      <div class="snippets-grid" id="snippetsGrid">
+        <!-- Real snippets will be loaded here by JavaScript -->
+      </div>
+    </div>
+    <!-- Floating Action Button - Centered Bottom -->
+    <div class="fab-container">
+      <button
+        class="fab fab-advanced"
+        onclick="createSnippetAdvanced()"
+        title="Advanced Editor">
+        🚀
+      </button>
+      <button class="fab" id="addSnippetBtn" title="Quick Add Snippet">
+        +
+      </button>
+    </div>
+
+    <!-- Add/Edit Snippet Modal -->
+
+    <!-- Add/Edit Snippet Modal -->
+    <div class="modal" id="snippetModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add New Snippet</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <form id="snippetForm">
+          <div class="form-group">
+            <label class="form-label" for="snippetTitle">Title</label>
+            <input
+              type="text"
+              class="form-input"
+              id="snippetTitle"
+              placeholder="Enter snippet title..."
+              required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetLanguage">Language</label>
+            <input
+              type="text"
+              class="form-input"
+              id="snippetLanguage"
+              placeholder="e.g., javascript, python, css..."
+              required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetTags"
+              >Tags (comma separated)</label
+            >
+            <input
+              type="text"
+              class="form-input"
+              id="snippetTags"
+              placeholder="api, async, utility..." />
+          </div>
+
+          <!-- ADD THIS NEW SECTION HERE -->
+          <div class="form-group">
+            <label class="form-label" for="snippetCollection"
+              >Add to Collection (Optional)</label
+            >
+            <select class="form-input" id="snippetCollection">
+              <option value="">-- No Collection --</option>
+              <!-- Collections will be loaded here -->
+            </select>
+          </div>
+          <!-- NEW: Team Sharing Section -->
+          <div class="form-group">
+            <label class="form-label">🤝 Share with Teams (Optional)</label>
+            <div
+              id="teamSharingContainer"
+              style="
+                max-height: 150px;
+                overflow-y: auto;
+                border: 1px solid var(--glass-border);
+                border-radius: 8px;
+                padding: 1rem;
+                background: var(--glass-bg);
+              ">
+              <div class="loading" id="teamsLoading">Loading teams...</div>
+              <div id="teamsList" style="display: none">
+                <!-- Teams will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- NEW: Team Permissions Section -->
+          <div
+            class="form-group"
+            id="teamPermissionsGroup"
+            style="display: none">
+            <label class="form-label">👥 Team Permissions</label>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  color: var(--text-secondary);
+                ">
+                <input
+                  type="checkbox"
+                  id="allowTeamEditing"
+                  checked
+                  style="accent-color: var(--accent-primary)" />
+                <span>Allow team editing</span>
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  color: var(--text-secondary);
+                ">
+                <input
+                  type="checkbox"
+                  id="allowTeamComments"
+                  checked
+                  style="accent-color: var(--accent-primary)" />
+                <span>Allow comments</span>
+              </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 0.5rem;
+                  color: var(--text-secondary);
+                ">
+                <input
+                  type="checkbox"
+                  id="requireApproval"
+                  style="accent-color: var(--accent-primary)" />
+                <span>Require approval for changes</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetCode">Code</label>
+            <textarea
+              class="form-textarea"
+              id="snippetCode"
+              placeholder="Paste your code here..."
+              required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetDescription"
+              >Description (optional)</label
+            >
+            <textarea
+              class="form-input"
+              id="snippetDescription"
+              placeholder="What does this snippet do?"
+              rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Save Snippet</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Advanced Editor Overlay -->
+    <div class="advanced-editor-overlay" id="advancedEditorOverlay">
+      <div class="snippet-editor-wrapper">
+        <!-- Editor Header -->
+        <div class="editor-header">
+          <div class="editor-tabs">
+            <div class="editor-tab active" data-tab="editor">📝 Editor</div>
+            <div class="editor-tab" data-tab="preview">👁️ Preview</div>
+          </div>
+
+          <div class="editor-controls">
+            <select class="editor-language-select" id="editorLanguageSelect">
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+              <option value="java">Java</option>
+              <option value="cpp">C++</option>
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="sql">SQL</option>
+              <option value="json">JSON</option>
+              <option value="markdown">Markdown</option>
+              <option value="bash">Bash</option>
+            </select>
+
+            <button class="editor-btn" id="formatCodeBtn">🎨 Format</button>
+
+            <button class="editor-close-btn" id="closeAdvancedEditor">×</button>
+          </div>
+        </div>
+
+        <!-- Editor Content -->
+        <div class="editor-content">
+          <div class="editor-toolbar">
+            <input
+              type="text"
+              class="editor-snippet-title"
+              id="editorSnippetTitle"
+              placeholder="Snippet Title" />
+            <!-- ADD THIS NEW COLLECTION SELECT HERE -->
+            <select
+              class="editor-language-select"
+              id="advancedSnippetCollection">
+              <option value="">-- No Collection --</option>
+              <!-- Collections will be loaded here -->
+            </select>
+
+            <div class="editor-actions">
+              <button class="editor-btn" id="saveAdvancedSnippet">
+                💾 Save
+              </button>
+              <button class="editor-btn primary" id="saveAndCloseAdvanced">
+                ✅ Save & Close
+              </button>
+            </div>
+          </div>
+
+          <div class="code-editor-container">
+            <div class="line-numbers" id="advancedLineNumbers">1</div>
+            <textarea
+              class="advanced-code-editor"
+              id="advancedCodeEditor"
+              placeholder="Start typing your code..."></textarea>
+          </div>
+
+          <div class="editor-footer">
+            <div class="editor-status">
+              <span id="editorCursorPos">Line 1, Column 1</span>
+              <span id="editorCharCount">0 characters</span>
+            </div>
+            <div class="editor-status">
+              <span>Auto-save: ON</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team Share Modal -->
+    <div class="modal" id="teamShareModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="shareModalTitle">Share Snippet with Teams</h2>
+          <button class="close-btn" id="closeShareModal">&times;</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Select Teams to Share With:</label>
+
+          <!-- Team Tabs -->
+          <div
+            style="
+              display: flex;
+              gap: 0.5rem;
+              margin-bottom: 1rem;
+              border-bottom: 1px solid var(--glass-border);
+            ">
+            <button
+              class="filter-chip active"
+              id="createdTeamsTab"
+              onclick="switchShareTab('created')">
+              Created Teams
+            </button>
+            <button
+              class="filter-chip"
+              id="joinedTeamsTab"
+              onclick="switchShareTab('joined')">
+              Joined Teams
+            </button>
+          </div>
+
+          <!-- Created Teams -->
+          <div id="createdTeamsContainer" class="teams-container">
+            <div class="loading" id="createdTeamsLoading">
+              Loading your teams...
+            </div>
+            <div id="createdTeamsList" style="display: none"></div>
+          </div>
+
+          <!-- Joined Teams -->
+          <div
+            id="joinedTeamsContainer"
+            class="teams-container"
+            style="display: none">
+            <div class="loading" id="joinedTeamsLoading">
+              Loading joined teams...
+            </div>
+            <div id="joinedTeamsList" style="display: none"></div>
+          </div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="form-group">
+          <label class="form-label">👥 Sharing Permissions</label>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap">
+            <label style="display: flex; align-items: center; gap: 0.5rem">
+              <input type="checkbox" id="shareAllowEditing" checked />
+              <span>Allow team editing</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem">
+              <input type="checkbox" id="shareAllowComments" checked />
+              <span>Allow comments</span>
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.5rem">
+              <input type="checkbox" id="shareRequireApproval" />
+              <span>Require approval</span>
+            </label>
+          </div>
+        </div>
+
+        <div
+          style="
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+          ">
+          <button
+            class="btn-primary"
+            style="background: var(--text-secondary)"
+            onclick="closeTeamShareModal()">
+            Cancel
+          </button>
+          <button
+            class="btn-primary"
+            id="shareWithTeamsBtn"
+            onclick="shareSnippetWithSelectedTeams()">
+            Share with Selected Teams
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Dynamic Card Height Adjustment Based on Tags
+      function adjustCardHeightsForTags() {
+        console.log(
+          "🏷️ TAG HEIGHT ADJUSTER - Starting dynamic height adjustment"
+        );
+
+        const cards = document.querySelectorAll(".snippet-card");
+        let adjustmentsMade = 0;
+
+        cards.forEach((card, index) => {
+          try {
+            // Find tags container (different selectors for different pages)
+            const tagsContainer = card.querySelector(
+              ".snippet-meta, .tags, .snippet-tags"
+            );
+            const actionButtons = card.querySelector(
+              ".snippet-actions, .card-actions, .action-buttons"
+            );
+
+            if (!tagsContainer) {
+              console.log(`⚠️ Card ${index + 1}: No tags container found`);
+              return;
+            }
+
+            // Count tags (handle different tag structures)
+            let tagCount = 0;
+            const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+            const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+            if (metaChips.length > 0) {
+              // Count meta-chips but exclude language chip (usually first one)
+              tagCount = Math.max(0, metaChips.length - 1);
+            } else if (tagSpans.length > 0) {
+              tagCount = tagSpans.length;
+            }
+
+            console.log(`🏷️ Card ${index + 1}: Found ${tagCount} tags`);
+
+            // Calculate new height based on tag count
+            let newHeight = 420; // Base height
+            let needsScroll = false;
+
+            if (tagCount <= 5) {
+              // No adjustment needed
+              newHeight = 420;
+            } else if (tagCount <= 9) {
+              // Slight increase
+              newHeight = 460;
+              console.log(
+                `📏 Card ${index + 1}: Slight height increase to ${newHeight}px`
+              );
+            } else if (tagCount <= 15) {
+              // Slight increase
+              newHeight = 480;
+              console.log(
+                `📏 Card ${index + 1}: Slight height increase to ${newHeight}px`
+              );
+            } else {
+              // Many tags - add scrollbar to card
+              newHeight = 420;
+              needsScroll = true;
+              console.log(
+                `📜 Card ${index + 1}: Adding scrollbar for ${tagCount} tags`
+              );
+            }
+
+            // Apply height adjustment
+            card.style.height = `${newHeight}px`;
+
+            // Add scrollbar if needed
+            if (needsScroll) {
+              card.style.overflowY = "auto";
+              card.style.paddingRight = "8px"; // Account for scrollbar
+
+              // Add custom scrollbar styles
+              card.style.scrollbarWidth = "thin";
+              card.classList.add("card-with-scrollbar");
+            } else {
+              card.style.overflowY = "visible";
+              card.style.paddingRight = "1.5rem"; // Reset to original
+              card.classList.remove("card-with-scrollbar");
+            }
+
+            // Ensure action buttons are always visible
+            if (actionButtons) {
+              actionButtons.style.position = "sticky";
+              actionButtons.style.bottom = "0";
+              actionButtons.style.backgroundColor = "inherit";
+              actionButtons.style.zIndex = "10";
+            }
+
+            adjustmentsMade++;
+          } catch (error) {
+            console.error(`❌ Error adjusting card ${index + 1}:`, error);
+          }
+        });
+
+        console.log(
+          `✅ TAG HEIGHT ADJUSTER - Completed ${adjustmentsMade} adjustments`
+        );
+
+        // Add scrollbar styles if not already present
+        addScrollbarStyles();
+      }
+
+      // Add custom scrollbar styles for cards
+      function addScrollbarStyles() {
+        const existingStyle = document.getElementById("cardScrollbarStyles");
+        if (existingStyle) return; // Already added
+
+        const style = document.createElement("style");
+        style.id = "cardScrollbarStyles";
+        style.textContent = `
+        /* Enhanced Custom scrollbar for snippet cards */
+      .snippet-card::-webkit-scrollbar,
+      .card-with-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .snippet-card::-webkit-scrollbar-track,
+      .card-with-scrollbar::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .snippet-card::-webkit-scrollbar-thumb,
+      .card-with-scrollbar::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+        transition: background 0.3s ease;
+      }
+
+      .snippet-card::-webkit-scrollbar-thumb:hover,
+      .card-with-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-secondary);
+      }
+
+      /* Enhanced Firefox support */
+      .snippet-card,
+      .card-with-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent-primary) rgba(255, 255, 255, 0.1);
+      }
+        `;
+
+        document.head.appendChild(style);
+        console.log("🎨 Added custom scrollbar styles for cards");
+      }
+
+      // Enhanced logging for tag detection
+      function logTagAnalysis() {
+        console.log("🔍 TAG ANALYSIS - Analyzing tag distribution");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const tagStats = {
+          noTags: 0,
+          fewTags: 0, // 1-5 tags
+          mediumTags: 0, // 6-9 tags
+          manyTags: 0, // 10+ tags
+        };
+
+        cards.forEach((card, index) => {
+          const tagsContainer = card.querySelector(
+            ".snippet-meta, .tags, .snippet-tags"
+          );
+          if (!tagsContainer) {
+            tagStats.noTags++;
+            return;
+          }
+
+          const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+          const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+          let tagCount = 0;
+          if (metaChips.length > 0) {
+            tagCount = Math.max(0, metaChips.length - 1); // Exclude language chip
+          } else if (tagSpans.length > 0) {
+            tagCount = tagSpans.length;
+          }
+
+          if (tagCount === 0) tagStats.noTags++;
+          else if (tagCount <= 5) tagStats.fewTags++;
+          else if (tagCount <= 9) tagStats.mediumTags++;
+          else tagStats.manyTags++;
+
+          console.log(`🏷️ Card ${index + 1}: ${tagCount} tags`);
+        });
+
+        console.log("📊 TAG DISTRIBUTION:", tagStats);
+        return tagStats;
+      }
+
+      // Initialize tag-based height adjustment
+      function initializeTagHeightAdjustment() {
+        console.log("🚀 Initializing tag-based height adjustment system");
+
+        // Wait for DOM to be fully loaded
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+              logTagAnalysis();
+              adjustCardHeightsForTags();
+            }, 500);
+          });
+        } else {
+          setTimeout(() => {
+            logTagAnalysis();
+            adjustCardHeightsForTags();
+          }, 500);
+        }
+
+        // Re-adjust when new content is loaded
+        const observer = new MutationObserver((mutations) => {
+          let shouldReadjust = false;
+
+          mutations.forEach((mutation) => {
+            if (mutation.type === "childList") {
+              const addedNodes = Array.from(mutation.addedNodes);
+              if (
+                addedNodes.some(
+                  (node) =>
+                    node.nodeType === 1 &&
+                    (node.classList?.contains("snippet-card") ||
+                      node.querySelector?.(".snippet-card"))
+                )
+              ) {
+                shouldReadjust = true;
+              }
+            }
+          });
+
+          if (shouldReadjust) {
+            console.log("🔄 New snippet cards detected, re-adjusting heights");
+            setTimeout(adjustCardHeightsForTags, 100);
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+
+        console.log("✅ Tag height adjustment system initialized");
+      }
+
+      // Manual adjustment function for testing
+      window.adjustCardHeights = adjustCardHeightsForTags;
+      window.analyzeTagDistribution = logTagAnalysis;
+
+      // Auto-initialize
+      initializeTagHeightAdjustment();
+
+      // Enhanced Card Height Logging
+      function logCardHeights() {
+        console.log("🔍 CARD HEIGHT DEBUG - Checking snippet card dimensions");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const codeBlocks = document.querySelectorAll(
+          ".snippet-code, .code-preview"
+        );
+
+        console.log(
+          `📊 Found ${cards.length} snippet cards and ${codeBlocks.length} code blocks`
+        );
+
+        cards.forEach((card, index) => {
+          const rect = card.getBoundingClientRect();
+          const codeBlock = card.querySelector(".snippet-code, .code-preview");
+          const codeRect = codeBlock ? codeBlock.getBoundingClientRect() : null;
+
+          console.log(`📏 Card ${index + 1}:`, {
+            height: rect.height,
+            codeHeight: codeRect ? codeRect.height : "N/A",
+            hasScrollY: codeBlock
+              ? codeBlock.scrollHeight > codeBlock.clientHeight
+              : false,
+            hasScrollX: codeBlock
+              ? codeBlock.scrollWidth > codeBlock.clientWidth
+              : false,
+          });
+        });
+      }
+
+      // Call after DOM loads
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(logCardHeights, 1000);
+      });
+      // Stop dashboard.js from interfering
+      if (window.dashboardManager) {
+        window.dashboardManager = null;
+      }
+
+      // Prevent dashboard.js from initializing
+      window.dashboardManagerDisabled = true;
+      // Initialize syntax highlighting
+      hljs.highlightAll();
+
+      // DOM Elements
+      const snippetsGrid = document.getElementById("snippetsGrid");
+      const snippetCount = document.getElementById("snippetCount");
+      const searchInput = document.getElementById("searchInput");
+      const filterChips = document.querySelectorAll(".filter-chip");
+
+      // State
+      let allSnippets = [];
+      let filteredSnippets = [];
+      let currentFilter = "all";
+      // 🔥 FIX: Add protection for currentFilter variable
+      Object.defineProperty(window, "currentFilter", {
+        get: function () {
+          return currentFilter;
+        },
+        set: function (value) {
+          // Validate the value before setting
+          if (
+            value === undefined ||
+            value === "undefined" ||
+            value === null ||
+            value === ""
+          ) {
+            console.warn(
+              `⚠️ FILTER_PROTECTION: Attempted to set invalid currentFilter value: ${value}, keeping current: ${currentFilter}`
+            );
+            return; // Don't change the value
+          }
+          console.log(
+            `🔄 FILTER_PROTECTION: currentFilter changed from "${currentFilter}" to "${value}"`
+          );
+          currentFilter = value;
+        },
+      });
+
+      // Collection Management Variables
+      let allCollections = [];
+      let collectionDropdownVisible = false;
+
+      // ===== TEAM SHARING FUNCTIONALITY =====
+
+      let allTeams = { created: [], joined: [] };
+      let currentShareSnippetId = null;
+      let currentShareTab = "created";
+
+      // Load user's teams for sharing
+      async function loadUserTeams() {
+        console.log("🏢 ===== LOADING USER TEAMS START =====");
+
+        try {
+          const response = await fetch("/api/snippets/user-teams"); // ✅ CORRECT
+          console.log("🏢 User teams API response status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log("🏢 User teams API response data:", data);
+
+          if (data.success) {
+            allTeams.created = data.created_teams || [];
+            allTeams.joined = data.joined_teams || [];
+
+            console.log(`✅ Loaded ${allTeams.created.length} created teams`);
+            console.log(`✅ Loaded ${allTeams.joined.length} joined teams`);
+
+            // Update team dropdowns in creation modal
+            updateTeamSharingUI();
+
+            return allTeams;
+          } else {
+            console.error("❌ Teams API returned unsuccessful response:", data);
+            allTeams = { created: [], joined: [] };
+            return allTeams;
+          }
+        } catch (error) {
+          console.error("❌ Error loading user teams:", error);
+          allTeams = { created: [], joined: [] };
+          return allTeams;
+        } finally {
+          console.log("🏢 ===== LOADING USER TEAMS END =====");
+        }
+      }
+
+      // Update team sharing UI in creation modal
+      function updateTeamSharingUI() {
+        const teamsLoading = document.getElementById("teamsLoading");
+        const teamsList = document.getElementById("teamsList");
+        const permissionsGroup = document.getElementById(
+          "teamPermissionsGroup"
+        );
+
+        if (!teamsList) return;
+
+        const totalTeams = allTeams.created.length + allTeams.joined.length;
+
+        if (totalTeams === 0) {
+          if (teamsLoading) teamsLoading.textContent = "No teams available";
+          return;
+        }
+
+        // Hide loading, show teams
+        if (teamsLoading) teamsLoading.style.display = "none";
+        if (teamsList) teamsList.style.display = "block";
+
+        // Create team checkboxes
+        const allUserTeams = [
+          ...allTeams.created.map((team) => ({ ...team, role: "Owner" })),
+          ...allTeams.joined.map((team) => ({
+            ...team,
+            role: team.user_role || "Member",
+          })),
+        ];
+
+        teamsList.innerHTML = allUserTeams
+          .map(
+            (team) => `
+          <label class="team-checkbox-item">
+            <input type="checkbox" name="shareTeams" value="${
+              team.id
+            }" onchange="toggleTeamPermissions()">
+            <div class="team-info">
+              <div class="team-name">${escapeHtml(team.name)}</div>
+              <div class="team-meta">${team.member_count || 0} members • ${
+              team.role
+            }</div>
+            </div>
+            <span class="team-role-badge">${team.role}</span>
+          </label>
+        `
+          )
+          .join("");
+
+        console.log(`✅ Updated team sharing UI with ${totalTeams} teams`);
+      }
+
+      // Toggle team permissions visibility
+      function toggleTeamPermissions() {
+        const selectedTeams = document.querySelectorAll(
+          'input[name="shareTeams"]:checked'
+        );
+        const permissionsGroup = document.getElementById(
+          "teamPermissionsGroup"
+        );
+
+        if (permissionsGroup) {
+          permissionsGroup.style.display =
+            selectedTeams.length > 0 ? "block" : "none";
+        }
+      }
+
+      // Open team share modal for existing snippet
+      async function openTeamShareModal(snippetId) {
+        console.log(`🔗 ===== OPENING TEAM SHARE MODAL =====`);
+        console.log(`🔗 Snippet ID: ${snippetId}`);
+
+        currentShareSnippetId = snippetId;
+
+        // Load teams if not already loaded
+        if (allTeams.created.length === 0 && allTeams.joined.length === 0) {
+          await loadUserTeams();
+        }
+
+        // Update modal title
+        const snippet = allSnippets.find((s) => s.id === snippetId);
+        const modalTitle = document.getElementById("shareModalTitle");
+        if (modalTitle && snippet) {
+          modalTitle.textContent = `Share "${snippet.title}" with Teams`;
+        }
+
+        // Populate team lists
+        populateShareModalTeams();
+
+        // Show modal
+        const modal = document.getElementById("teamShareModal");
+        if (modal) {
+          modal.classList.add("active");
+        }
+
+        console.log(`✅ Team share modal opened for snippet ${snippetId}`);
+      }
+
+      // Replace the existing populateShareModalTeams function
+      function populateShareModalTeams() {
+        console.log("🎯 POPULATE_SHARE_MODAL: Starting to populate teams");
+        console.log("🎯 Available teams data:", allTeams);
+
+        // 🔥 FIX: Ensure proper data structure for shareTeamsData
+        window.shareTeamsData = {
+          created: allTeams.created || [],
+          joined: allTeams.joined || [],
+          shared: new Set(), // Initialize as empty set
+        };
+
+        // Created teams
+        const createdTeamsList = document.getElementById("createdTeamsList");
+        const createdTeamsLoading = document.getElementById(
+          "createdTeamsLoading"
+        );
+
+        if (createdTeamsList && createdTeamsLoading) {
+          if (allTeams.created.length === 0) {
+            createdTeamsLoading.textContent = "No teams created yet";
+          } else {
+            createdTeamsLoading.style.display = "none";
+            createdTeamsList.style.display = "block";
+            createdTeamsList.innerHTML = allTeams.created
+              .map((team) => createTeamCheckboxHTML(team, "Owner"))
+              .join("");
+          }
+        }
+
+        // Joined teams
+        const joinedTeamsList = document.getElementById("joinedTeamsList");
+        const joinedTeamsLoading =
+          document.getElementById("joinedTeamsLoading");
+
+        if (joinedTeamsList && joinedTeamsLoading) {
+          if (allTeams.joined.length === 0) {
+            joinedTeamsLoading.textContent = "No teams joined yet";
+          } else {
+            joinedTeamsLoading.style.display = "none";
+            joinedTeamsList.style.display = "block";
+            joinedTeamsList.innerHTML = allTeams.joined
+              .map((team) =>
+                createTeamCheckboxHTML(team, team.user_role || "Member")
+              )
+              .join("");
+          }
+        }
+
+        console.log("✅ POPULATE_SHARE_MODAL: Teams populated successfully");
+      }
+
+      // Create team checkbox HTML
+      function createTeamCheckboxHTML(team, role) {
+        return `
+          <label class="team-checkbox-item">
+            <input type="checkbox" name="shareModalTeams" value="${team.id}">
+            <div class="team-info">
+              <div class="team-name">${escapeHtml(team.name)}</div>
+              <div class="team-meta">${
+                team.member_count || 0
+              } members • ${role}</div>
+            </div>
+            <span class="team-role-badge">${role}</span>
+          </label>
+        `;
+      }
+
+      // Replace the existing switchShareTab function with this fixed version
+      window.switchShareTab = function (tabType) {
+        console.log(`🔄 SWITCH_SHARE_TAB: Switching to ${tabType} tab`);
+        const preservedFilter = currentFilter;
+        console.log(
+          `🔄 SWITCH_SHARE_TAB: Preserving current filter: ${preservedFilter}`
+        );
+
+        currentShareTab = tabType;
+
+        // Update tab buttons
+        const createdTab = document.getElementById("createdTeamsTab");
+        const joinedTab = document.getElementById("joinedTeamsTab");
+
+        if (createdTab && joinedTab) {
+          createdTab.classList.toggle("active", tabType === "created");
+          joinedTab.classList.toggle("active", tabType === "joined");
+        }
+
+        // Update container visibility
+        const createdContainer = document.getElementById(
+          "createdTeamsContainer"
+        );
+        const joinedContainer = document.getElementById("joinedTeamsContainer");
+
+        if (createdContainer && joinedContainer) {
+          createdContainer.style.display =
+            tabType === "created" ? "block" : "none";
+          joinedContainer.style.display =
+            tabType === "joined" ? "block" : "none";
+        }
+
+        // 🔥 FIX: Use the correct teams data structure
+        if (window.shareTeamsData) {
+          const teams = window.shareTeamsData[tabType] || [];
+          console.log(
+            `🔄 SWITCH_SHARE_TAB: Found ${teams.length} teams for ${tabType}`
+          );
+
+          // Update the teams display directly instead of calling CollectionModal
+          updateShareTeamsDisplay(tabType, teams);
+        }
+
+        currentFilter = preservedFilter;
+        console.log(
+          `🔄 SWITCH_SHARE_TAB: Restored current filter: ${currentFilter}`
+        );
+
+        console.log(
+          `✅ SWITCH_SHARE_TAB: Successfully switched to ${tabType} teams tab`
+        );
+      };
+
+      // Add this new helper function
+      function updateShareTeamsDisplay(tabType, teams) {
+        const containerId =
+          tabType === "created" ? "createdTeamsList" : "joinedTeamsList";
+        const container = document.getElementById(containerId);
+
+        if (!container) {
+          console.warn(`⚠️ Container ${containerId} not found`);
+          return;
+        }
+
+        if (teams.length === 0) {
+          container.innerHTML = `
+            <div class="universal-no-teams">
+              <i class="fas fa-users"></i>
+              <p>No ${tabType} teams</p>
+            </div>
+          `;
+          return;
+        }
+
+        const sharedTeamIds = window.shareTeamsData?.shared || new Set();
+
+        container.innerHTML = teams
+          .map(
+            (team) => `
+            <label class="team-checkbox-item">
+              <input
+                type="checkbox"
+                name="shareModalTeams"
+                value="${team.id}"
+                class="universal-checkbox"
+                ${
+                  sharedTeamIds.has && sharedTeamIds.has(team.id)
+                    ? "checked"
+                    : ""
+                }
+              />
+              <div class="team-info">
+                <div class="team-name">
+                  ${escapeHtml(team.name)}
+                  ${
+                    sharedTeamIds.has && sharedTeamIds.has(team.id)
+                      ? '<span style="color: #10b981;">✓ Shared</span>'
+                      : ""
+                  }
+                </div>
+                <div class="team-role">${team.role} • ${
+              team.member_count || 0
+            } members</div>
+              </div>
+            </label>
+          `
+          )
+          .join("");
+      }
+
+      // Replace the existing closeTeamShareModal function
+      function closeTeamShareModal() {
+        console.log("🔒 CLOSE_SHARE_MODAL: Closing team share modal");
+        // 🔥 FIX: Preserve current filter state
+        const preservedFilter = currentFilter;
+        console.log(
+          `🔒 CLOSE_SHARE_MODAL: Preserving current filter: ${preservedFilter}`
+        );
+
+        const modal = document.getElementById("teamShareModal");
+        if (modal) {
+          modal.classList.remove("active");
+        }
+
+        // Reset form
+        const checkboxes = document.querySelectorAll(
+          'input[name="shareModalTeams"]'
+        );
+        checkboxes.forEach((cb) => (cb.checked = false));
+
+        // Reset permissions
+        const allowEditing = document.getElementById("shareAllowEditing");
+        const allowComments = document.getElementById("shareAllowComments");
+        const requireApproval = document.getElementById("shareRequireApproval");
+
+        if (allowEditing) allowEditing.checked = true;
+        if (allowComments) allowComments.checked = true;
+        if (requireApproval) requireApproval.checked = false;
+
+        // 🔥 FIX: Clear the global data to prevent interference
+        window.shareTeamsData = null;
+        currentShareSnippetId = null;
+        // 🔥 FIX: Restore the preserved filter state
+        currentFilter = preservedFilter;
+        console.log(
+          `🔒 CLOSE_SHARE_MODAL: Restored current filter: ${currentFilter}`
+        );
+
+        console.log("✅ CLOSE_SHARE_MODAL: Modal closed and data cleared");
+      } // Add this function to prevent DOM issues
+      function safelyExecuteShareAction(action) {
+        try {
+          return action();
+        } catch (error) {
+          console.error("❌ SHARE_ACTION_ERROR:", error);
+          console.error("❌ Error stack:", error.stack);
+
+          // Prevent DOM corruption by reloading snippets if needed
+          if (typeof loadSnippets === "function") {
+            console.log("🔄 Reloading snippets due to error...");
+            setTimeout(() => {
+              loadSnippets();
+            }, 100);
+          }
+
+          return false;
+        }
+      }
+
+      // Wrap the switchShareTab function
+      const originalSwitchShareTab = window.switchShareTab;
+      window.switchShareTab = function (tabType) {
+        return safelyExecuteShareAction(() => originalSwitchShareTab(tabType));
+      }; // Add this debug function to monitor the issue
+      function debugShareModal() {
+        console.log("🔍 SHARE_MODAL_DEBUG:", {
+          shareTeamsData: window.shareTeamsData,
+          currentShareSnippetId: currentShareSnippetId,
+          modalVisible: document
+            .getElementById("teamShareModal")
+            ?.classList.contains("active"),
+          snippetsCount: document.querySelectorAll(".snippet-card").length,
+        });
+      }
+
+      // Call this before and after tab switches
+      window.debugShareModal = debugShareModal;
+
+      // Share snippet with selected teams
+      // 🔥 PURE COPY-ONLY: Snippet sharing (no reference option)
+      // 🔥 NATURAL LANGUAGE: User is "sharing" (implementation creates copies)
+async function shareSnippetWithSelectedTeams() {
+  console.log("🔗 ===== SHARING SNIPPET WITH TEAMS START =====");
+
+  if (!currentShareSnippetId) {
+    showToast("No snippet selected for sharing", "error");
+    return;
+  }
+
+  const selectedTeams = Array.from(
+    document.querySelectorAll('input[name="shareModalTeams"]:checked')
+  ).map((cb) => cb.value);
+
+  if (selectedTeams.length === 0) {
+    showToast("Please select at least one team to share with", "error");
+    return;
+  }
+
+  console.log("🔗 Sharing snippet with teams:", selectedTeams);
+
+  try {
+    const response = await fetch(
+      `/api/snippets/${currentShareSnippetId}/share`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          team_ids: selectedTeams,
+          sharing_type: "copy",
+        }),
+      }
+    );
+
+    const result = await response.json();
+
+    // ✅ HANDLE 409 CONFLICT (ALREADY SHARED)
+    if (response.status === 409 && result.error_type === "already_shared") {
+      console.log("ℹ️ ALREADY SHARED: No 500 error, showing already shared message");
+      showToast("📋 Snippet already shared with selected team(s)", "info");
+      closeTeamShareModal();
+      return;
+    }
+
+    // ✅ HANDLE SUCCESS RESPONSES
+    if (result.success) {
+      showToast(`✅ ${result.message}`, "success");
+      closeTeamShareModal();
+    } else {
+      // ✅ HANDLE OTHER ERRORS (NOT ALREADY SHARED)
+      showToast(result.message || "Failed to share snippet", "error");
+    }
+
+  } catch (error) {
+    console.error("❌ Error sharing snippet:", error);
+    showToast("Failed to share snippet. Please try again.", "error");
+  }
+
+  console.log("🔗 ===== SHARING SNIPPET WITH TEAMS END =====");
+}    
+    
+      // Enhanced snippet creation with team sharing
+      async function createSnippetWithTeamSharing(snippetData) {
+        console.log("🎯 ===== CREATE SNIPPET WITH TEAM SHARING =====");
+
+        // Get selected teams from creation modal
+        const selectedTeams = Array.from(
+          document.querySelectorAll('input[name="shareTeams"]:checked')
+        ).map((cb) => cb.value);
+
+        // Get team permissions
+        const teamPermissions = {
+          allow_editing: document.getElementById("allowTeamEditing").checked,
+          allow_comments: document.getElementById("allowTeamComments").checked,
+          require_approval: document.getElementById("requireApproval").checked,
+        };
+
+        console.log("🎯 Creation data:", {
+          snippet: snippetData,
+          teams: selectedTeams,
+          permissions: teamPermissions,
+        });
+
+        try {
+          // Create snippet first
+          const createResponse = await fetch("/api/snippets/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(snippetData),
+          });
+
+          const createResult = await createResponse.json();
+          console.log("🎯 Create snippet result:", createResult);
+
+          if (!createResult.success) {
+            showToast(
+              createResult.message || "Failed to create snippet",
+              "error"
+            );
+            return null;
+          }
+
+          const snippetId = createResult.snippet.id;
+
+          // Share with teams if any selected
+          if (selectedTeams.length > 0) {
+            console.log(
+              `🎯 Sharing new snippet ${snippetId} with ${selectedTeams.length} teams`
+            );
+
+            const shareResponse = await fetch(
+              `/api/snippets/${snippetId}/share`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  team_ids: selectedTeams,
+                  permissions: teamPermissions,
+                }),
+              }
+            );
+
+            const shareResult = await shareResponse.json();
+            console.log("🎯 Share result:", shareResult);
+
+            if (shareResult.success) {
+              showToast(
+                `Snippet created and shared with ${selectedTeams.length} team(s)! 🎉`,
+                "success"
+              );
+            } else {
+              showToast("Snippet created but sharing failed", "warning");
+            }
+          } else {
+            showToast("Snippet created successfully! ✅", "success");
+          }
+
+          return createResult;
+        } catch (error) {
+          console.error("❌ Error creating snippet with team sharing:", error);
+          showToast("Failed to create snippet", "error");
+          return null;
+        }
+      }
+
+      // Load Collections Function
+      async function loadCollections() {
+        console.log("🔍 ===== LOADING COLLECTIONS START =====");
+
+        try {
+          const response = await fetch("/api/collections");
+          console.log("🔍 Collections API response status:", response.status);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log("🔍 Collections API response data:", data);
+
+          if (data.success && data.collections) {
+            allCollections = data.collections;
+            console.log(`✅ Loaded ${allCollections.length} collections`);
+
+            // Update dropdowns
+            updateCollectionDropdowns();
+
+            return allCollections;
+          } else {
+            console.error(
+              "❌ Collections API returned unsuccessful response:",
+              data
+            );
+            allCollections = [];
+            return [];
+          }
+        } catch (error) {
+          console.error("❌ Error loading collections:", error);
+          console.error("❌ Error stack:", error.stack);
+          allCollections = [];
+          return [];
+        } finally {
+          console.log("🔍 ===== LOADING COLLECTIONS END =====");
+        }
+      }
+
+      // Update Collection Dropdowns
+      function updateCollectionDropdowns() {
+        console.log("🔄 Updating collection dropdowns...");
+
+        const modalSelect = document.getElementById("snippetCollection");
+        const advancedSelect = document.getElementById(
+          "advancedSnippetCollection"
+        );
+
+        if (modalSelect) {
+          modalSelect.innerHTML =
+            '<option value="">-- No Collection --</option>';
+          allCollections.forEach((collection) => {
+            const option = document.createElement("option");
+            option.value = collection.id;
+            option.textContent = collection.name;
+            modalSelect.appendChild(option);
+          });
+          console.log(
+            `✅ Updated modal dropdown with ${allCollections.length} collections`
+          );
+        }
+
+        if (advancedSelect) {
+          advancedSelect.innerHTML =
+            '<option value="">-- No Collection --</option>';
+          allCollections.forEach((collection) => {
+            const option = document.createElement("option");
+            option.value = collection.id;
+            option.textContent = collection.name;
+            advancedSelect.appendChild(option);
+          });
+          console.log(
+            `✅ Updated advanced dropdown with ${allCollections.length} collections`
+          );
+        }
+      }
+
+      // Add/Remove Collection Functions
+      async function addToCollection(snippetId) {
+        console.log(`📁 ===== ADD TO COLLECTION START =====`);
+        console.log(`📁 Snippet ID: ${snippetId}`);
+
+        if (allCollections.length === 0) {
+          showToast(
+            "No collections available. Create a collection first.",
+            "info"
+          );
+          return;
+        }
+
+        // Create collection selection modal
+        const collectionOptions = allCollections
+          .map(
+            (collection) =>
+              `<div class="collection-option" onclick="selectCollectionForSnippet('${snippetId}', '${
+                collection.id
+              }', '${collection.name}')">
+            <strong>${collection.name}</strong>
+            <br><small>${collection.description || "No description"}</small>
+          </div>`
+          )
+          .join("");
+
+        const modalHtml = `
+          <div class="modal active" id="collectionSelectModal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Add to Collection</h2>
+                <button class="close-btn" onclick="closeCollectionModal()">&times;</button>
+              </div>
+              <div style="max-height: 300px; overflow-y: auto;">
+                ${collectionOptions}
+              </div>
+            </div>
+          </div>
+        `;
+
+        document.body.insertAdjacentHTML("beforeend", modalHtml);
+        console.log("✅ Collection selection modal created");
+      }
+
+      async function selectCollectionForSnippet(
+        snippetId,
+        collectionId,
+        collectionName
+      ) {
+        console.log(`📁 ===== SELECT COLLECTION FOR SNIPPET =====`);
+        console.log(
+          `📁 Snippet: ${snippetId}, Collection: ${collectionId} (${collectionName})`
+        );
+
+        try {
+          // Add snippet to collection via API
+          const response = await fetch(
+            `/api/snippets/${snippetId}/collections`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                collection_id: collectionId,
+              }),
+            }
+          );
+
+          console.log(`📁 API response status: ${response.status}`);
+          const result = await response.json();
+          console.log(`📁 API response:`, result);
+
+          if (result.success) {
+            showToast(`Added to collection "${collectionName}" ✅`, "success");
+
+            // Update the snippet card button
+            updateSnippetCollectionButton(
+              snippetId,
+              collectionId,
+              collectionName
+            );
+
+            // Close modal
+            closeCollectionModal();
+
+            console.log(`✅ Successfully added snippet to collection`);
+          } else {
+            showToast(result.message || "Failed to add to collection", "error");
+            console.error(`❌ Failed to add to collection:`, result);
+          }
+        } catch (error) {
+          console.error("❌ Error adding to collection:", error);
+          showToast("Failed to add to collection", "error");
+        }
+      }
+
+      async function removeFromCollection(
+        snippetId,
+        collectionId,
+        collectionName
+      ) {
+        console.log(`📁 ===== REMOVE FROM COLLECTION START =====`);
+        console.log(
+          `📁 Snippet: ${snippetId}, Collection: ${collectionId} (${collectionName})`
+        );
+
+        try {
+          const response = await fetch(
+            `/api/snippets/${snippetId}/collections/${collectionId}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          console.log(`📁 Remove API response status: ${response.status}`);
+          const result = await response.json();
+          console.log(`📁 Remove API response:`, result);
+
+          if (result.success) {
+            showToast(
+              `Removed from collection "${collectionName}" 🗑️`,
+              "success"
+            );
+
+            // Update the snippet card button
+            updateSnippetCollectionButton(snippetId, null, null);
+
+            console.log(`✅ Successfully removed snippet from collection`);
+          } else {
+            showToast(
+              result.message || "Failed to remove from collection",
+              "error"
+            );
+            console.error(`❌ Failed to remove from collection:`, result);
+          }
+        } catch (error) {
+          console.error("❌ Error removing from collection:", error);
+          showToast("Failed to remove from collection", "error");
+        }
+      }
+
+      function updateSnippetCollectionButton(
+        snippetId,
+        collectionId,
+        collectionName
+      ) {
+        console.log(`🔄 ===== UPDATE SNIPPET COLLECTION BUTTON START =====`);
+        console.log(`🔄 Snippet ID: ${snippetId}`);
+        console.log(`🔄 Collection ID: ${collectionId}`);
+        console.log(`🔄 Collection Name: ${collectionName}`);
+
+        const card = document.querySelector(`[data-id="${snippetId}"]`);
+        if (!card) {
+          console.warn(`⚠️ Card not found for snippet ${snippetId}`);
+          return;
+        }
+
+        const collectionBtn = card.querySelector(".collection-btn");
+        if (!collectionBtn) {
+          console.warn(
+            `⚠️ Collection button not found in card for snippet ${snippetId}`
+          );
+          return;
+        }
+
+        // Update snippet meta to show/hide collection chip
+        const metaDiv = card.querySelector(".snippet-meta");
+        if (metaDiv) {
+          // Remove existing collection chip
+          const existingChip = metaDiv.querySelector(
+            '.meta-chip[style*="rgba(16, 185, 129"]'
+          );
+          if (existingChip) {
+            existingChip.remove();
+            console.log(`🗑️ Removed existing collection chip`);
+          }
+
+          // Add new collection chip if collection is provided
+          if (collectionId && collectionName) {
+            const collectionChip = document.createElement("span");
+            collectionChip.className = "meta-chip";
+            collectionChip.style.cssText =
+              "background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); color: #10b981;";
+            collectionChip.textContent = `📁 ${collectionName}`;
+            metaDiv.appendChild(collectionChip);
+            console.log(`✅ Added collection chip: ${collectionName}`);
+          }
+        }
+
+        if (collectionId && collectionName) {
+          // Snippet is in a collection - show remove option
+          collectionBtn.textContent = "📁";
+          collectionBtn.title = `Remove from "${collectionName}"`;
+          collectionBtn.className = "action-btn collection-btn remove";
+          collectionBtn.onclick = () =>
+            removeFromCollection(snippetId, collectionId, collectionName);
+          console.log(
+            `✅ Updated button to show REMOVE option for collection "${collectionName}"`
+          );
+        } else {
+          // Snippet not in collection - show add option
+          collectionBtn.textContent = "📁+";
+          collectionBtn.title = "Add to Collection";
+          collectionBtn.className = "action-btn collection-btn";
+          collectionBtn.onclick = () => addToCollection(snippetId);
+          console.log(`✅ Updated button to show ADD option`);
+        }
+
+        console.log(`🔄 ===== UPDATE SNIPPET COLLECTION BUTTON END =====`);
+      }
+
+      function closeCollectionModal() {
+        const modal = document.getElementById("collectionSelectModal");
+        if (modal) {
+          modal.remove();
+          console.log("✅ Collection selection modal closed");
+        }
+      }
+
+      // Enhanced snippet creation with collection support
+      async function createSnippetWithCollection(
+        snippetData,
+        collectionId = null
+      ) {
+        console.log("🎯 ===== CREATE SNIPPET WITH COLLECTION =====");
+        console.log("🎯 Snippet data:", snippetData);
+        console.log("🎯 Collection ID:", collectionId);
+
+        try {
+          // Add collection_id to snippet data if provided
+          if (collectionId) {
+            snippetData.collection_id = collectionId;
+            console.log("✅ Added collection_id to snippet data");
+          }
+
+          const response = await fetch("/api/snippets/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(snippetData),
+          });
+
+          console.log("🎯 Create snippet response status:", response.status);
+          const result = await response.json();
+          console.log("🎯 Create snippet response:", result);
+
+          if (result.success) {
+            const collectionName = collectionId
+              ? allCollections.find((c) => c.id === collectionId)?.name ||
+                "Unknown"
+              : null;
+
+            const message = collectionName
+              ? `Snippet created and added to "${collectionName}" ✅`
+              : "Snippet created successfully ✅";
+
+            showToast(message, "success");
+            console.log("✅ Snippet created successfully");
+
+            return result;
+          } else {
+            showToast(result.message || "Failed to create snippet", "error");
+            console.error("❌ Failed to create snippet:", result);
+            return null;
+          }
+        } catch (error) {
+          console.error("❌ Error creating snippet:", error);
+          showToast("Failed to create snippet", "error");
+          return null;
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 ===== ENHANCED DOM CONTENT LOADED START =====");
+
+        // Load collections first, then snippets
+        Promise.all([
+          loadCollections(),
+          loadUserTeams(), // ✅ ADD THIS LINE
+        ]).then(() => {
+          loadSnippets();
+        });
+
+        setupEventListeners();
+        setupModalEvents();
+        setupAdvancedEditorEvents();
+
+        console.log("🚀 ===== ENHANCED DOM CONTENT LOADED END =====");
+      });
+
+      async function loadSnippets() {
+        try {
+          console.log("🔍 ===== LOADING SNIPPETS WITH COLLECTIONS START =====");
+          const response = await fetch("/dashboard/api/snippets");
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log("🔍 Raw snippets data:", data);
+
+          allSnippets = data.snippets || [];
+          console.log(`🔍 Loaded ${allSnippets.length} snippets`);
+
+          // 🎯 ENHANCED: Fetch collection data for each snippet
+          for (let i = 0; i < allSnippets.length; i++) {
+            const snippet = allSnippets[i];
+            console.log(
+              `🔍 Processing snippet ${i + 1}/${allSnippets.length}: ${
+                snippet.title
+              } (ID: ${snippet.id})`
+            );
+
+            try {
+              // Fetch collections for this snippet
+              const collectionsResponse = await fetch(
+                `/api/snippets/${snippet.id}/collections`
+              );
+
+              if (collectionsResponse.ok) {
+                const collectionsData = await collectionsResponse.json();
+                console.log(
+                  `🔍 Collections data for snippet ${snippet.id}:`,
+                  collectionsData
+                );
+
+                if (collectionsData.success && collectionsData.collections) {
+                  snippet.collections = collectionsData.collections;
+                  console.log(
+                    `✅ Added ${collectionsData.collections.length} collections to snippet ${snippet.id}`
+                  );
+                } else {
+                  snippet.collections = [];
+                  console.log(
+                    `ℹ️ No collections found for snippet ${snippet.id}`
+                  );
+                }
+              } else {
+                console.warn(
+                  `⚠️ Failed to fetch collections for snippet ${snippet.id}: ${collectionsResponse.status}`
+                );
+                snippet.collections = [];
+              }
+            } catch (collectionError) {
+              console.error(
+                `❌ Error fetching collections for snippet ${snippet.id}:`,
+                collectionError
+              );
+              snippet.collections = [];
+            }
+          }
+
+          filteredSnippets = [...allSnippets];
+          console.log(`🔍 Processed all snippets with collection data`);
+
+          displaySnippets(filteredSnippets);
+          updateSnippetCount();
+
+          console.log("🔍 ===== LOADING SNIPPETS WITH COLLECTIONS END =====");
+        } catch (error) {
+          console.error("❌ Error loading snippets:", error);
+          showErrorMessage("Failed to load snippets. Please refresh the page.");
+        }
+      }
+
+      // Display snippets in the grid
+      function displaySnippets(snippets) {
+        if (!snippetsGrid) {
+          console.error("❌ snippetsGrid element not found");
+          return;
+        }
+
+        snippetsGrid.innerHTML = "";
+
+        if (!snippets || snippets.length === 0) {
+          snippetsGrid.innerHTML = `
+              <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+                  <i class="fas fa-code" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                  <h3>No snippets found</h3>
+                  <p>Create your first snippet to get started!</p>
+              </div>
+          `;
+          return;
+        }
+
+        snippets.forEach((snippet) => {
+          const card = createSnippetCard(snippet);
+          snippetsGrid.appendChild(card);
+        });
+
+        // Safely highlight only new code blocks
+        const codeBlocks = snippetsGrid.querySelectorAll(
+          "pre code:not([data-highlighted])"
+        );
+        codeBlocks.forEach((block) => {
+          hljs.highlightElement(block);
+        });
+      }
+      // Create snippet card element
+
+      function createSnippetCard(snippet) {
+        console.log(`🎯 ===== CREATING SNIPPET CARD START =====`);
+        console.log(`🎯 Snippet ID: ${snippet.id}`);
+        console.log(`🎯 Snippet title: ${snippet.title}`);
+        console.log(`🎯 Snippet collections data:`, snippet.collections);
+
+        const card = document.createElement("div");
+        card.className = "snippet-card";
+        card.dataset.language = snippet.language || "text";
+        card.dataset.created = snippet.created_at;
+        card.dataset.id = snippet.id;
+
+        // Process tags
+        const tags = snippet.tags || [];
+        const tagChips = Array.isArray(tags)
+          ? tags
+              .map((tag) => `<span class="meta-chip">${escapeHtml(tag)}</span>`)
+              .join("")
+          : "";
+
+        // 🎯 ENHANCED COLLECTION DETECTION
+        let hasCollection = false;
+        let collectionInfo = null;
+        let collectionChip = "";
+
+        // Check if snippet has collections data
+        if (
+          snippet.collections &&
+          Array.isArray(snippet.collections) &&
+          snippet.collections.length > 0
+        ) {
+          hasCollection = true;
+          collectionInfo = snippet.collections[0]; // Use first collection
+          collectionChip = `<span class="meta-chip" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); color: #10b981;">📁 ${escapeHtml(
+            collectionInfo.name
+          )}</span>`;
+          console.log(
+            `✅ Snippet belongs to collection: ${collectionInfo.name} (ID: ${collectionInfo.id})`
+          );
+        } else {
+          console.log(`ℹ️ Snippet does not belong to any collection`);
+        }
+
+        // 🎯 ENHANCED COLLECTION BUTTON LOGIC
+        let collectionButtonHtml = "";
+        if (hasCollection && collectionInfo) {
+          // Show remove button
+          collectionButtonHtml = `<button class="action-btn collection-btn remove" title="Remove from '${escapeHtml(
+            collectionInfo.name
+          )}'" onclick="removeFromCollection('${snippet.id}', '${
+            collectionInfo.id
+          }', '${escapeHtml(collectionInfo.name)}')">📁</button>`;
+          console.log(
+            `🔄 Created REMOVE button for collection: ${collectionInfo.name}`
+          );
+        } else {
+          // Show add button
+          collectionButtonHtml = `<button class="action-btn collection-btn" title="Add to Collection" onclick="addToCollection('${snippet.id}')">📁+</button>`;
+          console.log(`🔄 Created ADD button`);
+        }
+
+        // Create the card structure
+        card.innerHTML = `
+          <div class="snippet-header">
+              <div>
+                  <h3 class="snippet-title">${escapeHtml(
+                    snippet.title || "Untitled"
+                  )}</h3>
+                  <div class="snippet-meta">
+                      <span class="meta-chip">${escapeHtml(
+                        snippet.language || "Text"
+                      )}</span>
+                      ${tagChips}
+                      ${collectionChip}
+                  </div>
+              </div>
+          </div>
+   <div class="snippet-code">
+    <div class="line-numbers" id="teamLineNumbers-${snippet.id}"></div>
+    <pre class="code-content"><code class="language-${
+      snippet.language || "text"
+    }"></code></pre>
+</div>
+          <div class="snippet-actions">
+            <button class="action-btn" title="Copy Code" onclick="copySnippet('${
+              snippet.id
+            }')">📋</button>
+            <button class="action-btn" title="Quick Edit" onclick="editSnippet('${
+              snippet.id
+            }')">✏️</button>
+            <button class="action-btn" title="Advanced Editor" onclick="editSnippetAdvanced('${
+              snippet.id
+            }')">🚀</button>
+            <button class="action-btn" title="Share with Teams" onclick="openTeamShareModal('${
+              snippet.id
+            }')">🔗</button>
+            <button class="action-btn favorite-btn" title="Favorite" onclick="toggleFavorite('${
+              snippet.id
+            }')" data-favorited="${snippet.is_favorite || false}">⭐</button>
+            ${collectionButtonHtml}
+            <button class="action-btn" title="Delete" onclick="deleteSnippet('${
+              snippet.id
+            }')">🗑️</button>
+          </div>
+        `;
+
+        // Safely set the code content as text (not HTML)
+        const codeElement = card.querySelector("code");
+        if (codeElement && snippet.code) {
+          codeElement.textContent = snippet.code;
+
+          // Generate line numbers for team snippets
+          const lineCount = snippet.code.split("\n").length;
+          const lineNumbersElement = card.querySelector(
+            `#teamLineNumbers-${snippet.id}`
+          );
+          if (lineNumbersElement) {
+            const lineNumbers = Array.from(
+              { length: lineCount },
+              (_, i) => i + 1
+            ).join("\n");
+            lineNumbersElement.textContent = lineNumbers;
+            console.log(
+              `✅ Generated ${lineCount} line numbers for team snippet ${snippet.id}`
+            );
+          }
+        }
+        console.log(`✅ Snippet card created successfully`);
+        console.log(`🎯 ===== CREATING SNIPPET CARD END =====`);
+
+        return card;
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        // Search functionality
+        if (searchInput) {
+          searchInput.addEventListener("input", handleSearch);
+        }
+
+        // Filter chips
+        filterChips.forEach((chip) => {
+          chip.addEventListener("click", () => {
+            filterChips.forEach((c) => c.classList.remove("active"));
+            chip.classList.add("active");
+            currentFilter = chip.dataset.filter;
+            filterSnippets();
+          });
+        });
+      }
+
+      // Handle search
+      function handleSearch(e) {
+        const query = e.target.value.toLowerCase();
+        filterSnippets(query);
+      }
+
+      // Filter snippets
+      function filterSnippets(searchQuery = "") {
+        // 🔥 FIX: Add enhanced logging and validation
+        console.log(`🔍 ===== FILTER SNIPPETS START =====`);
+        console.log(`🔍 Search Query: "${searchQuery}"`);
+        console.log(
+          `🔍 Current Filter BEFORE validation: "${currentFilter}" (type: ${typeof currentFilter})`
+        );
+
+        // 🔥 FIX: Validate and fix currentFilter if it's undefined
+        if (
+          currentFilter === undefined ||
+          currentFilter === "undefined" ||
+          currentFilter === null
+        ) {
+          console.warn(
+            `⚠️ FILTER_SNIPPETS: currentFilter is invalid (${currentFilter}), resetting to "all"`
+          );
+          currentFilter = "all";
+        }
+
+        console.log(`🔍 Current Filter AFTER validation: "${currentFilter}"`);
+        console.log(`🔍 Total snippets available: ${allSnippets.length}`);
+
+        // Log all snippets with favorite status
+        console.log(`🔍 All snippets favorite status:`);
+        allSnippets.forEach((snippet, index) => {
+          console.log(
+            `  ${index + 1}. ${snippet.id}: "${snippet.title}" (favorite: ${
+              snippet.is_favorite
+            })`
+          );
+        });
+
+        filteredSnippets = allSnippets.filter((snippet) => {
+          const matchesSearch =
+            !searchQuery ||
+            (snippet.title &&
+              snippet.title.toLowerCase().includes(searchQuery)) ||
+            (snippet.code &&
+              snippet.code.toLowerCase().includes(searchQuery)) ||
+            (snippet.language &&
+              snippet.language.toLowerCase().includes(searchQuery)) ||
+            (snippet.description &&
+              snippet.description.toLowerCase().includes(searchQuery));
+
+          let matchesFilter = false;
+
+          if (currentFilter === "all") {
+            matchesFilter = true;
+          } else if (currentFilter === "favorites") {
+            matchesFilter = snippet.is_favorite === true;
+            console.log(
+              `⭐ Favorites check for ${snippet.id}: is_favorite=${snippet.is_favorite}, matches=${matchesFilter}`
+            );
+          } else if (currentFilter === "recent") {
+            matchesFilter = isRecent(snippet.created_at);
+          } else if (snippet.language) {
+            matchesFilter = snippet.language.toLowerCase() === currentFilter;
+          }
+
+          const finalMatch = matchesSearch && matchesFilter;
+
+          if (currentFilter === "favorites") {
+            console.log(
+              `⭐ Final result for ${snippet.id}: search=${matchesSearch}, filter=${matchesFilter}, final=${finalMatch}`
+            );
+          }
+
+          return finalMatch;
+        });
+
+        console.log(`🔍 Filtered results: ${filteredSnippets.length} snippets`);
+
+        if (currentFilter === "favorites") {
+          console.log(`⭐ FAVORITES FILTER RESULTS:`);
+          filteredSnippets.forEach((snippet, index) => {
+            console.log(
+              `  ${index + 1}. ${snippet.id}: "${snippet.title}" (favorite: ${
+                snippet.is_favorite
+              })`
+            );
+          });
+        }
+
+        displaySnippets(filteredSnippets);
+        updateSnippetCount();
+
+        console.log(`🔍 ===== FILTER SNIPPETS END =====`);
+      }
+
+      // Update snippet count
+      function updateSnippetCount() {
+        if (snippetCount) {
+          const count = filteredSnippets.length;
+          snippetCount.textContent = `${count} snippet${
+            count !== 1 ? "s" : ""
+          }`;
+        }
+      }
+
+      // Utility functions
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      function isRecent(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+      }
+
+      function showErrorMessage(message) {
+        if (snippetsGrid) {
+          snippetsGrid.innerHTML = `
+                      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: #ff6b6b;">
+                          <i class="fas fa-exclamation-triangle" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                          <h3>Error</h3>
+                          <p>${message}</p>
+                          <button class="btn-primary" onclick="loadSnippets()" style="margin-top: 1rem;">Retry</button>
+                      </div>
+                  `;
+        }
+      }
+
+      // Action functions
+      function copySnippet(snippetId) {
+        const snippet = allSnippets.find((s) => s.id === snippetId);
+        if (snippet && snippet.code) {
+          navigator.clipboard.writeText(snippet.code).then(() => {
+            showToast("Code copied to clipboard! 📋");
+          });
+        }
+      }
+
+      function editSnippet(snippetId) {
+        const snippet = allSnippets.find((s) => s.id === snippetId);
+        if (snippet) {
+          openSnippetModal(snippet);
+        } else {
+          showToast("Snippet not found", "error");
+        }
+      }
+
+      function shareSnippet(snippetId) {
+        showToast("Share link copied! 🔗");
+      }
+
+      async function toggleFavorite(snippetId) {
+        console.log(`⭐ ===== TOGGLE FAVORITE START =====`);
+        console.log(`⭐ Snippet ID: ${snippetId}`);
+        console.log(`⭐ Current filter: ${currentFilter}`);
+
+        try {
+          // Find current snippet in local data
+          const snippet = allSnippets.find((s) => s.id === snippetId);
+          console.log(
+            `⭐ Found snippet in local data:`,
+            snippet
+              ? {
+                  id: snippet.id,
+                  title: snippet.title,
+                  is_favorite: snippet.is_favorite,
+                }
+              : "NOT FOUND"
+          );
+
+          if (!snippet) {
+            console.error(
+              `⭐ ERROR: Snippet ${snippetId} not found in local data`
+            );
+            showToast("Snippet not found in local data", "error");
+            return;
+          }
+
+          const oldFavoriteStatus = snippet.is_favorite;
+          console.log(`⭐ Current favorite status: ${oldFavoriteStatus}`);
+
+          // Make API call
+          console.log(`⭐ Making API call to toggle favorite...`);
+          const response = await fetch(`/api/snippets/${snippetId}/favorite`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          console.log(`⭐ API Response status: ${response.status}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          console.log(`⭐ API Response data:`, result);
+
+          if (result.success) {
+            const newFavoriteStatus = result.is_favorite;
+            console.log(`⭐ Server returned new status: ${newFavoriteStatus}`);
+
+            // Update local data
+            snippet.is_favorite = newFavoriteStatus;
+            console.log(
+              `⭐ Updated local snippet data: ${oldFavoriteStatus} → ${newFavoriteStatus}`
+            );
+
+            // Update UI button
+            const card = document.querySelector(`[data-id="${snippetId}"]`);
+            if (card) {
+              const btn = card.querySelector(".favorite-btn");
+              if (btn) {
+                const newColor = newFavoriteStatus ? "#fbbf24" : "";
+                btn.style.color = newColor;
+                btn.dataset.favorited = newFavoriteStatus;
+                console.log(
+                  `⭐ Updated UI button: color=${newColor}, dataset=${newFavoriteStatus}`
+                );
+              } else {
+                console.warn(`⭐ WARNING: Favorite button not found in card`);
+              }
+            } else {
+              console.warn(
+                `⭐ WARNING: Card not found for snippet ${snippetId}`
+              );
+            }
+
+            // Show appropriate message
+            const message = newFavoriteStatus
+              ? "Added to favorites ⭐"
+              : "Removed from favorites 💔";
+            showToast(message, "success");
+            console.log(`⭐ Showed toast: ${message}`);
+
+            // If currently viewing favorites, refresh the view
+            if (currentFilter === "favorites") {
+              console.log(
+                `⭐ Currently viewing favorites filter, refreshing view...`
+              );
+              setTimeout(() => {
+                filterSnippets();
+                console.log(`⭐ Filter refresh completed`);
+              }, 100);
+            }
+
+            console.log(`⭐ ===== TOGGLE FAVORITE SUCCESS =====`);
+          } else {
+            console.error(`⭐ Server error:`, result);
+            showToast(result.message || "Failed to update favorite", "error");
+          }
+        } catch (error) {
+          console.error("❌ TOGGLE FAVORITE ERROR:", error);
+          console.error("❌ Error stack:", error.stack);
+          showToast("Failed to update favorite", "error");
+        }
+      }
+
+      async function deleteSnippet(snippetId) {
+        if (confirm("Are you sure you want to delete this snippet?")) {
+          try {
+            console.log(`🗑️ Deleting snippet: ${snippetId}`);
+            const response = await fetch(`/api/snippets/${snippetId}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            });
+
+            console.log(`🗑️ Delete response status: ${response.status}`);
+            const result = await response.json();
+            console.log(`🗑️ Delete result:`, result);
+
+            if (result.success) {
+              // Remove from local arrays
+              allSnippets = allSnippets.filter((s) => s.id !== snippetId);
+              filteredSnippets = filteredSnippets.filter(
+                (s) => s.id !== snippetId
+              );
+
+              // Remove card from UI
+              const card = document.querySelector(`[data-id="${snippetId}"]`);
+              if (card) {
+                card.style.animation = "fadeOut 0.3s ease";
+                setTimeout(() => {
+                  card.remove();
+                  updateSnippetCount();
+                }, 300);
+              }
+
+              showToast("Snippet deleted successfully! 🗑️", "success");
+            } else {
+              showToast(result.message || "Failed to delete snippet", "error");
+            }
+          } catch (error) {
+            console.error("❌ Error deleting snippet:", error);
+            showToast("Failed to delete snippet", "error");
+          }
+        }
+      }
+
+      function showToast(message, type = "info") {
+        const toast = document.createElement("div");
+        toast.textContent = message;
+
+        const colors = {
+          success: "linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%)",
+          error: "linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%)",
+          info: "linear-gradient(135deg, #74b9ff 0%, #0984e3 100%)",
+        };
+
+        toast.style.cssText = `
+              position: fixed;
+              top: 2rem;
+              right: 2rem;
+              background: ${colors[type] || colors.info};
+              color: white;
+              padding: 1rem 1.5rem;
+              border-radius: 12px;
+              z-index: 3000;
+              animation: slideIn 0.3s ease;
+              box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          `;
+
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
+
+      // Advanced Editor Variables
+      let currentAdvancedSnippet = null;
+      let advancedEditorAutoSaveTimer = null;
+
+      // Advanced Editor Functions
+      function openAdvancedEditor(snippetId = null) {
+        const overlay = document.getElementById("advancedEditorOverlay");
+        const titleInput = document.getElementById("editorSnippetTitle");
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const languageSelect = document.getElementById("editorLanguageSelect");
+
+        if (snippetId) {
+          // Edit existing snippet
+          const snippet = allSnippets.find((s) => s.id === snippetId);
+          if (snippet) {
+            currentAdvancedSnippet = snippet;
+            titleInput.value = snippet.title || "";
+            codeEditor.value = snippet.code || "";
+            languageSelect.value = snippet.language || "javascript";
+          }
+        } else {
+          // New snippet
+          currentAdvancedSnippet = null;
+          titleInput.value = "";
+          codeEditor.value = "";
+          languageSelect.value = "javascript";
+        }
+
+        overlay.classList.add("active");
+        updateAdvancedLineNumbers();
+        updateAdvancedEditorStats();
+
+        // Focus on title if new, code if editing
+        if (snippetId) {
+          codeEditor.focus();
+        } else {
+          titleInput.focus();
+        }
+      }
+
+      function closeAdvancedEditor() {
+        const overlay = document.getElementById("advancedEditorOverlay");
+        overlay.classList.remove("active");
+        currentAdvancedSnippet = null;
+        clearTimeout(advancedEditorAutoSaveTimer);
+      }
+
+      function updateAdvancedLineNumbers() {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const lineNumbers = document.getElementById("advancedLineNumbers");
+
+        const lines = codeEditor.value.split("\n").length;
+        const lineNumbersHtml = Array.from(
+          { length: lines },
+          (_, i) => `${i + 1}`
+        ).join("\n");
+
+        lineNumbers.textContent = lineNumbersHtml;
+      }
+
+      function updateAdvancedEditorStats() {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const charCount = document.getElementById("editorCharCount");
+
+        const text = codeEditor.value;
+        charCount.textContent = `${text.length} characters`;
+      }
+
+      function updateCursorPosition() {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const cursorPos = document.getElementById("editorCursorPos");
+
+        const text = codeEditor.value;
+        const cursorPosition = codeEditor.selectionStart;
+
+        const textBeforeCursor = text.substring(0, cursorPosition);
+        const lines = textBeforeCursor.split("\n");
+        const line = lines.length;
+        const column = lines[lines.length - 1].length + 1;
+
+        cursorPos.textContent = `Line ${line}, Column ${column}`;
+      }
+
+      function formatAdvancedCode() {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const languageSelect = document.getElementById("editorLanguageSelect");
+
+        let code = codeEditor.value;
+        const language = languageSelect.value;
+
+        // Simple formatting based on language
+        if (
+          language === "javascript" ||
+          language === "css" ||
+          language === "json"
+        ) {
+          // Basic indentation for JS/CSS
+          const lines = code.split("\n");
+          let indentLevel = 0;
+          const formatted = lines
+            .map((line) => {
+              const trimmed = line.trim();
+
+              if (trimmed.includes("}") && !trimmed.includes("{")) {
+                indentLevel = Math.max(0, indentLevel - 1);
+              }
+
+              const indented = "  ".repeat(indentLevel) + trimmed;
+
+              if (trimmed.includes("{") && !trimmed.includes("}")) {
+                indentLevel++;
+              }
+
+              return indented;
+            })
+            .join("\n");
+
+          codeEditor.value = formatted;
+        }
+
+        updateAdvancedLineNumbers();
+        updateAdvancedEditorStats();
+        showToast("Code formatted! 🎨", "success");
+      }
+
+      async function saveAdvancedSnippet(closeAfter = false) {
+        console.log("🚀 ===== ENHANCED ADVANCED SAVE START =====");
+
+        const titleInput = document.getElementById("editorSnippetTitle");
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const languageSelect = document.getElementById("editorLanguageSelect");
+        const collectionSelect = document.getElementById(
+          "advancedSnippetCollection"
+        );
+
+        const snippetData = {
+          title: titleInput.value.trim() || "Untitled Snippet",
+          code: codeEditor.value.trim(),
+          language: languageSelect.value,
+          description: "",
+          tags: "",
+        };
+
+        // Get selected collection
+        const selectedCollectionId = collectionSelect
+          ? collectionSelect.value
+          : null;
+        console.log("🚀 Advanced editor data:", snippetData);
+        console.log("🚀 Selected collection ID:", selectedCollectionId);
+
+        if (!snippetData.code) {
+          showToast("Please enter some code", "error");
+          return;
+        }
+
+        try {
+          const url = currentAdvancedSnippet
+            ? `/api/snippets/${currentAdvancedSnippet.id}`
+            : "/api/snippets/";
+          const method = currentAdvancedSnippet ? "PUT" : "POST";
+
+          // Add collection_id for new snippets
+          if (!currentAdvancedSnippet && selectedCollectionId) {
+            snippetData.collection_id = selectedCollectionId;
+          }
+
+          const response = await fetch(url, {
+            method: method,
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(snippetData),
+          });
+
+          const result = await response.json();
+          console.log("🚀 Advanced save result:", result);
+
+          if (result.success) {
+            const collectionName = selectedCollectionId
+              ? allCollections.find((c) => c.id === selectedCollectionId)
+                  ?.name || "Unknown"
+              : null;
+
+            const message = currentAdvancedSnippet
+              ? "Snippet updated! 💾"
+              : collectionName
+              ? `Snippet created and added to "${collectionName}" 💾`
+              : "Snippet created! 💾";
+
+            showToast(message, "success");
+
+            if (closeAfter) {
+              closeAdvancedEditor();
+            }
+
+            loadSnippets();
+          } else {
+            showToast(result.message || "Failed to save snippet", "error");
+          }
+        } catch (error) {
+          console.error("❌ Error saving advanced snippet:", error);
+          showToast("Failed to save snippet", "error");
+        }
+
+        console.log("🚀 ===== ENHANCED ADVANCED SAVE END =====");
+      }
+
+      function scheduleAdvancedAutoSave() {
+        clearTimeout(advancedEditorAutoSaveTimer);
+        advancedEditorAutoSaveTimer = setTimeout(() => {
+          if (currentAdvancedSnippet) {
+            saveAdvancedSnippet(false);
+          }
+        }, 3000);
+      }
+
+      // Advanced Editor Functions
+      function editSnippetAdvanced(snippetId) {
+        openAdvancedEditor(snippetId);
+      }
+
+      function createSnippetAdvanced() {
+        openAdvancedEditor();
+      }
+
+      // Setup Advanced Editor Event Listeners
+      function setupAdvancedEditorEvents() {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const closeBtn = document.getElementById("closeAdvancedEditor");
+        const saveBtn = document.getElementById("saveAdvancedSnippet");
+        const saveCloseBtn = document.getElementById("saveAndCloseAdvanced");
+        const formatBtn = document.getElementById("formatCodeBtn");
+        const lineNumbers = document.getElementById("advancedLineNumbers");
+
+        if (!codeEditor) return; // Exit if elements don't exist
+
+        // Code editor events
+        codeEditor.addEventListener("input", () => {
+          updateAdvancedLineNumbers();
+          updateAdvancedEditorStats();
+          scheduleAdvancedAutoSave();
+        });
+
+        codeEditor.addEventListener("keyup", updateCursorPosition);
+        codeEditor.addEventListener("click", updateCursorPosition);
+
+        // Sync scroll between code editor and line numbers
+        codeEditor.addEventListener("scroll", () => {
+          lineNumbers.scrollTop = codeEditor.scrollTop;
+        });
+
+        // Tab key handling for proper indentation
+        codeEditor.addEventListener("keydown", (e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            const start = codeEditor.selectionStart;
+            const end = codeEditor.selectionEnd;
+
+            codeEditor.value =
+              codeEditor.value.substring(0, start) +
+              "  " +
+              codeEditor.value.substring(end);
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+            updateAdvancedLineNumbers();
+          }
+
+          if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+            e.preventDefault();
+            saveAdvancedSnippet(false);
+          }
+
+          if (e.key === "Escape") {
+            closeAdvancedEditor();
+          }
+        });
+
+        // Button events
+        closeBtn.addEventListener("click", closeAdvancedEditor);
+        saveBtn.addEventListener("click", () => saveAdvancedSnippet(false));
+        saveCloseBtn.addEventListener("click", () => saveAdvancedSnippet(true));
+        formatBtn.addEventListener("click", formatAdvancedCode);
+
+        // Language change event
+        document
+          .getElementById("editorLanguageSelect")
+          .addEventListener("change", (e) => {
+            showToast(`Language changed to ${e.target.value}`, "info");
+          });
+      }
+
+      // Setup Advanced Editor Event Listeners (continued)
+      document.addEventListener("DOMContentLoaded", function () {
+        const codeEditor = document.getElementById("advancedCodeEditor");
+        const closeBtn = document.getElementById("closeAdvancedEditor");
+        const saveBtn = document.getElementById("saveAdvancedSnippet");
+        const saveCloseBtn = document.getElementById("saveAndCloseAdvanced");
+        const formatBtn = document.getElementById("formatCodeBtn");
+        const lineNumbers = document.getElementById("advancedLineNumbers");
+
+        // Code editor events
+        codeEditor.addEventListener("input", () => {
+          updateAdvancedLineNumbers();
+          updateAdvancedEditorStats();
+          scheduleAdvancedAutoSave();
+        });
+
+        codeEditor.addEventListener("keyup", updateCursorPosition);
+        codeEditor.addEventListener("click", updateCursorPosition);
+
+        // Sync scroll between code editor and line numbers
+        codeEditor.addEventListener("scroll", () => {
+          lineNumbers.scrollTop = codeEditor.scrollTop;
+        });
+
+        // Tab key handling for proper indentation
+        codeEditor.addEventListener("keydown", (e) => {
+          if (e.key === "Tab") {
+            e.preventDefault();
+            const start = codeEditor.selectionStart;
+            const end = codeEditor.selectionEnd;
+
+            // Insert tab character
+            codeEditor.value =
+              codeEditor.value.substring(0, start) +
+              "  " +
+              codeEditor.value.substring(end);
+
+            // Move cursor
+            codeEditor.selectionStart = codeEditor.selectionEnd = start + 2;
+
+            updateAdvancedLineNumbers();
+          }
+
+          // Ctrl+S to save
+          if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+            e.preventDefault();
+            saveAdvancedSnippet(false);
+          }
+
+          // Escape to close
+          if (e.key === "Escape") {
+            closeAdvancedEditor();
+          }
+        });
+
+        // Button events
+        closeBtn.addEventListener("click", closeAdvancedEditor);
+        saveBtn.addEventListener("click", () => saveAdvancedSnippet(false));
+        saveCloseBtn.addEventListener("click", () => saveAdvancedSnippet(true));
+        formatBtn.addEventListener("click", formatAdvancedCode);
+
+        // Language change event
+        document
+          .getElementById("editorLanguageSelect")
+          .addEventListener("change", (e) => {
+            showToast(`Language changed to ${e.target.value}`, "info");
+          });
+      });
+
+      // Update your existing editSnippet function to include advanced editor option
+      function editSnippetAdvanced(snippetId) {
+        openAdvancedEditor(snippetId);
+      }
+
+      // Add function to create new snippet with advanced editor
+      function createSnippetAdvanced() {
+        openAdvancedEditor();
+      }
+
+      // Modal Variables - Initialize as null
+      let snippetModal = null;
+      let snippetForm = null;
+      let addSnippetBtn = null;
+      let closeModal = null;
+      let editingSnippetId = null;
+
+      // Setup modal events
+      function setupModalEvents() {
+        console.log("🚀 Snippets: ===== SETUP MODAL EVENTS START =====");
+
+        // Get modal elements INSIDE the function when DOM is ready
+        snippetModal = document.getElementById("snippetModal");
+        snippetForm = document.getElementById("snippetForm");
+        addSnippetBtn = document.getElementById("addSnippetBtn");
+        closeModal = document.getElementById("closeModal");
+
+        // Log what we found
+        console.log("🚀 Snippets: Modal elements check:", {
+          snippetModal: !!snippetModal,
+          snippetForm: !!snippetForm,
+          addSnippetBtn: !!addSnippetBtn,
+          closeModal: !!closeModal,
+        });
+
+        // Check for missing elements with detailed error messages
+        if (!snippetModal) {
+          console.error(
+            "❌ Snippets: snippetModal element not found! Make sure the modal HTML is present."
+          );
+          showToast("Modal HTML missing. Please refresh the page.", "error");
+          return;
+        }
+
+        if (!snippetForm) {
+          console.error("❌ Snippets: snippetForm element not found!");
+          showToast("Modal form missing. Please refresh the page.", "error");
+          return;
+        }
+
+        if (!addSnippetBtn) {
+          console.error("❌ Snippets: addSnippetBtn element not found!");
+          showToast("Add button missing. Please refresh the page.", "error");
+          return;
+        }
+
+        if (!closeModal) {
+          console.error("❌ Snippets: closeModal element not found!");
+          showToast("Close button missing. Please refresh the page.", "error");
+          return;
+        }
+
+        console.log("✅ Snippets: All modal elements found successfully");
+
+        // Setup event listeners with enhanced error handling
+        try {
+          console.log("🚀 Snippets: Setting up add snippet button listener");
+          addSnippetBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+            console.log("🚀 Snippets: Add snippet button clicked");
+            openSnippetModal();
+          });
+
+          console.log("🚀 Snippets: Setting up close modal button listener");
+          closeModal.addEventListener("click", function (e) {
+            e.preventDefault();
+            console.log("🚀 Snippets: Close modal button clicked");
+            closeSnippetModal();
+          });
+
+          console.log("🚀 Snippets: Setting up modal overlay click listener");
+          snippetModal.addEventListener("click", function (e) {
+            if (e.target === snippetModal) {
+              console.log("🚀 Snippets: Clicked outside modal, closing...");
+              closeSnippetModal();
+            }
+          });
+
+          console.log("🚀 Snippets: Setting up form submit listener");
+          snippetForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+            console.log("🚀 Snippets: Form submitted");
+            handleSnippetSubmit(e);
+          });
+
+          // ESC key listener
+          document.addEventListener("keydown", function (e) {
+            if (
+              e.key === "Escape" &&
+              snippetModal &&
+              snippetModal.classList.contains("active")
+            ) {
+              console.log("🚀 Snippets: ESC key pressed, closing modal");
+              closeSnippetModal();
+            }
+          });
+          // ✅ ADD SHARE MODAL EVENT LISTENERS
+          const closeShareModal = document.getElementById("closeShareModal");
+          if (closeShareModal) {
+            closeShareModal.addEventListener("click", function (e) {
+              e.preventDefault();
+              closeTeamShareModal();
+            });
+          }
+
+          // ESC key for share modal
+          document.addEventListener("keydown", function (e) {
+            if (
+              e.key === "Escape" &&
+              document.getElementById("teamShareModal") &&
+              document
+                .getElementById("teamShareModal")
+                .classList.contains("active")
+            ) {
+              closeTeamShareModal();
+            }
+          });
+
+          console.log(
+            "✅ Snippets: All modal event listeners setup successfully"
+          );
+        } catch (error) {
+          console.error("❌ Snippets: Error setting up modal events:", error);
+          console.error("❌ Snippets: Error stack:", error.stack);
+          showToast(
+            "Error setting up modal. Please refresh the page.",
+            "error"
+          );
+        }
+
+        console.log("🚀 Snippets: ===== SETUP MODAL EVENTS END =====");
+      }
+
+      // Open snippet modal
+      function openSnippetModal(snippet = null) {
+        console.log(
+          "🚀 Snippets: Opening snippet modal...",
+          snippet ? `Editing: ${snippet.id}` : "Creating new"
+        );
+
+        if (!snippetModal) {
+          console.error(
+            "❌ Snippets: snippetModal not available in openSnippetModal"
+          );
+          showToast("Modal not available. Please refresh the page.", "error");
+          return;
+        }
+
+        editingSnippetId = snippet ? snippet.id : null;
+
+        if (snippet) {
+          console.log("🚀 Snippets: Setting up modal for editing");
+          const modalTitle = document.getElementById("modalTitle");
+          const snippetTitle = document.getElementById("snippetTitle");
+          const snippetLanguage = document.getElementById("snippetLanguage");
+          const snippetTags = document.getElementById("snippetTags");
+          const snippetCode = document.getElementById("snippetCode");
+          const snippetDescription =
+            document.getElementById("snippetDescription");
+
+          if (modalTitle) modalTitle.textContent = "Edit Snippet";
+          if (snippetTitle) snippetTitle.value = snippet.title || "";
+          if (snippetLanguage) snippetLanguage.value = snippet.language || "";
+          if (snippetTags)
+            snippetTags.value = Array.isArray(snippet.tags)
+              ? snippet.tags.join(", ")
+              : snippet.tags || "";
+          if (snippetCode) snippetCode.value = snippet.code || "";
+          if (snippetDescription)
+            snippetDescription.value = snippet.description || "";
+        } else {
+          console.log("🚀 Snippets: Setting up modal for new snippet");
+          const modalTitle = document.getElementById("modalTitle");
+          if (modalTitle) modalTitle.textContent = "Add New Snippet";
+          if (snippetForm) {
+            snippetForm.reset();
+          }
+        }
+
+        snippetModal.classList.add("active");
+        console.log("✅ Snippets: Modal opened successfully");
+
+        // Focus on title input
+        setTimeout(() => {
+          const titleInput = document.getElementById("snippetTitle");
+          if (titleInput) {
+            titleInput.focus();
+          }
+        }, 100);
+      }
+
+      // Close snippet modal
+      function closeSnippetModal() {
+        console.log("🚀 Snippets: Closing snippet modal...");
+
+        if (!snippetModal) {
+          console.error(
+            "❌ Snippets: snippetModal not available in closeSnippetModal"
+          );
+          return;
+        }
+
+        snippetModal.classList.remove("active");
+        editingSnippetId = null;
+
+        if (snippetForm) {
+          snippetForm.reset();
+        }
+
+        console.log("✅ Snippets: Modal closed successfully");
+      }
+      // Enhanced snippet form submission with BOTH collections AND team sharing
+      async function handleSnippetSubmit(e) {
+        e.preventDefault();
+        console.log("🚀 ===== ENHANCED SNIPPET SUBMIT START =====");
+
+        const formData = {
+          title: document.getElementById("snippetTitle").value.trim(),
+          language: document.getElementById("snippetLanguage").value.trim(),
+          tags: document.getElementById("snippetTags").value.trim(),
+          code: document.getElementById("snippetCode").value.trim(),
+          description: document
+            .getElementById("snippetDescription")
+            .value.trim(),
+        };
+
+        // ✅ GET BOTH COLLECTION AND TEAMS
+        const collectionSelect = document.getElementById("snippetCollection");
+        const selectedCollectionId = collectionSelect
+          ? collectionSelect.value
+          : null;
+
+        const selectedTeams = Array.from(
+          document.querySelectorAll('input[name="shareTeams"]:checked')
+        ).map((cb) => cb.value);
+
+        console.log("🚀 Form data:", formData);
+        console.log("🚀 Selected collection ID:", selectedCollectionId);
+        console.log("🚀 Selected teams:", selectedTeams);
+
+        if (!formData.title || !formData.code || !formData.language) {
+          showToast("Please fill in all required fields", "error");
+          return;
+        }
+
+        try {
+          // ✅ STEP 1: CREATE SNIPPET WITH COLLECTION (if selected)
+          if (selectedCollectionId) {
+            formData.collection_id = selectedCollectionId;
+          }
+
+          const createResponse = await fetch("/api/snippets/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const createResult = await createResponse.json();
+          console.log("🚀 Create snippet result:", createResult);
+
+          if (!createResult.success) {
+            showToast(
+              createResult.message || "Failed to create snippet",
+              "error"
+            );
+            return;
+          }
+
+          const snippetId = createResult.snippet.id;
+          let successMessage = "Snippet created successfully! ✅";
+
+          // ✅ STEP 2: ADD TO COLLECTION (if selected and not already added)
+          if (selectedCollectionId && !formData.collection_id) {
+            try {
+              const collectionResponse = await fetch(
+                `/api/snippets/${snippetId}/collections`,
+                {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    collection_id: selectedCollectionId,
+                  }),
+                }
+              );
+
+              const collectionResult = await collectionResponse.json();
+              if (collectionResult.success) {
+                const collectionName =
+                  allCollections.find((c) => c.id === selectedCollectionId)
+                    ?.name || "Unknown";
+                successMessage = `Snippet created and added to "${collectionName}" ✅`;
+              }
+            } catch (collectionError) {
+              console.error("❌ Error adding to collection:", collectionError);
+            }
+          }
+
+          // ✅ STEP 3: SHARE WITH TEAMS (if selected)
+          // ✅ STEP 3: SHARE WITH TEAMS (if selected)
+if (selectedTeams.length > 0) {
+  console.log("🔗 Sharing snippet with teams during creation...");
+
+  try {
+    const shareResponse = await fetch(
+      `/api/snippets/${snippetId}/share`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          team_ids: selectedTeams,
+          sharing_type: "copy",
+        }),
+      }
+    );
+
+    const shareResult = await shareResponse.json();
+    
+    // ✅ HANDLE 409 CONFLICT (ALREADY SHARED)
+    if (shareResponse.status === 409 && shareResult.error_type === "already_shared") {
+      console.log("ℹ️ CREATION SHARING: Already shared, no error");
+      const collectionPart = selectedCollectionId
+        ? "added to collection, snippet already shared with team(s)"
+        : "snippet already shared with selected team(s)";
+      successMessage = `✅ Snippet created and ${collectionPart}`;
+    }
+    // ✅ HANDLE SUCCESS
+    else if (shareResult.success) {
+      const collectionPart = selectedCollectionId
+        ? `added to collection and shared with ${shareResult.shared_count} team(s)`
+        : `shared with ${shareResult.shared_count} team(s)`;
+      successMessage = `✅ Snippet created and ${collectionPart}!`;
+    }
+    // ✅ HANDLE OTHER ERRORS
+    else {
+      successMessage += " (Team sharing failed)";
+    }
+  } catch (shareError) {
+    console.error("❌ Error sharing with teams:", shareError);
+    successMessage += " (Team sharing failed)";
+  }
+}
+          // ✅ SHOW SUCCESS MESSAGE
+          showToast(successMessage, "success");
+          closeSnippetModal();
+          loadSnippets(); // Reload snippets to show the new one
+
+          console.log("✅ Snippet creation completed successfully");
+        } catch (error) {
+          console.error("❌ Error in enhanced snippet submit:", error);
+          showToast("Failed to save snippet. Please try again.", "error");
+        }
+
+        console.log("🚀 ===== ENHANCED SNIPPET SUBMIT END =====");
+      }
+
+      // Debug function to check all elements
+
+      function debugAllElements() {
+        console.log("🔧 DEBUG: ===== ALL ELEMENTS CHECK =====");
+
+        const elements = {
+          // Modal elements
+          snippetModal: document.getElementById("snippetModal"),
+          snippetForm: document.getElementById("snippetForm"),
+          addSnippetBtn: document.getElementById("addSnippetBtn"),
+          closeModal: document.getElementById("closeModal"),
+          modalTitle: document.getElementById("modalTitle"),
+          snippetTitle: document.getElementById("snippetTitle"),
+          snippetLanguage: document.getElementById("snippetLanguage"),
+          snippetTags: document.getElementById("snippetTags"),
+          snippetCode: document.getElementById("snippetCode"),
+          snippetDescription: document.getElementById("snippetDescription"),
+
+          // Other elements
+          snippetsGrid: document.getElementById("snippetsGrid"),
+          snippetCount: document.getElementById("snippetCount"),
+          searchInput: document.getElementById("searchInput"),
+        };
+
+        Object.entries(elements).forEach(([name, element]) => {
+          console.log(
+            `🔧 DEBUG: ${name}:`,
+            element ? "✅ Found" : "❌ Missing",
+            element
+          );
+        });
+
+        console.log("🔧 DEBUG: ===== ALL ELEMENTS CHECK END =====");
+      }
+
+      // Call debug function after a delay
+      setTimeout(debugAllElements, 1000);
+    </script>
+  </body>
+</html>

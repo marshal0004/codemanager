@@ -1,0 +1,687 @@
+{
+  "version": "2.0",
+  "websocket_protocol": "snippet-manager-v1",
+  "description": "WebSocket event definitions for real-time collaboration and synchronization",
+
+  "connection_events": {
+    "connect": {
+      "description": "Client connects to WebSocket server",
+      "direction": "client_to_server",
+      "payload": {
+        "auth_token": "string (required)",
+        "client_type": "string (extension|dashboard)",
+        "client_version": "string"
+      }
+    },
+
+    "connected": {
+      "description": "Server confirms successful connection",
+      "direction": "server_to_client",
+      "payload": {
+        "session_id": "string",
+        "user_id": "integer",
+        "server_time": "ISO timestamp"
+      }
+    },
+
+    "disconnect": {
+      "description": "Client disconnects from server",
+      "direction": "bidirectional",
+      "payload": {
+        "reason": "string (optional)"
+      }
+    },
+    "response": {
+      "status": "string",
+      "session_id": "string",
+      "server_version": "string",
+      "supported_events": ["array_of_strings"]
+    },
+
+    "reconnect": {
+      "description": "Client attempts to reconnect",
+      "direction": "client_to_server",
+      "payload": {
+        "last_session_id": "string (optional)",
+        "last_sync_time": "ISO timestamp (optional)"
+      }
+    },
+    "heartbeat": {
+      "description": "Keep connection alive",
+      "direction": "bidirectional",
+      "interval": 30000,
+      "payload": {
+        "timestamp": "number",
+        "client_id": "string"
+      }
+    }
+  },
+
+  "collection_events": {
+    "collection_created": {
+      "description": "New collection was created",
+      "direction": "bidirectional",
+      "payload": {
+        "collection": "collection_object",
+        "source": "string"
+      }
+    },
+
+    "collection_updated": {
+      "description": "Collection was modified",
+      "direction": "bidirectional",
+      "payload": {
+        "collection_id": "integer",
+        "changes": "object with changed fields",
+        "full_collection": "collection_object",
+        "source": "string"
+      }
+    },
+
+    "collection_deleted": {
+      "description": "Collection was deleted",
+      "direction": "bidirectional",
+      "payload": {
+        "collection_id": "integer",
+        "source": "string"
+      }
+    },
+
+    "snippet_moved_to_collection": {
+      "description": "Snippet was moved between collections",
+      "direction": "bidirectional",
+      "payload": {
+        "snippet_id": "integer",
+        "from_collection_id": "integer (optional)",
+        "to_collection_id": "integer (optional)",
+        "source": "string"
+      }
+    }
+  },
+
+  "authentication_events": {
+    "auth_required": {
+      "description": "Authentication is required",
+      "direction": "server_to_client",
+      "payload": {
+        "reason": "string (token_expired|invalid_token|no_token)"
+      }
+    },
+
+    "auth_success": {
+      "description": "Authentication successful",
+      "direction": "server_to_client",
+      "payload": {
+        "user_id": "integer",
+        "session_id": "string",
+        "expires_at": "ISO timestamp"
+      }
+    },
+
+    "auth_failed": {
+      "description": "Authentication failed",
+      "direction": "server_to_client",
+      "payload": {
+        "reason": "string",
+        "retry_allowed": "boolean"
+      }
+    }
+  },
+
+  "client_states": {
+    "CONNECTING": "Attempting to connect to server",
+    "CONNECTED": "Successfully connected and authenticated",
+    "DISCONNECTED": "Not connected to server",
+    "RECONNECTING": "Attempting to reconnect",
+    "SYNCING": "Synchronizing data with server",
+    "ERROR": "Connection error state"
+  },
+
+  "message_format": {
+    "description": "Standard WebSocket message format",
+    "structure": {
+      "event": "string (required) - event name",
+      "payload": "object (optional) - event data",
+      "id": "string (optional) - message ID for request/response matching",
+      "timestamp": "ISO timestamp (required)",
+      "client_id": "string (optional) - for multi-client scenarios"
+    }
+  },
+  "snippet_events": {
+    "snippet_created": {
+      "description": "New snippet created",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "snippet_id": "string",
+        "title": "string",
+        "content": "string",
+        "language": "string",
+        "tags": ["array_of_strings"],
+        "created_by": "string",
+        "created_at": "timestamp",
+        "collection_id": "string|null",
+        "team_id": "string|null"
+      }
+    },
+    "snippet_batch_sync": {
+      "description": "Batch synchronization of multiple snippets",
+      "direction": "bidirectional",
+      "payload": {
+        "snippets": "array of snippet_objects",
+        "sync_type": "string (initial|incremental|full)",
+        "timestamp": "ISO timestamp"
+      }
+    },
+
+    "snippet_updated": {
+      "description": "Snippet content or metadata updated",
+      "direction": "bidirectional",
+      "broadcast": "collaborators",
+      "payload": {
+        "snippet_id": "string",
+        "changes": {
+          "title": "string|null",
+          "content": "string|null",
+          "language": "string|null",
+          "tags": ["array_of_strings|null"],
+          "description": "string|null"
+        },
+        "updated_by": "string",
+        "updated_at": "timestamp",
+        "version": "number",
+        "change_type": "string"
+      }
+    },
+
+    "snippet_deleted": {
+      "description": "Snippet deleted",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "snippet_id": "string",
+        "deleted_by": "string",
+        "deleted_at": "timestamp",
+        "soft_delete": "boolean"
+      }
+    },
+
+    "snippet_shared": {
+      "description": "Snippet shared with team or made public",
+      "direction": "server_to_client",
+      "broadcast": "recipients",
+      "payload": {
+        "snippet_id": "string",
+        "shared_by": "string",
+        "shared_with": ["array_of_user_ids"],
+        "share_type": "string",
+        "permissions": "object",
+        "shared_at": "timestamp"
+      }
+    }
+  },
+
+  "collaboration_events": {
+    "editor_joined": {
+      "description": "User joined collaborative editing session",
+      "direction": "server_to_client",
+      "broadcast": "collaborators",
+      "payload": {
+        "snippet_id": "string",
+        "user_id": "string",
+        "username": "string",
+        "avatar": "string",
+        "cursor_color": "string",
+        "joined_at": "timestamp",
+        "permissions": "object"
+      }
+    },
+
+    "editor_left": {
+      "description": "User left collaborative editing session",
+      "direction": "server_to_client",
+      "broadcast": "collaborators",
+      "payload": {
+        "snippet_id": "string",
+        "user_id": "string",
+        "left_at": "timestamp",
+        "session_duration": "number"
+      }
+    },
+
+    "cursor_moved": {
+      "description": "Real-time cursor position update",
+      "direction": "bidirectional",
+      "broadcast": "collaborators",
+      "throttle": 100,
+      "payload": {
+        "snippet_id": "string",
+        "user_id": "string",
+        "cursor_position": {
+          "line": "number",
+          "column": "number"
+        },
+        "selection": {
+          "start": { "line": "number", "column": "number" },
+          "end": { "line": "number", "column": "number" }
+        },
+        "timestamp": "timestamp"
+      }
+    },
+
+    "text_operation": {
+      "description": "Operational transform for collaborative editing",
+      "direction": "bidirectional",
+      "broadcast": "collaborators",
+      "payload": {
+        "snippet_id": "string",
+        "user_id": "string",
+        "operation": {
+          "type": "string",
+          "position": "number",
+          "content": "string",
+          "length": "number"
+        },
+        "base_version": "number",
+        "client_id": "string",
+        "timestamp": "timestamp"
+      }
+    },
+
+    "conflict_detected": {
+      "description": "Editing conflict detected",
+      "direction": "server_to_client",
+      "broadcast": "involved_users",
+      "payload": {
+        "snippet_id": "string",
+        "conflict_id": "string",
+        "conflicting_users": ["array_of_user_ids"],
+        "conflict_region": {
+          "start": { "line": "number", "column": "number" },
+          "end": { "line": "number", "column": "number" }
+        },
+        "resolution_strategy": "string",
+        "detected_at": "timestamp"
+      }
+    },
+
+    "conflict_resolved": {
+      "description": "Editing conflict resolved",
+      "direction": "server_to_client",
+      "broadcast": "collaborators",
+      "payload": {
+        "snippet_id": "string",
+        "conflict_id": "string",
+        "resolution": "string",
+        "resolved_by": "string",
+        "final_content": "string",
+        "resolved_at": "timestamp"
+      }
+    }
+  },
+
+  "team_events": {
+    "team_member_added": {
+      "description": "New member added to team",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "team_id": "string",
+        "user_id": "string",
+        "username": "string",
+        "email": "string",
+        "role": "string",
+        "permissions": "object",
+        "added_by": "string",
+        "added_at": "timestamp"
+      }
+    },
+
+    "team_member_removed": {
+      "description": "Member removed from team",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "team_id": "string",
+        "user_id": "string",
+        "removed_by": "string",
+        "reason": "string",
+        "removed_at": "timestamp"
+      }
+    },
+
+    "team_role_updated": {
+      "description": "Team member role or permissions updated",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "team_id": "string",
+        "user_id": "string",
+        "old_role": "string",
+        "new_role": "string",
+        "permissions": "object",
+        "updated_by": "string",
+        "updated_at": "timestamp"
+      }
+    },
+
+    "team_activity": {
+      "description": "General team activity notification",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "team_id": "string",
+        "activity_type": "string",
+        "actor_id": "string",
+        "actor_name": "string",
+        "target_type": "string",
+        "target_id": "string",
+        "target_name": "string",
+        "description": "string",
+        "timestamp": "timestamp",
+        "metadata": "object"
+      }
+    }
+  },
+
+  "notification_events": {
+    "notification_created": {
+      "description": "New notification for user",
+      "direction": "server_to_client",
+      "broadcast": "specific_user",
+      "payload": {
+        "notification_id": "string",
+        "user_id": "string",
+        "type": "string",
+        "title": "string",
+        "message": "string",
+        "priority": "string",
+        "action_url": "string|null",
+        "metadata": "object",
+        "created_at": "timestamp",
+        "expires_at": "timestamp|null"
+      }
+    },
+
+    "notification_read": {
+      "description": "Notification marked as read",
+      "direction": "client_to_server",
+      "payload": {
+        "notification_id": "string",
+        "user_id": "string",
+        "read_at": "timestamp"
+      }
+    },
+
+    "bulk_notifications_read": {
+      "description": "Multiple notifications marked as read",
+      "direction": "client_to_server",
+      "payload": {
+        "notification_ids": ["array_of_strings"],
+        "user_id": "string",
+        "read_at": "timestamp"
+      }
+    }
+  },
+
+  "integration_events": {
+    "github_repo_connected": {
+      "description": "GitHub repository connected to workspace",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "integration_id": "string",
+        "repo_name": "string",
+        "repo_url": "string",
+        "connected_by": "string",
+        "permissions": ["array_of_strings"],
+        "connected_at": "timestamp",
+        "webhook_configured": "boolean"
+      }
+    },
+
+    "github_push_received": {
+      "description": "GitHub webhook push event received",
+      "direction": "server_to_client",
+      "broadcast": "interested_users",
+      "payload": {
+        "repo_name": "string",
+        "branch": "string",
+        "commits": ["array_of_commits"],
+        "pusher": "object",
+        "files_changed": ["array_of_files"],
+        "timestamp": "timestamp"
+      }
+    },
+
+    "slack_integration_connected": {
+      "description": "Slack workspace connected",
+      "direction": "server_to_client",
+      "broadcast": "team_members",
+      "payload": {
+        "integration_id": "string",
+        "workspace_name": "string",
+        "connected_channel": "string",
+        "connected_by": "string",
+        "bot_permissions": ["array_of_strings"],
+        "connected_at": "timestamp"
+      }
+    },
+
+    "integration_error": {
+      "description": "Integration error occurred",
+      "direction": "server_to_client",
+      "broadcast": "integration_owner",
+      "payload": {
+        "integration_id": "string",
+        "integration_type": "string",
+        "error_type": "string",
+        "error_message": "string",
+        "error_code": "string|null",
+        "retry_count": "number",
+        "occurred_at": "timestamp",
+        "needs_user_action": "boolean"
+      }
+    }
+  },
+
+  "sync_events": {
+    "sync_requested": {
+      "description": "Client requests data synchronization",
+      "direction": "client_to_server",
+      "payload": {
+        "sync_type": "string",
+        "last_sync_timestamp": "timestamp|null",
+        "resource_ids": ["array_of_strings|null"],
+        "full_sync": "boolean"
+      }
+    },
+
+    "sync_started": {
+      "description": "Server starts synchronization process",
+      "direction": "server_to_client",
+      "payload": {
+        "sync_id": "string",
+        "sync_type": "string",
+        "estimated_duration": "number",
+        "total_items": "number",
+        "started_at": "timestamp"
+      }
+    },
+
+    "sync_progress": {
+      "description": "Synchronization progress update",
+      "direction": "server_to_client",
+      "payload": {
+        "sync_id": "string",
+        "progress": "number",
+        "processed_items": "number",
+        "total_items": "number",
+        "current_operation": "string",
+        "eta": "number|null"
+      }
+    },"sync_conflict": {
+      "description": "Synchronization conflict detected",
+      "direction": "server_to_client",
+      "payload": {
+        "conflict_type": "string (snippet_conflict|collection_conflict)",
+        "item_id": "integer",
+        "server_version": "object",
+        "client_version": "object",
+        "conflict_timestamp": "ISO timestamp"
+      }
+    },
+
+    "sync_completed": {
+      "description": "Synchronization completed",
+      "direction": "server_to_client",
+      "payload": {
+        "sync_id": "string",
+        "status": "string",
+        "items_synced": "number",
+        "items_skipped": "number",
+        "errors": ["array_of_errors"],
+        "duration": "number",
+        "completed_at": "timestamp"
+      }
+    },
+
+    "data_changed": {
+      "description": "Real-time data change notification",
+      "direction": "server_to_client",
+      "broadcast": "subscribers",
+      "payload": {
+        "change_type": "string",
+        "resource_type": "string",
+        "resource_id": "string",
+        "changes": "object",
+        "changed_by": "string",
+        "timestamp": "timestamp",
+        "version": "number"
+      }
+    }
+  },
+
+  "system_events": {
+    "server_status": {
+      "description": "Server status update",
+      "direction": "server_to_client",
+      "broadcast": "all_connected",
+      "payload": {
+        "status": "string",
+        "uptime": "number",
+        "active_connections": "number",
+        "server_version": "string",
+        "maintenance_mode": "boolean",
+        "timestamp": "timestamp"
+      }
+    },
+
+    "maintenance_scheduled": {
+      "description": "Scheduled maintenance notification",
+      "direction": "server_to_client",
+      "broadcast": "all_users",
+      "payload": {
+        "maintenance_id": "string",
+        "scheduled_start": "timestamp",
+        "estimated_duration": "number",
+        "maintenance_type": "string",
+        "description": "string",
+        "impact_level": "string",
+        "advance_notice": "number"
+      }
+    },
+
+    "rate_limit_warning": {
+      "description": "Rate limit warning for client",
+      "direction": "server_to_client",
+      "broadcast": "specific_client",
+      "payload": {
+        "current_usage": "number",
+        "limit": "number",
+        "reset_time": "timestamp",
+        "warning_threshold": "number",
+        "actions_suggested": ["array_of_strings"]
+      }
+    }
+  },
+
+  "error_events": {
+    "error": {
+      "description": "General error event",
+      "direction": "bidirectional",
+      "payload": {
+        "error_id": "string",
+        "error_type": "string",
+        "error_code": "string",
+        "message": "string",
+        "details": "object|null",
+        "recoverable": "boolean",
+        "timestamp": "timestamp",
+        "context": "object"
+      }
+    },
+
+    "validation_error": {
+      "description": "Data validation error",
+      "direction": "server_to_client",
+      "payload": {
+        "field_errors": "object",
+        "global_errors": ["array_of_strings"],
+        "error_code": "VALIDATION_FAILED",
+        "timestamp": "timestamp"
+      }
+    },
+
+    "authentication_error": {
+      "description": "Authentication or authorization error",
+      "direction": "server_to_client",
+      "payload": {
+        "error_type": "string",
+        "error_code": "string",
+        "message": "string",
+        "required_permissions": ["array_of_strings|null"],
+        "timestamp": "timestamp"
+      }
+    }
+  },
+
+  "metadata": {
+    "event_versioning": {
+      "description": "All events support versioning for backward compatibility",
+      "version_header": "event_version",
+      "supported_versions": ["1.0", "2.0"],
+      "deprecation_policy": "6_months_notice"
+    },
+
+    "broadcasting": {
+      "strategies": {
+        "all_connected": "Broadcast to all connected clients",
+        "team_members": "Broadcast to all team members",
+        "collaborators": "Broadcast to active collaborators",
+        "specific_user": "Send to specific user only",
+        "interested_users": "Send to users who subscribed to this event type"
+      }
+    },
+
+    "throttling": {
+      "description": "Some events are throttled to prevent spam",
+      "cursor_moved": "100ms",
+      "heartbeat": "30s",
+      "sync_progress": "1s"
+    },
+
+    "persistence": {
+      "description": "Events that should be persisted for offline clients",
+      "persistent_events": [
+        "snippet_created",
+        "snippet_updated",
+        "snippet_deleted",
+        "team_member_added",
+        "team_member_removed",
+        "notification_created"
+      ],
+      "retention_period": "7_days"
+    }
+  }
+}

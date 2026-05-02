@@ -1,0 +1,3058 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shared - SnippetFlow</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script
+      src="https://unpkg.com/zustand@4.4.7/esm/vanilla.js"
+      type="module"></script>
+
+    <style>
+      :root {
+        --cyber-primary: #00ffff;
+        --cyber-secondary: #ff00ff;
+        --cyber-accent: #ffff00;
+        --cyber-bg: #0a0a0f;
+        --cyber-surface: #1a1a2e;
+        --cyber-surface-hover: #16213e;
+        --cyber-text: #e0e0e0;
+        --cyber-text-dim: #a0a0a0;
+        --cyber-border: #333366;
+        --cyber-success: #00ff88;
+        --cyber-warning: #ffaa00;
+        --cyber-danger: #ff4444;
+        --glass-bg: rgba(26, 26, 46, 0.8);
+        --glass-border: rgba(0, 255, 255, 0.2);
+        --neon-glow: 0 0 20px rgba(0, 255, 255, 0.5);
+        --neon-glow-strong: 0 0 40px rgba(0, 255, 255, 0.8);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--cyber-bg);
+        color: var(--cyber-text);
+        overflow-x: hidden;
+        min-height: 100vh;
+        position: relative;
+      }
+
+      /* Cyberpunk Background Effects */
+      .cyber-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: radial-gradient(
+            circle at 20% 20%,
+            rgba(0, 255, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 80%,
+            rgba(255, 0, 255, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 60%,
+            rgba(255, 255, 0, 0.05) 0%,
+            transparent 50%
+          );
+      }
+
+      .cyber-grid {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(0, 255, 255, 0.1) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: gridPulse 4s ease-in-out infinite;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      @keyframes gridPulse {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.1;
+        }
+      }
+
+      /* Floating Orbs */
+      .cyber-orbs {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+      }
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .orb:nth-child(1) {
+        width: 200px;
+        height: 200px;
+        background: rgba(0, 255, 255, 0.1);
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .orb:nth-child(2) {
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 0, 255, 0.1);
+        top: 60%;
+        right: 20%;
+        animation-delay: 2s;
+      }
+
+      .orb:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 0, 0.1);
+        bottom: 20%;
+        left: 50%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+        50% {
+          transform: translateY(-20px) scale(1.1);
+        }
+      }
+
+      /* Header */
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 1rem 2rem;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        color: var(--cyber-text);
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: var(--neon-glow);
+        }
+        50% {
+          box-shadow: var(--neon-glow-strong);
+        }
+      }
+
+      .brand-text {
+        font-family: "Orbitron", monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--cyber-border);
+        background: var(--glass-bg);
+        color: var(--cyber-text);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-family: inherit;
+      }
+
+      .btn:hover {
+        border-color: var(--cyber-primary);
+        box-shadow: var(--neon-glow);
+        transform: translateY(-2px);
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        border: none;
+        color: white;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Page Header */
+      .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+        animation: slideInDown 0.8s ease-out;
+      }
+
+      .page-title {
+        font-family: "Orbitron", monospace;
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      .page-subtitle {
+        font-size: 1.2rem;
+        color: var(--cyber-text-dim);
+        animation: slideInUp 0.8s ease-out;
+      }
+
+      @keyframes slideInDown {
+        from {
+          opacity: 0;
+          transform: translateY(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes slideInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Stats Grid */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+      }
+
+      .stat-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(
+          90deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--cyber-primary);
+        box-shadow: var(--neon-glow);
+      }
+
+      .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--cyber-primary);
+        margin-bottom: 0.5rem;
+        font-family: "Orbitron", monospace;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--cyber-text-dim);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* Tabs */
+      .tabs-container {
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 0.5rem;
+        background: var(--cyber-surface);
+        border-radius: 12px;
+        padding: 0.5rem;
+        border: 1px solid var(--cyber-border);
+      }
+
+      .tab {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        background: transparent;
+        border: none;
+        color: var(--cyber-text-dim);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        font-weight: 500;
+      }
+
+      .tab.active {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        color: white;
+        box-shadow: var(--neon-glow);
+      }
+
+      .tab:hover:not(.active) {
+        background: var(--cyber-surface-hover);
+        color: var(--cyber-text);
+      }
+
+      /* Content Sections */
+      .content-section {
+        display: none;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Snippet Grid */
+      .snippets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .snippet-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        height: 480px;
+        display: flex;
+        flex-direction: column;
+        cursor: pointer;
+      }
+
+      .snippet-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(
+          90deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .snippet-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .snippet-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--cyber-primary);
+        box-shadow: var(--neon-glow);
+      }
+
+      .snippet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .snippet-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--cyber-text);
+        margin-bottom: 0.5rem;
+      }
+
+      .snippet-language {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .snippet-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: var(--cyber-text-dim);
+      }
+
+      .snippet-meta i {
+        color: var(--cyber-primary);
+      }
+
+      .snippet-code {
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: "Courier New", monospace;
+        font-size: 0.9rem;
+        color: var(--cyber-text);
+        margin-bottom: 1rem;
+        max-height: 150px;
+        overflow: hidden;
+        position: relative;
+        height: 150px;
+
+        overflow-y: auto;
+        overflow-x: auto;
+        flex-shrink: 0;
+      }
+
+      .snippet-code::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 30px;
+        display: none; /* Remove the gradient overlay */
+        background: linear-gradient(transparent, var(--cyber-surface));
+      }
+
+      .snippet-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .tag {
+        background: rgba(0, 255, 255, 0.1);
+        color: var(--cyber-primary);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(0, 255, 255, 0.2);
+      }
+
+      .snippet-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        flex-shrink: 0;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .snippet-code::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .snippet-code::-webkit-scrollbar-track {
+        background: var(--cyber-border);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb {
+        background: var(--cyber-primary);
+        border-radius: 4px;
+      }
+
+      .btn-icon {
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--cyber-border);
+        background: var(--glass-bg);
+        color: var(--cyber-text);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .btn-icon:hover {
+        border-color: var(--cyber-primary);
+        color: var(--cyber-primary);
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      }
+
+      .share-stats {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--cyber-text-dim);
+      }
+
+      /* Analytics Chart */
+      .analytics-section {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        animation: fadeInUp 0.8s ease-out 0.6s both;
+      }
+
+      .analytics-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .analytics-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--cyber-text);
+        font-family: "Orbitron", monospace;
+      }
+
+      .chart-container {
+        height: 300px;
+        position: relative;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--cyber-text-dim);
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        color: var(--cyber-primary);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .empty-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--cyber-text);
+      }
+
+      .empty-description {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .page-title {
+          font-size: 2rem;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .snippets-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tabs {
+          flex-direction: column;
+        }
+
+        .header-content {
+          padding: 0 1rem;
+        }
+      }
+
+      /* Loading Animation */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid var(--cyber-border);
+        border-radius: 50%;
+        border-top-color: var(--cyber-primary);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Notification */
+      .notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        color: var(--cyber-text);
+        z-index: 1000;
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+      }
+
+      .notification.show {
+        transform: translateX(0);
+      }
+
+      .notification.success {
+        border-left: 4px solid var(--cyber-success);
+      }
+
+      .notification.error {
+        border-left: 4px solid var(--cyber-danger);
+      }
+
+      /* Glitch Effect */
+      .glitch {
+        position: relative;
+        color: var(--cyber-primary);
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 0.05em 0 0 var(--cyber-secondary),
+          -0.05em -0.025em 0 var(--cyber-accent),
+          0.025em 0.05em 0 var(--cyber-danger);
+        animation: glitch 725ms infinite;
+      }
+
+      @keyframes glitch {
+        0%,
+        61.5%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+        20% {
+          transform: translate3d(-2px, 2px, 0);
+        }
+        40% {
+          transform: translate3d(-2px, -2px, 0);
+        }
+        60% {
+          transform: translate3d(2px, 2px, 0) scale3d(-1, -1, 1);
+        }
+        80% {
+          transform: translate3d(2px, -2px, 0);
+        }
+      }
+
+      /* Enhanced Card Layout for Variable Tag Counts */
+      .snippet-card {
+        transition: height 0.3s ease;
+        position: relative;
+      }
+
+      .snippet-meta,
+      .tags,
+      .snippet-tags {
+        max-height: none; /* Allow tags to expand */
+        overflow: visible;
+      }
+
+      /* Ensure action buttons are always accessible */
+      .snippet-actions,
+      .card-actions {
+        position: relative;
+        z-index: 10;
+        margin-top: auto;
+      }
+
+      /* Tag wrapping improvements */
+      .meta-chip,
+      .tag {
+        margin-bottom: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      /* Smooth scrolling for cards with many tags */
+      .card-with-scrollbar {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cyber-bg"></div>
+    <div class="cyber-grid"></div>
+    <div class="cyber-orbs">
+      <div class="orb"></div>
+      <div class="orb"></div>
+      <div class="orb"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <a href="{{ url_for('dashboard.index') }}" class="brand">
+          <div class="brand-icon">
+            <i class="fas fa-code"></i>
+          </div>
+          <span class="brand-text">SnippetFlow</span>
+        </a>
+        <div class="header-actions">
+          <button class="btn" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i>
+            Back
+          </button>
+          <button class="btn btn-primary" id="shareNewBtn">
+            <i class="fas fa-share"></i>
+            Share New
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Page Header -->
+      <div class="page-header">
+        <h1 class="page-title glitch">Shared Network</h1>
+        <p class="page-subtitle">
+          Manage your shared snippets and collaborative workspace
+        </p>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="sharedByMeCount">
+            {{ share_stats.shared_by_me or 0 }}
+          </div>
+          <div class="stat-label">Shared by Me</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="sharedWithMeCount">
+            {{ share_stats.shared_with_me or 0 }}
+          </div>
+          <div class="stat-label">Shared with Me</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="totalViewsCount">
+            {{ share_stats.total_views or 0 }}
+          </div>
+          <div class="stat-label">Total Views</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="publicSnippetsCount">
+            {{ share_stats.public_snippets or 0 }}
+          </div>
+          <div class="stat-label">Public Snippets</div>
+        </div>
+      </div>
+
+      <!-- Analytics Section -->
+      <div class="analytics-section">
+        <div class="analytics-header">
+          <h2 class="analytics-title">Share Analytics</h2>
+          <div class="flex gap-2">
+            <button class="btn" id="refreshAnalytics">
+              <i class="fas fa-sync-alt"></i>
+              Refresh
+            </button>
+            <button class="btn" id="exportAnalytics">
+              <i class="fas fa-download"></i>
+              Export
+            </button>
+          </div>
+        </div>
+        <div class="chart-container" id="analyticsChart"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs-container">
+        <div class="tabs">
+          <button class="tab active" data-tab="shared-by-me">
+            <i class="fas fa-share-alt"></i>
+            Shared by Me
+          </button>
+          <button class="tab" data-tab="shared-with-me">
+            <i class="fas fa-users"></i>
+            Shared with Me
+          </button>
+          <button class="tab" data-tab="public">
+            <i class="fas fa-globe"></i>
+            Public Gallery
+          </button>
+          <button class="tab" data-tab="analytics">
+            <i class="fas fa-chart-line"></i>
+            Analytics
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="content-section active" id="shared-by-me">
+        <div class="snippets-grid" id="sharedByMeGrid">
+          {% if shared_by_user %} {% for snippet in shared_by_user %}
+          <div class="snippet-card" data-snippet-id="{{ snippet.id }}">
+            <div class="snippet-header">
+              <div>
+                <h3 class="snippet-title">{{ snippet.title }}</h3>
+                <span class="snippet-language">{{ snippet.language }}</span>
+              </div>
+            </div>
+            <div class="snippet-meta">
+              <span
+                ><i class="fas fa-calendar"></i> {{
+                snippet.created_at.strftime('%b %d, %Y') }}</span
+              >
+              <span
+                ><i class="fas fa-eye"></i> {{ snippet.view_count or 0 }}
+                views</span
+              >
+              <span
+                ><i class="fas fa-copy"></i> {{ snippet.copy_count or 0 }}
+                copies</span
+              >
+            </div>
+            <div class="snippet-code">
+              {{ snippet.code[:200] }}{% if snippet.code|length > 200 %}...{%
+              endif %}
+            </div>
+            {% if snippet.tags %}
+            <div class="snippet-tags">
+              {% for tag in snippet.tags.split(',') %}
+              <span class="tag">{{ tag.strip() }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="snippet-actions">
+              <div class="action-buttons">
+                <button
+                  class="btn-icon"
+                  data-tooltip="View"
+                  onclick="viewSnippet('{{ snippet.id }}')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Copy Link"
+                  onclick="copyShareLink('{{ snippet.id }}')">
+                  <i class="fas fa-link"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Analytics"
+                  onclick="viewAnalytics('{{ snippet.id }}')">
+                  <i class="fas fa-chart-bar"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Unshare"
+                  onclick="unshareSnippet('{{ snippet.id }}')">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="share-stats">
+                <span>
+                  <i class="fas fa-share"></i>
+                  {{ snippet.share_count or 0 }} shares
+                </span>
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-share-alt"></i>
+            </div>
+            <h3 class="empty-title">No Shared Snippets</h3>
+            <p class="empty-description">
+              You haven't shared any snippets yet. Start sharing your code with
+              the community!
+            </p>
+            <button class="btn btn-primary" onclick="shareFirstSnippet()">
+              <i class="fas fa-share"></i>
+              Share Your First Snippet
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="content-section" id="shared-with-me">
+        <div class="snippets-grid" id="sharedWithMeGrid">
+          {% if shared_with_user %} {% for snippet in shared_with_user %}
+          <div class="snippet-card" data-snippet-id="{{ snippet.id }}">
+            <div class="snippet-header">
+              <div>
+                <h3 class="snippet-title">{{ snippet.title }}</h3>
+                <span class="snippet-language">{{ snippet.language }}</span>
+              </div>
+            </div>
+            <div class="snippet-meta">
+              <span
+                ><i class="fas fa-user"></i> {{ snippet.user.username or
+                snippet.user.email.split('@')[0] }}</span
+              >
+              <span
+                ><i class="fas fa-calendar"></i> {{
+                snippet.created_at.strftime('%b %d, %Y') }}</span
+              >
+              <span
+                ><i class="fas fa-eye"></i> {{ snippet.view_count or 0 }}
+                views</span
+              >
+            </div>
+            <div class="snippet-code">
+              {{ snippet.code[:200] }}{% if snippet.code|length > 200 %}...{%
+              endif %}
+            </div>
+            {% if snippet.tags %}
+            <div class="snippet-tags">
+              {% for tag in snippet.tags.split(',') %}
+              <span class="tag">{{ tag.strip() }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="snippet-actions">
+              <div class="action-buttons">
+                <button
+                  class="btn-icon"
+                  data-tooltip="View"
+                  onclick="viewSnippet('{{ snippet.id }}')">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Fork"
+                  onclick="forkSnippet('{{ snippet.id }}')">
+                  <i class="fas fa-code-branch"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Copy"
+                  onclick="copySnippet('{{ snippet.id }}')">
+                  <i class="fas fa-copy"></i>
+                </button>
+                <button
+                  class="btn-icon"
+                  data-tooltip="Save"
+                  onclick="saveSnippet('{{ snippet.id }}')">
+                  <i class="fas fa-bookmark"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          {% endfor %} {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3 class="empty-title">No Shared Content</h3>
+            <p class="empty-description">
+              No one has shared snippets with you yet. Join teams or collaborate
+              with others!
+            </p>
+            <button class="btn btn-primary" onclick="exploreTeams()">
+              <i class="fas fa-users"></i>
+              Explore Teams
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="content-section" id="public">
+        <div class="snippets-grid" id="publicGrid">
+          <!-- Public snippets will be loaded dynamically -->
+          <div
+            class="loading-container"
+            style="text-align: center; padding: 2rem">
+            <div class="loading"></div>
+            <p style="margin-top: 1rem; color: var(--cyber-text-dim)">
+              Loading public gallery...
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-section" id="analytics">
+        <div class="analytics-detailed">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="stat-card">
+              <h3 class="text-lg font-semibold mb-4 text-cyber-text">
+                Top Performing Snippets
+              </h3>
+              <div id="topSnippetsList" class="space-y-2">
+                <!-- Will be populated by JavaScript -->
+              </div>
+            </div>
+            <div class="stat-card">
+              <h3 class="text-lg font-semibold mb-4 text-cyber-text">
+                Share Trends
+              </h3>
+              <div id="shareTrendsChart" style="height: 200px"></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <h3 class="text-lg font-semibold mb-4 text-cyber-text">
+              Geographic Distribution
+            </h3>
+            <div id="geoChart" style="height: 300px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div
+      id="shareModal"
+      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50 hidden">
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div
+          class="bg-cyber-surface border border-cyber-border rounded-lg p-6 w-full max-w-md">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-semibold text-cyber-text">Share Snippet</h3>
+            <button
+              onclick="closeShareModal()"
+              class="text-cyber-text-dim hover:text-cyber-text">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-cyber-text-dim mb-2"
+                >Share Link</label
+              >
+              <div class="flex">
+                <input
+                  type="text"
+                  id="shareLink"
+                  readonly
+                  class="flex-1 bg-cyber-bg border border-cyber-border rounded-l px-3 py-2 text-cyber-text" />
+                <button
+                  onclick="copyToClipboard()"
+                  class="bg-cyber-primary text-white px-4 py-2 rounded-r hover:bg-opacity-80">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-cyber-text-dim mb-2"
+                >Share Options</label
+              >
+              <div class="space-y-2">
+                <label class="flex items-center">
+                  <input type="checkbox" id="allowComments" class="mr-2" />
+                  <span class="text-cyber-text">Allow comments</span>
+                </label>
+                <label class="flex items-center">
+                  <input type="checkbox" id="allowForks" class="mr-2" />
+                  <span class="text-cyber-text">Allow forks</span>
+                </label>
+                <label class="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="trackAnalytics"
+                    class="mr-2"
+                    checked />
+                  <span class="text-cyber-text">Track analytics</span>
+                </label>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="shareToSocial('twitter')" class="btn flex-1">
+                <i class="fab fa-twitter"></i> Twitter
+              </button>
+              <button onclick="shareToSocial('linkedin')" class="btn flex-1">
+                <i class="fab fa-linkedin"></i> LinkedIn
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer"></div>
+
+    <script>
+      // Dynamic Card Height Adjustment Based on Tags
+      function adjustCardHeightsForTags() {
+        console.log(
+          "🏷️ TAG HEIGHT ADJUSTER - Starting dynamic height adjustment"
+        );
+
+        const cards = document.querySelectorAll(".snippet-card");
+        let adjustmentsMade = 0;
+
+        cards.forEach((card, index) => {
+          try {
+            // Find tags container (different selectors for different pages)
+            const tagsContainer = card.querySelector(
+              ".snippet-meta, .tags, .snippet-tags"
+            );
+            const actionButtons = card.querySelector(
+              ".snippet-actions, .card-actions, .action-buttons"
+            );
+
+            if (!tagsContainer) {
+              console.log(`⚠️ Card ${index + 1}: No tags container found`);
+              return;
+            }
+
+            // Count tags (handle different tag structures)
+            let tagCount = 0;
+            const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+            const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+            if (metaChips.length > 0) {
+              // Count meta-chips but exclude language chip (usually first one)
+              tagCount = Math.max(0, metaChips.length - 1);
+            } else if (tagSpans.length > 0) {
+              tagCount = tagSpans.length;
+            }
+
+            console.log(`🏷️ Card ${index + 1}: Found ${tagCount} tags`);
+
+            // Calculate new height based on tag count
+            let newHeight = 420; // Base height
+            let needsScroll = false;
+
+            if (tagCount <= 5) {
+              // No adjustment needed
+              newHeight = 420;
+            } else if (tagCount <= 9) {
+              // Slight increase
+              newHeight = 460;
+              console.log(
+                `📏 Card ${index + 1}: Slight height increase to ${newHeight}px`
+              );
+            } else if (tagCount <= 15) {
+              // Slight increase
+              newHeight = 480;
+              console.log(
+                `📏 Card ${index + 1}: Slight height increase to ${newHeight}px`
+              );
+            } else {
+              // Many tags - add scrollbar to card
+              newHeight = 420;
+              needsScroll = true;
+              console.log(
+                `📜 Card ${index + 1}: Adding scrollbar for ${tagCount} tags`
+              );
+            }
+
+            // Apply height adjustment
+            card.style.height = `${newHeight}px`;
+
+            // Add scrollbar if needed
+            if (needsScroll) {
+              card.style.overflowY = "auto";
+              card.style.paddingRight = "8px"; // Account for scrollbar
+
+              // Add custom scrollbar styles
+              card.style.scrollbarWidth = "thin";
+              card.classList.add("card-with-scrollbar");
+            } else {
+              card.style.overflowY = "visible";
+              card.style.paddingRight = "1.5rem"; // Reset to original
+              card.classList.remove("card-with-scrollbar");
+            }
+
+            // Ensure action buttons are always visible
+            if (actionButtons) {
+              actionButtons.style.position = "sticky";
+              actionButtons.style.bottom = "0";
+              actionButtons.style.backgroundColor = "inherit";
+              actionButtons.style.zIndex = "10";
+            }
+
+            adjustmentsMade++;
+          } catch (error) {
+            console.error(`❌ Error adjusting card ${index + 1}:`, error);
+          }
+        });
+
+        console.log(
+          `✅ TAG HEIGHT ADJUSTER - Completed ${adjustmentsMade} adjustments`
+        );
+
+        // Add scrollbar styles if not already present
+        addScrollbarStyles();
+      }
+
+      // Add custom scrollbar styles for cards
+      function addScrollbarStyles() {
+        const existingStyle = document.getElementById("cardScrollbarStyles");
+        if (existingStyle) return; // Already added
+
+        const style = document.createElement("style");
+        style.id = "cardScrollbarStyles";
+        style.textContent = `
+    /* Enhanced Custom scrollbar for snippet cards */
+    .snippet-card::-webkit-scrollbar,
+    .card-with-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-track,
+    .card-with-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb,
+    .card-with-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--accent-primary, #00d4ff);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb:hover,
+    .card-with-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-secondary, #7c3aed);
+    }
+    
+    /* Enhanced Firefox support */
+    .snippet-card,
+    .card-with-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary, #00d4ff) rgba(255, 255, 255, 0.1);
+    }
+  `;
+
+        document.head.appendChild(style);
+        console.log("🎨 Added custom scrollbar styles for cards");
+      }
+
+      // Enhanced logging for tag detection
+      function logTagAnalysis() {
+        console.log("🔍 TAG ANALYSIS - Analyzing tag distribution");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const tagStats = {
+          noTags: 0,
+          fewTags: 0, // 1-5 tags
+          mediumTags: 0, // 6-9 tags
+          manyTags: 0, // 10+ tags
+        };
+
+        cards.forEach((card, index) => {
+          const tagsContainer = card.querySelector(
+            ".snippet-meta, .tags, .snippet-tags"
+          );
+          if (!tagsContainer) {
+            tagStats.noTags++;
+            return;
+          }
+
+          const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+          const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+          let tagCount = 0;
+          if (metaChips.length > 0) {
+            tagCount = Math.max(0, metaChips.length - 1); // Exclude language chip
+          } else if (tagSpans.length > 0) {
+            tagCount = tagSpans.length;
+          }
+
+          if (tagCount === 0) tagStats.noTags++;
+          else if (tagCount <= 5) tagStats.fewTags++;
+          else if (tagCount <= 9) tagStats.mediumTags++;
+          else tagStats.manyTags++;
+
+          console.log(`🏷️ Card ${index + 1}: ${tagCount} tags`);
+        });
+
+        console.log("📊 TAG DISTRIBUTION:", tagStats);
+        return tagStats;
+      }
+
+      // Initialize tag-based height adjustment
+      function initializeTagHeightAdjustment() {
+        console.log("🚀 Initializing tag-based height adjustment system");
+
+        // Wait for DOM to be fully loaded
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+              logTagAnalysis();
+              adjustCardHeightsForTags();
+            }, 500);
+          });
+        } else {
+          setTimeout(() => {
+            logTagAnalysis();
+            adjustCardHeightsForTags();
+          }, 500);
+        }
+
+        // Re-adjust when new content is loaded
+        const observer = new MutationObserver((mutations) => {
+          let shouldReadjust = false;
+
+          mutations.forEach((mutation) => {
+            if (mutation.type === "childList") {
+              const addedNodes = Array.from(mutation.addedNodes);
+              if (
+                addedNodes.some(
+                  (node) =>
+                    node.nodeType === 1 &&
+                    (node.classList?.contains("snippet-card") ||
+                      node.querySelector?.(".snippet-card"))
+                )
+              ) {
+                shouldReadjust = true;
+              }
+            }
+          });
+
+          if (shouldReadjust) {
+            console.log("🔄 New snippet cards detected, re-adjusting heights");
+            setTimeout(adjustCardHeightsForTags, 100);
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+
+        console.log("✅ Tag height adjustment system initialized");
+      }
+
+      // Manual adjustment function for testing
+      window.adjustCardHeights = adjustCardHeightsForTags;
+      window.analyzeTagDistribution = logTagAnalysis;
+
+      // Auto-initialize
+      initializeTagHeightAdjustment();
+      // Enhanced Card Height Logging
+      function logCardHeights() {
+        console.log("🔍 CARD HEIGHT DEBUG - Checking snippet card dimensions");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const codeBlocks = document.querySelectorAll(
+          ".snippet-code, .code-preview"
+        );
+
+        console.log(
+          `📊 Found ${cards.length} snippet cards and ${codeBlocks.length} code blocks`
+        );
+
+        cards.forEach((card, index) => {
+          const rect = card.getBoundingClientRect();
+          const codeBlock = card.querySelector(".snippet-code, .code-preview");
+          const codeRect = codeBlock ? codeBlock.getBoundingClientRect() : null;
+
+          console.log(`📏 Card ${index + 1}:`, {
+            height: rect.height,
+            codeHeight: codeRect ? codeRect.height : "N/A",
+            hasScrollY: codeBlock
+              ? codeBlock.scrollHeight > codeBlock.clientHeight
+              : false,
+            hasScrollX: codeBlock
+              ? codeBlock.scrollWidth > codeBlock.clientWidth
+              : false,
+          });
+        });
+      }
+
+      // Call after DOM loads
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(logCardHeights, 1000);
+      });
+      // Zustand Store for State Management
+      // Enhanced State Management with Fallback
+      let useSharedStore;
+
+      // Try to initialize Zustand, fallback to simple state if not available
+      try {
+        if (window.zustand && window.zustand.create) {
+          console.log("✅ SHARED - Zustand loaded successfully");
+          const { create } = window.zustand;
+
+          useSharedStore = create((set, get) => ({
+            activeTab: "shared-by-me",
+            sharedSnippets: [],
+            analytics: null,
+            loading: false,
+
+            setActiveTab: (tab) => set({ activeTab: tab }),
+            setSharedSnippets: (snippets) => set({ sharedSnippets: snippets }),
+            setAnalytics: (analytics) => set({ analytics }),
+            setLoading: (loading) => set({ loading }),
+
+            // Actions
+            loadSharedSnippets: async () => {
+              set({ loading: true });
+              try {
+                const response = await fetch("/dashboard/api/shared-snippets");
+                const data = await response.json();
+                if (data.success) {
+                  set({ sharedSnippets: data.snippets });
+                }
+              } catch (error) {
+                console.error("Error loading shared snippets:", error);
+                showNotification("Error loading snippets", "error");
+              } finally {
+                set({ loading: false });
+              }
+            },
+
+            loadAnalytics: async () => {
+              try {
+                const response = await fetch("/dashboard/api/share-analytics");
+                const data = await response.json();
+                if (data.success) {
+                  set({ analytics: data.analytics });
+                  renderAnalytics(data.analytics);
+                }
+              } catch (error) {
+                console.error("Error loading analytics:", error);
+              }
+            },
+          }));
+        } else {
+          throw new Error("Zustand not available");
+        }
+      } catch (error) {
+        console.warn(
+          "⚠️ SHARED - Zustand not available, using fallback state management:",
+          error.message
+        );
+
+        // Fallback simple state management
+        const simpleState = {
+          activeTab: "shared-by-me",
+          sharedSnippets: [],
+          analytics: null,
+          loading: false,
+        };
+
+        useSharedStore = {
+          getState: () => simpleState,
+          setState: (newState) => Object.assign(simpleState, newState),
+
+          // Fallback methods
+          setActiveTab: (tab) => {
+            simpleState.activeTab = tab;
+          },
+          setSharedSnippets: (snippets) => {
+            simpleState.sharedSnippets = snippets;
+          },
+          setAnalytics: (analytics) => {
+            simpleState.analytics = analytics;
+          },
+          setLoading: (loading) => {
+            simpleState.loading = loading;
+          },
+
+          loadSharedSnippets: async () => {
+            simpleState.loading = true;
+            try {
+              const response = await fetch("/dashboard/api/shared-snippets");
+              const data = await response.json();
+              if (data.success) {
+                simpleState.sharedSnippets = data.snippets;
+              }
+            } catch (error) {
+              console.error("Error loading shared snippets:", error);
+              showNotification("Error loading snippets", "error");
+            } finally {
+              simpleState.loading = false;
+            }
+          },
+
+          loadAnalytics: async () => {
+            try {
+              const response = await fetch("/dashboard/api/share-analytics");
+              const data = await response.json();
+              if (data.success) {
+                simpleState.analytics = data.analytics;
+                renderAnalytics(data.analytics);
+              }
+            } catch (error) {
+              console.error("Error loading analytics:", error);
+            }
+          },
+        };
+      }
+
+      // Enhanced Cyberpunk Initialization
+      console.log("🚀 SHARED NETWORK - Initializing cyberpunk interface...");
+
+      document.addEventListener("DOMContentLoaded", function () {
+        sharedLogger.log("System boot sequence initiated", "info");
+
+        try {
+          // Initialize store with error handling
+          let store;
+          try {
+            store = useSharedStore.getState
+              ? useSharedStore.getState()
+              : useSharedStore;
+            sharedLogger.log("Store initialized successfully", "success", {
+              storeType: typeof useSharedStore,
+            });
+          } catch (error) {
+            sharedLogger.log("Store initialization failed", "error", error);
+            return;
+          }
+
+          // Initialize tabs with error handling
+          try {
+            initializeTabs();
+            sharedLogger.log("Tabs initialized successfully", "success");
+          } catch (error) {
+            sharedLogger.log("Tab initialization failed", "error", error);
+          }
+
+          // Load initial data with error handling
+          try {
+            loadPublicSnippets();
+            sharedLogger.log("Public snippets loading initiated", "info");
+          } catch (error) {
+            sharedLogger.log("Public snippets loading failed", "error", error);
+          }
+
+          try {
+            if (store.loadAnalytics) {
+              store.loadAnalytics();
+              sharedLogger.log("Analytics loading initiated", "info");
+            }
+          } catch (error) {
+            sharedLogger.log("Analytics loading failed", "error", error);
+          }
+
+          // Initialize D3 charts with error handling
+          try {
+            initializeAnalyticsChart();
+            sharedLogger.log("D3 analytics chart initialized", "success");
+          } catch (error) {
+            sharedLogger.log("D3 chart initialization failed", "error", error);
+          }
+
+          // Setup event listeners with error handling
+          try {
+            setupEventListeners();
+            sharedLogger.log("Event listeners setup completed", "success");
+          } catch (error) {
+            sharedLogger.log("Event listeners setup failed", "error", error);
+          }
+
+          // Initialize cyberpunk effects with error handling
+          try {
+            initCyberpunkEffects();
+            sharedLogger.log("Cyberpunk effects initialized", "success");
+          } catch (error) {
+            sharedLogger.log(
+              "Cyberpunk effects initialization failed",
+              "error",
+              error
+            );
+          }
+
+          sharedLogger.log(
+            "Neural network online - All systems operational",
+            "success"
+          );
+        } catch (error) {
+          sharedLogger.log("Critical initialization error", "error", error);
+          showNotification("Failed to initialize shared page", "error");
+        }
+      });
+
+      // ===== ENHANCED ERROR TRACKING AND LOGGING SYSTEM =====
+      class SharedPageLogger {
+        constructor() {
+          this.logs = [];
+          this.errors = [];
+          this.isDebugMode = localStorage.getItem("shared-debug") === "true";
+          this.init();
+        }
+
+        init() {
+          console.log(
+            "🔍 SHARED LOGGER - Initializing enhanced logging system"
+          );
+
+          // Intercept console methods
+          this.interceptConsole();
+
+          // Global error handlers
+          this.setupErrorHandlers();
+
+          // Debug mode toggle (Ctrl+Shift+L)
+          document.addEventListener("keydown", (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === "L") {
+              this.toggleDebugMode();
+            }
+          });
+
+          if (this.isDebugMode) {
+            this.createDebugPanel();
+          }
+        }
+
+        log(message, type = "info", data = null) {
+          const timestamp = new Date().toISOString();
+          const logEntry = {
+            timestamp,
+            message,
+            type,
+            data,
+            stack: new Error().stack,
+          };
+
+          this.logs.push(logEntry);
+
+          // Keep only last 100 logs
+          if (this.logs.length > 100) {
+            this.logs.shift();
+          }
+
+          // Console output with enhanced formatting
+          const emoji = this.getLogEmoji(type);
+          const color = this.getLogColor(type);
+
+          console.log(
+            `%c${emoji} SHARED [${type.toUpperCase()}] ${message}`,
+            `color: ${color}; font-weight: bold;`,
+            data || ""
+          );
+
+          // Update debug panel if active
+          if (this.isDebugMode) {
+            this.updateDebugPanel();
+          }
+
+          // Store critical errors
+          if (type === "error") {
+            this.errors.push(logEntry);
+            this.handleCriticalError(logEntry);
+          }
+        }
+
+        getLogEmoji(type) {
+          const emojis = {
+            info: "🔍",
+            success: "✅",
+            warning: "⚠️",
+            error: "❌",
+            debug: "🐛",
+            network: "🌐",
+            ui: "🎨",
+            data: "📊",
+          };
+          return emojis[type] || "📝";
+        }
+
+        getLogColor(type) {
+          const colors = {
+            info: "#00ffff",
+            success: "#00ff88",
+            warning: "#ffaa00",
+            error: "#ff4444",
+            debug: "#ff00ff",
+            network: "#0099ff",
+            ui: "#ffff00",
+            data: "#00ff41",
+          };
+          return colors[type] || "#e0e0e0";
+        }
+
+        interceptConsole() {
+          const originalLog = console.log;
+          const originalError = console.error;
+          const originalWarn = console.warn;
+
+          console.log = (...args) => {
+            if (
+              args[0] &&
+              typeof args[0] === "string" &&
+              args[0].includes("SHARED")
+            ) {
+              // Don't double-log our own messages
+              originalLog.apply(console, args);
+              return;
+            }
+
+            this.log(`Console: ${args.join(" ")}`, "debug", args);
+            originalLog.apply(console, args);
+          };
+
+          console.error = (...args) => {
+            this.log(`Console Error: ${args.join(" ")}`, "error", args);
+            originalError.apply(console, args);
+          };
+
+          console.warn = (...args) => {
+            this.log(`Console Warning: ${args.join(" ")}`, "warning", args);
+            originalWarn.apply(console, args);
+          };
+        }
+
+        setupErrorHandlers() {
+          // Global error handler
+          window.addEventListener("error", (e) => {
+            this.log(`Global Error: ${e.message}`, "error", {
+              filename: e.filename,
+              lineno: e.lineno,
+              colno: e.colno,
+              error: e.error?.stack,
+            });
+          });
+
+          // Unhandled promise rejection
+          window.addEventListener("unhandledrejection", (e) => {
+            this.log(`Unhandled Promise Rejection: ${e.reason}`, "error", {
+              reason: e.reason,
+              promise: e.promise,
+            });
+          });
+
+          // Network errors
+          const originalFetch = window.fetch;
+          window.fetch = async (...args) => {
+            const url = args[0];
+            this.log(`Network Request: ${url}`, "network", {
+              url,
+              options: args[1],
+            });
+
+            try {
+              const response = await originalFetch.apply(window, args);
+
+              if (!response.ok) {
+                this.log(
+                  `Network Error: ${response.status} ${response.statusText}`,
+                  "error",
+                  {
+                    url,
+                    status: response.status,
+                    statusText: response.statusText,
+                  }
+                );
+              } else {
+                this.log(`Network Success: ${url}`, "success", {
+                  url,
+                  status: response.status,
+                });
+              }
+
+              return response;
+            } catch (error) {
+              this.log(`Network Exception: ${error.message}`, "error", {
+                url,
+                error: error.message,
+              });
+              throw error;
+            }
+          };
+        }
+
+        toggleDebugMode() {
+          this.isDebugMode = !this.isDebugMode;
+          localStorage.setItem("shared-debug", this.isDebugMode.toString());
+
+          if (this.isDebugMode) {
+            this.createDebugPanel();
+            this.log("Debug mode enabled", "debug");
+            showNotification(
+              "Debug mode enabled! Press Ctrl+Shift+L to toggle",
+              "success"
+            );
+          } else {
+            this.removeDebugPanel();
+            this.log("Debug mode disabled", "debug");
+            showNotification("Debug mode disabled", "success");
+          }
+        }
+
+        createDebugPanel() {
+          if (document.getElementById("sharedDebugPanel")) return;
+
+          const panel = document.createElement("div");
+          panel.id = "sharedDebugPanel";
+          panel.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 400px;
+            max-height: 300px;
+            background: rgba(10, 10, 15, 0.95);
+            border: 1px solid var(--cyber-primary);
+            border-radius: 8px;
+            color: var(--cyber-text);
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 9999;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        `;
+
+          panel.innerHTML = `
+            <div style="padding: 10px; border-bottom: 1px solid var(--cyber-border); display: flex; justify-content: space-between; align-items: center;">
+                <strong style="color: var(--cyber-primary);">🔍 SHARED DEBUG</strong>
+                <div>
+                    <button onclick="sharedLogger.exportLogs()" style="background: none; border: 1px solid var(--cyber-success); color: var(--cyber-success); padding: 2px 6px; margin-right: 5px; border-radius: 3px; cursor: pointer;">Export</button>
+                    <button onclick="sharedLogger.clearLogs()" style="background: none; border: 1px solid var(--cyber-danger); color: var(--cyber-danger); padding: 2px 6px; border-radius: 3px; cursor: pointer;">Clear</button>
+                </div>
+            </div>
+            <div id="debugLogs" style="max-height: 200px; overflow-y: auto; padding: 10px;"></div>
+            <div style="padding: 10px; border-top: 1px solid var(--cyber-border); font-size: 10px;">
+                <div>Logs: <span id="logCount">${this.logs.length}</span> | Errors: <span id="errorCount">${this.errors.length}</span></div>
+                <div>State: <span id="stateInfo">Loading...</span></div>
+            </div>
+        `;
+
+          document.body.appendChild(panel);
+          this.updateDebugPanel();
+        }
+
+        updateDebugPanel() {
+          const logsContainer = document.getElementById("debugLogs");
+          const logCount = document.getElementById("logCount");
+          const errorCount = document.getElementById("errorCount");
+          const stateInfo = document.getElementById("stateInfo");
+
+          if (!logsContainer) return;
+
+          // Update logs display (last 10)
+          const recentLogs = this.logs.slice(-10);
+          logsContainer.innerHTML = recentLogs
+            .map((log) => {
+              const time = new Date(log.timestamp).toLocaleTimeString();
+              const color = this.getLogColor(log.type);
+              return `<div style="color: ${color}; margin-bottom: 2px;">[${time}] ${log.message}</div>`;
+            })
+            .join("");
+
+          logsContainer.scrollTop = logsContainer.scrollHeight;
+
+          // Update counters
+          if (logCount) logCount.textContent = this.logs.length;
+          if (errorCount) errorCount.textContent = this.errors.length;
+
+          // Update state info
+          if (stateInfo) {
+            try {
+              const state = useSharedStore.getState
+                ? useSharedStore.getState()
+                : useSharedStore;
+              stateInfo.textContent = `Tab: ${state.activeTab}, Loading: ${state.loading}`;
+            } catch (error) {
+              stateInfo.textContent = "State unavailable";
+            }
+          }
+        }
+
+        removeDebugPanel() {
+          const panel = document.getElementById("sharedDebugPanel");
+          if (panel) panel.remove();
+        }
+
+        exportLogs() {
+          const exportData = {
+            timestamp: new Date().toISOString(),
+            logs: this.logs,
+            errors: this.errors,
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            state: this.getStateSnapshot(),
+          };
+
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `shared-page-logs-${
+            new Date().toISOString().split("T")[0]
+          }.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          this.log("Logs exported successfully", "success");
+        }
+
+        clearLogs() {
+          this.logs = [];
+          this.errors = [];
+          this.updateDebugPanel();
+          this.log("Logs cleared", "info");
+        }
+
+        getStateSnapshot() {
+          try {
+            return useSharedStore.getState
+              ? useSharedStore.getState()
+              : useSharedStore;
+          } catch (error) {
+            return { error: "State unavailable", message: error.message };
+          }
+        }
+
+        handleCriticalError(logEntry) {
+          // Show user-friendly error notification for critical errors
+          if (
+            logEntry.message.includes("fetch") ||
+            logEntry.message.includes("Network")
+          ) {
+            showNotification("Network connection issue detected", "error");
+          } else if (
+            logEntry.message.includes("zustand") ||
+            logEntry.message.includes("State")
+          ) {
+            showNotification("State management issue detected", "error");
+          } else {
+            showNotification("An unexpected error occurred", "error");
+          }
+        }
+      }
+
+      // Initialize the logger
+      const sharedLogger = new SharedPageLogger();
+
+      // Tab Management
+      function initializeTabs() {
+        sharedLogger.log("Initializing tab management system", "info");
+
+        const tabs = document.querySelectorAll(".tab");
+        const sections = document.querySelectorAll(".content-section");
+
+        if (tabs.length === 0) {
+          sharedLogger.log("No tabs found on page", "warning");
+          return;
+        }
+
+        if (sections.length === 0) {
+          sharedLogger.log("No content sections found on page", "warning");
+          return;
+        }
+
+        sharedLogger.log(
+          `Found ${tabs.length} tabs and ${sections.length} sections`,
+          "info"
+        );
+
+        tabs.forEach((tab, index) => {
+          tab.addEventListener("click", () => {
+            try {
+              const targetTab = tab.dataset.tab;
+              sharedLogger.log(`Tab clicked: ${targetTab}`, "ui", {
+                index,
+                targetTab,
+              });
+
+              // Update store
+              if (useSharedStore.setActiveTab) {
+                useSharedStore.setActiveTab(targetTab);
+              } else if (useSharedStore.getState) {
+                useSharedStore.getState().setActiveTab(targetTab);
+              }
+
+              // Update UI
+              tabs.forEach((t) => t.classList.remove("active"));
+              sections.forEach((s) => s.classList.remove("active"));
+
+              tab.classList.add("active");
+              const targetElement = document.getElementById(targetTab);
+              if (targetElement) {
+                targetElement.classList.add("active");
+                sharedLogger.log(
+                  `Successfully switched to tab: ${targetTab}`,
+                  "success"
+                );
+              } else {
+                sharedLogger.log(
+                  `Target section not found: ${targetTab}`,
+                  "error"
+                );
+              }
+
+              // Load tab-specific data
+              loadTabData(targetTab);
+            } catch (error) {
+              sharedLogger.log(
+                `Tab switching error: ${error.message}`,
+                "error",
+                error
+              );
+            }
+          });
+        });
+
+        sharedLogger.log(
+          "Tab management system initialized successfully",
+          "success"
+        );
+      }
+      // Load tab-specific data
+      function loadTabData(tab) {
+        switch (tab) {
+          case "public":
+            loadPublicSnippets();
+            break;
+          case "analytics":
+            loadDetailedAnalytics();
+            break;
+        }
+      }
+
+      // Load public snippets
+      async function loadPublicSnippets() {
+        const grid = document.getElementById("publicGrid");
+
+        try {
+          const response = await fetch("/dashboard/api/public-snippets");
+          const data = await response.json();
+
+          if (data.success && data.snippets.length > 0) {
+            grid.innerHTML = data.snippets
+              .map((snippet) => createSnippetCard(snippet, "public"))
+              .join("");
+          } else {
+            grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-icon">
+                                <i class="fas fa-globe"></i>
+                            </div>
+                            <h3 class="empty-title">No Public Snippets</h3>
+                            <p class="empty-description">
+                                Be the first to share a snippet with the community!
+                            </p>
+                        </div>
+                    `;
+          }
+        } catch (error) {
+          console.error("Error loading public snippets:", error);
+          grid.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h3 class="empty-title">Error Loading</h3>
+                        <p class="empty-description">
+                            Failed to load public snippets. Please try again.
+                        </p>
+                    </div>
+                `;
+        }
+      }
+
+      // Create snippet card HTML
+      function createSnippetCard(snippet, type) {
+        return `
+                <div class="snippet-card" data-snippet-id="${snippet.id}">
+                    <div class="snippet-header">
+                        <div>
+                            <h3 class="snippet-title">${snippet.title}</h3>
+                            <span class="snippet-language">${
+                              snippet.language
+                            }</span>
+                        </div>
+                    </div>
+                    <div class="snippet-meta">
+                        ${
+                          type === "public"
+                            ? `<span><i class="fas fa-user"></i> ${snippet.author}</span>`
+                            : ""
+                        }
+                        <span><i class="fas fa-calendar"></i> ${formatDate(
+                          snippet.created_at
+                        )}</span>
+                        <span><i class="fas fa-eye"></i> ${
+                          snippet.view_count || 0
+                        } views</span>
+                    </div>
+                    <div class="snippet-code">${snippet.code.substring(
+                      0,
+                      200
+                    )}${snippet.code.length > 200 ? "..." : ""}</div>
+                    ${
+                      snippet.tags
+                        ? `
+                        <div class="snippet-tags">
+                            ${snippet.tags
+                              .split(",")
+                              .map(
+                                (tag) =>
+                                  `<span class="tag">${tag.trim()}</span>`
+                              )
+                              .join("")}
+                        </div>
+                    `
+                        : ""
+                    }
+                    <div class="snippet-actions">
+                        <div class="action-buttons">
+                            <button class="btn-icon" data-tooltip="View" onclick="viewSnippet('${
+                              snippet.id
+                            }')">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" data-tooltip="Copy" onclick="copySnippet('${
+                              snippet.id
+                            }')">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon" data-tooltip="Fork" onclick="forkSnippet('${
+                              snippet.id
+                            }')">
+                                <i class="fas fa-code-branch"></i>
+                            </button>
+                        </div>
+                    </div>
+            `;
+      }
+
+      // D3.js Analytics Chart
+      function initializeAnalyticsChart() {
+        const container = document.getElementById("analyticsChart");
+        if (!container) return;
+
+        const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+        const width = container.offsetWidth - margin.left - margin.right;
+        const height = 300 - margin.top - margin.bottom;
+
+        // Clear existing chart
+        d3.select(container).selectAll("*").remove();
+
+        const svg = d3
+          .select(container)
+          .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom);
+
+        const g = svg
+          .append("g")
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // Sample data - replace with real data
+        const data = [
+          { date: "2024-01-01", views: 45, shares: 12 },
+          { date: "2024-01-02", views: 52, shares: 15 },
+          { date: "2024-01-03", views: 38, shares: 8 },
+          { date: "2024-01-04", views: 67, shares: 22 },
+          { date: "2024-01-05", views: 73, shares: 18 },
+          { date: "2024-01-06", views: 89, shares: 25 },
+          { date: "2024-01-07", views: 95, shares: 30 },
+        ];
+
+        // Parse dates
+        const parseDate = d3.timeParse("%Y-%m-%d");
+        data.forEach((d) => {
+          d.date = parseDate(d.date);
+        });
+
+        // Scales
+        const xScale = d3
+          .scaleTime()
+          .domain(d3.extent(data, (d) => d.date))
+          .range([0, width]);
+
+        const yScale = d3
+          .scaleLinear()
+          .domain([0, d3.max(data, (d) => Math.max(d.views, d.shares))])
+          .range([height, 0]);
+
+        // Line generators
+        const viewsLine = d3
+          .line()
+          .x((d) => xScale(d.date))
+          .y((d) => yScale(d.views))
+          .curve(d3.curveMonotoneX);
+
+        const sharesLine = d3
+          .line()
+          .x((d) => xScale(d.date))
+          .y((d) => yScale(d.shares))
+          .curve(d3.curveMonotoneX);
+
+        // Add gradient definitions
+        const defs = svg.append("defs");
+
+        const viewsGradient = defs
+          .append("linearGradient")
+          .attr("id", "viewsGradient")
+          .attr("gradientUnits", "userSpaceOnUse")
+          .attr("x1", 0)
+          .attr("y1", height)
+          .attr("x2", 0)
+          .attr("y2", 0);
+
+        viewsGradient
+          .append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", "#00ffff")
+          .attr("stop-opacity", 0);
+
+        viewsGradient
+          .append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", "#00ffff")
+          .attr("stop-opacity", 0.3);
+
+        const sharesGradient = defs
+          .append("linearGradient")
+          .attr("id", "sharesGradient")
+          .attr("gradientUnits", "userSpaceOnUse")
+          .attr("x1", 0)
+          .attr("y1", height)
+          .attr("x2", 0)
+          .attr("y2", 0);
+
+        sharesGradient
+          .append("stop")
+          .attr("offset", "0%")
+          .attr("stop-color", "#ff00ff")
+          .attr("stop-opacity", 0);
+
+        sharesGradient
+          .append("stop")
+          .attr("offset", "100%")
+          .attr("stop-color", "#ff00ff")
+          .attr("stop-opacity", 0.3);
+
+        // Add area charts
+        const viewsArea = d3
+          .area()
+          .x((d) => xScale(d.date))
+          .y0(height)
+          .y1((d) => yScale(d.views))
+          .curve(d3.curveMonotoneX);
+
+        const sharesArea = d3
+          .area()
+          .x((d) => xScale(d.date))
+          .y0(height)
+          .y1((d) => yScale(d.shares))
+          .curve(d3.curveMonotoneX);
+
+        // Add areas
+        g.append("path")
+          .datum(data)
+          .attr("fill", "url(#viewsGradient)")
+          .attr("d", viewsArea);
+
+        g.append("path")
+          .datum(data)
+          .attr("fill", "url(#sharesGradient)")
+          .attr("d", sharesArea);
+
+        // Add lines
+        g.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "#00ffff")
+          .attr("stroke-width", 2)
+          .attr("d", viewsLine);
+
+        g.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "#ff00ff")
+          .attr("stroke-width", 2)
+          .attr("d", sharesLine);
+
+        // Add dots
+        g.selectAll(".views-dot")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("class", "views-dot")
+          .attr("cx", (d) => xScale(d.date))
+          .attr("cy", (d) => yScale(d.views))
+          .attr("r", 4)
+          .attr("fill", "#00ffff")
+          .attr("stroke", "#0a0a0f")
+          .attr("stroke-width", 2);
+
+        g.selectAll(".shares-dot")
+          .data(data)
+          .enter()
+          .append("circle")
+          .attr("class", "shares-dot")
+          .attr("cx", (d) => xScale(d.date))
+          .attr("cy", (d) => yScale(d.shares))
+          .attr("r", 4)
+          .attr("fill", "#ff00ff")
+          .attr("stroke", "#0a0a0f")
+          .attr("stroke-width", 2);
+
+        // Add axes
+        g.append("g")
+          .attr("transform", `translate(0,${height})`)
+          .call(d3.axisBottom(xScale).tickFormat(d3.timeFormat("%m/%d")))
+          .selectAll("text")
+          .style("fill", "#a0a0a0");
+
+        g.append("g")
+          .call(d3.axisLeft(yScale))
+          .selectAll("text")
+          .style("fill", "#a0a0a0");
+
+        // Style axes
+        g.selectAll(".domain, .tick line").style("stroke", "#333366");
+
+        // Add legend
+        const legend = g
+          .append("g")
+          .attr("transform", `translate(${width - 120}, 20)`);
+
+        legend
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", 20)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .style("stroke", "#00ffff")
+          .style("stroke-width", 2);
+
+        legend
+          .append("text")
+          .attr("x", 25)
+          .attr("y", 0)
+          .attr("dy", "0.35em")
+          .style("fill", "#e0e0e0")
+          .style("font-size", "12px")
+          .text("Views");
+
+        legend
+          .append("line")
+          .attr("x1", 0)
+          .attr("x2", 20)
+          .attr("y1", 20)
+          .attr("y2", 20)
+          .style("stroke", "#ff00ff")
+          .style("stroke-width", 2);
+
+        legend
+          .append("text")
+          .attr("x", 25)
+          .attr("y", 20)
+          .attr("dy", "0.35em")
+          .style("fill", "#e0e0e0")
+          .style("font-size", "12px")
+          .text("Shares");
+      }
+
+      // Load detailed analytics
+      async function loadDetailedAnalytics() {
+        try {
+          const response = await fetch("/dashboard/api/detailed-analytics");
+          const data = await response.json();
+
+          if (data.success) {
+            renderTopSnippets(data.topSnippets);
+            renderShareTrends(data.shareTrends);
+            renderGeoChart(data.geoData);
+          }
+        } catch (error) {
+          console.error("Error loading detailed analytics:", error);
+        }
+      }
+
+      // Render top snippets
+      function renderTopSnippets(snippets) {
+        const container = document.getElementById("topSnippetsList");
+        if (!container || !snippets) return;
+
+        container.innerHTML = snippets
+          .map(
+            (snippet, index) => `
+                <div class="flex items-center justify-between p-2 bg-cyber-surface rounded border border-cyber-border">
+                    <div class="flex items-center gap-3">
+                        <span class="text-cyber-primary font-bold">#${
+                          index + 1
+                        }</span>
+                        <div>
+                            <div class="text-cyber-text font-medium">${
+                              snippet.title
+                            }</div>
+                            <div class="text-cyber-text-dim text-sm">${
+                              snippet.language
+                            }</div>
+                        </div>
+                    </div>
+                    <div class="text-cyber-success font-bold">${
+                      snippet.views
+                    } views</div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Event Listeners
+      function setupEventListeners() {
+        // Share new button
+        document
+          .getElementById("shareNewBtn")
+          ?.addEventListener("click", openShareModal);
+
+        // Refresh analytics
+        document
+          .getElementById("refreshAnalytics")
+          ?.addEventListener("click", () => {
+            useSharedStore.getState().loadAnalytics();
+            showNotification("Analytics refreshed", "success");
+          });
+
+        // Export analytics
+        document
+          .getElementById("exportAnalytics")
+          ?.addEventListener("click", exportAnalytics);
+      }
+
+      // Snippet Actions
+      function viewSnippet(snippetId) {
+        console.log(`🔍 SHARED - Viewing snippet: ${snippetId}`);
+        window.open(`/snippet/${snippetId}`, "_blank");
+      }
+
+      function copyShareLink(snippetId) {
+        const shareUrl = `${window.location.origin}/snippet/${snippetId}`;
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showNotification("Share link copied to clipboard!", "success");
+        });
+      }
+
+      function copySnippet(snippetId) {
+        fetch(`/dashboard/api/snippet/${snippetId}/copy`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              navigator.clipboard.writeText(data.code);
+              showNotification("Code copied to clipboard!", "success");
+            }
+          });
+      }
+
+      function forkSnippet(snippetId) {
+        fetch(`/dashboard/api/snippet/${snippetId}/fork`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification("Snippet forked successfully!", "success");
+              // Redirect to edit the forked snippet
+              window.location.href = `/snippet/${data.newSnippetId}/edit`;
+            }
+          });
+      }
+
+      function unshareSnippet(snippetId) {
+        if (confirm("Are you sure you want to unshare this snippet?")) {
+          fetch(`/dashboard/api/snippet/${snippetId}/unshare`, {
+            method: "POST",
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                showNotification("Snippet unshared successfully!", "success");
+                // Remove from UI
+                document
+                  .querySelector(`[data-snippet-id="${snippetId}"]`)
+                  ?.remove();
+                // Update stats
+                updateStats();
+              }
+            });
+        }
+      }
+
+      function viewAnalytics(snippetId) {
+        window.open(`/dashboard/analytics/snippet/${snippetId}`, "_blank");
+      }
+
+      // Modal Functions
+      function openShareModal() {
+        document.getElementById("shareModal").classList.remove("hidden");
+      }
+
+      function closeShareModal() {
+        document.getElementById("shareModal").classList.add("hidden");
+      }
+
+      function copyToClipboard() {
+        const shareLink = document.getElementById("shareLink");
+        shareLink.select();
+        document.execCommand("copy");
+        showNotification("Link copied to clipboard!", "success");
+      }
+
+      function shareToSocial(platform) {
+        const shareLink = document.getElementById("shareLink").value;
+        const text = "Check out this awesome code snippet!";
+
+        let url;
+        switch (platform) {
+          case "twitter":
+            url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+              text
+            )}&url=${encodeURIComponent(shareLink)}`;
+            break;
+          case "linkedin":
+            url = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+              shareLink
+            )}`;
+            break;
+        }
+
+        if (url) {
+          window.open(url, "_blank", "width=600,height=400");
+        }
+      }
+
+      // Utility Functions
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
+      }
+
+      function showNotification(message, type = "success") {
+        const container = document.getElementById("notificationContainer");
+        const notification = document.createElement("div");
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+                <i class="fas fa-${
+                  type === "success" ? "check" : "exclamation"
+                }-circle"></i>
+                <span>${message}</span>
+            `;
+
+        container.appendChild(notification);
+
+        setTimeout(() => notification.classList.add("show"), 100);
+        setTimeout(() => {
+          notification.classList.remove("show");
+          setTimeout(() => notification.remove(), 300);
+        }, 3000);
+      }
+
+      function updateStats() {
+        // Update stats counters
+        fetch("/dashboard/api/share-stats")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              document.getElementById("sharedByMeCount").textContent =
+                data.stats.shared_by_me;
+              document.getElementById("sharedWithMeCount").textContent =
+                data.stats.shared_with_me;
+              document.getElementById("totalViewsCount").textContent =
+                data.stats.total_views;
+              document.getElementById("publicSnippetsCount").textContent =
+                data.stats.public_snippets;
+            }
+          });
+      }
+
+      function exportAnalytics() {
+        fetch("/dashboard/api/export-analytics")
+          .then((response) => response.blob())
+          .then((blob) => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `share-analytics-${
+              new Date().toISOString().split("T")[0]
+            }.csv`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+            showNotification("Analytics exported successfully!", "success");
+          })
+          .catch((error) => {
+            console.error("Export error:", error);
+            showNotification("Export failed", "error");
+          });
+      }
+
+      // Cyberpunk Effects
+      function initCyberpunkEffects() {
+        // Glitch effect on title
+        const title = document.querySelector(".page-title");
+        if (title) {
+          setInterval(() => {
+            if (Math.random() < 0.1) {
+              // 10% chance every interval
+              title.style.animation = "none";
+              setTimeout(() => {
+                title.style.animation = "glitch 725ms infinite";
+              }, 50);
+            }
+          }, 3000);
+        }
+
+        // Floating particles
+        createFloatingParticles();
+
+        // Neon pulse effects
+        initNeonPulse();
+
+        // Matrix rain effect (subtle)
+        createMatrixRain();
+      }
+
+      function createFloatingParticles() {
+        const particleContainer = document.createElement("div");
+        particleContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+            `;
+        document.body.appendChild(particleContainer);
+
+        for (let i = 0; i < 20; i++) {
+          const particle = document.createElement("div");
+          particle.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: var(--cyber-primary);
+                    border-radius: 50%;
+                    opacity: 0.6;
+                    animation: float ${5 + Math.random() * 10}s linear infinite;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    box-shadow: 0 0 6px var(--cyber-primary);
+                `;
+          particleContainer.appendChild(particle);
+        }
+      }
+
+      function initNeonPulse() {
+        const cards = document.querySelectorAll(".stat-card, .snippet-card");
+        cards.forEach((card) => {
+          card.addEventListener("mouseenter", () => {
+            card.style.boxShadow = "0 0 30px rgba(0, 255, 255, 0.6)";
+          });
+          card.addEventListener("mouseleave", () => {
+            card.style.boxShadow = "";
+          });
+        });
+      }
+
+      function createMatrixRain() {
+        const canvas = document.createElement("canvas");
+        canvas.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+                opacity: 0.1;
+            `;
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const chars = "01";
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+          ctx.fillStyle = "rgba(10, 10, 15, 0.05)";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          ctx.fillStyle = "#00ffff";
+          ctx.font = `${fontSize}px monospace`;
+
+          for (let i = 0; i < drops.length; i++) {
+            const text = chars[Math.floor(Math.random() * chars.length)];
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+              drops[i] = 0;
+            }
+            drops[i]++;
+          }
+        }
+
+        setInterval(drawMatrix, 100);
+
+        // Resize handler
+        window.addEventListener("resize", () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+        });
+      }
+
+      // Advanced Features
+      function shareFirstSnippet() {
+        window.location.href = "/dashboard/snippets?action=share";
+      }
+
+      function exploreTeams() {
+        window.location.href = "/dashboard/teams";
+      }
+
+      function saveSnippet(snippetId) {
+        fetch(`/dashboard/api/snippet/${snippetId}/save`, { method: "POST" })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              showNotification("Snippet saved to your collection!", "success");
+            }
+          })
+          .catch((error) => {
+            console.error("Save error:", error);
+            showNotification("Failed to save snippet", "error");
+          });
+      }
+
+      // Real-time updates using WebSocket (if available)
+      function initWebSocket() {
+        if (typeof io !== "undefined") {
+          const socket = io();
+
+          socket.on("snippet_shared", (data) => {
+            showNotification(`New snippet shared: ${data.title}`, "info");
+            updateStats();
+          });
+
+          socket.on("snippet_viewed", (data) => {
+            // Update view count in real-time
+            const card = document.querySelector(
+              `[data-snippet-id="${data.snippetId}"]`
+            );
+            if (card) {
+              const viewCount = card.querySelector(".fa-eye").parentElement;
+              viewCount.innerHTML = `<i class="fas fa-eye"></i> ${data.newCount} views`;
+            }
+          });
+        }
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", (e) => {
+        // Ctrl/Cmd + K for search
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+          e.preventDefault();
+          // Focus search if available
+          const searchInput = document.querySelector(".search-input");
+          if (searchInput) searchInput.focus();
+        }
+
+        // Ctrl/Cmd + N for new share
+        if ((e.ctrlKey || e.metaKey) && e.key === "n") {
+          e.preventDefault();
+          openShareModal();
+        }
+
+        // Escape to close modals
+        if (e.key === "Escape") {
+          closeShareModal();
+        }
+      });
+
+      // Performance monitoring
+      function monitorPerformance() {
+        if ("performance" in window) {
+          window.addEventListener("load", () => {
+            setTimeout(() => {
+              const loadTime =
+                performance.timing.loadEventEnd -
+                performance.timing.navigationStart;
+              console.log(`⚡ SHARED PAGE - Loaded in ${loadTime}ms`);
+
+              if (loadTime > 3000) {
+                console.warn("⚠️ SHARED PAGE - Slow load detected");
+              }
+            }, 100);
+          });
+        }
+      }
+
+      // Initialize performance monitoring
+      monitorPerformance();
+
+      // Initialize WebSocket if available
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(initWebSocket, 1000);
+      });
+
+      // Auto-refresh stats every 5 minutes
+      setInterval(updateStats, 5 * 60 * 1000);
+
+      // Intersection Observer for animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.animation = "fadeInUp 0.6s ease-out forwards";
+          }
+        });
+      }, observerOptions);
+
+      // Observe all snippet cards for scroll animations
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          const cards = document.querySelectorAll(".snippet-card");
+          cards.forEach((card) => {
+            card.style.opacity = "0";
+            card.style.transform = "translateY(30px)";
+            observer.observe(card);
+          });
+        }, 500);
+      });
+
+      // Enhanced error handling
+      window.addEventListener("error", (e) => {
+        console.error("🚨 SHARED PAGE ERROR:", e.error);
+        showNotification("An unexpected error occurred", "error");
+      });
+
+      window.addEventListener("unhandledrejection", (e) => {
+        console.error("🚨 SHARED PAGE PROMISE REJECTION:", e.reason);
+        showNotification("A network error occurred", "error");
+      });
+
+      // Final initialization log
+      console.log("🚀 SHARED NETWORK - All systems operational");
+      console.log(
+        "🔍 SHARED SHORTCUTS - Ctrl+K: Search, Ctrl+N: New Share, Esc: Close"
+      );
+      console.log("✨ SHARED EFFECTS - Cyberpunk neural interface active");
+
+      // ===== FINAL ERROR RECOVERY AND HEALTH CHECK =====
+      window.addEventListener("load", function () {
+        setTimeout(() => {
+          try {
+            // Health check
+            const healthCheck = {
+              zustand: typeof window.zustand !== "undefined",
+              d3: typeof window.d3 !== "undefined",
+              store: typeof useSharedStore !== "undefined",
+              logger: typeof sharedLogger !== "undefined",
+              tabs: document.querySelectorAll(".tab").length > 0,
+              sections:
+                document.querySelectorAll(".content-section").length > 0,
+            };
+
+            sharedLogger.log(
+              "System health check completed",
+              "info",
+              healthCheck
+            );
+
+            const failedComponents = Object.entries(healthCheck)
+              .filter(([key, value]) => !value)
+              .map(([key]) => key);
+
+            if (failedComponents.length > 0) {
+              sharedLogger.log(
+                `Failed components: ${failedComponents.join(", ")}`,
+                "warning"
+              );
+              showNotification(
+                `Some features may be limited: ${failedComponents.join(", ")}`,
+                "warning"
+              );
+            } else {
+              sharedLogger.log("All systems operational", "success");
+              showNotification("Shared Network fully loaded! 🚀", "success");
+            }
+
+            // Performance metrics
+            const loadTime =
+              performance.timing.loadEventEnd -
+              performance.timing.navigationStart;
+            sharedLogger.log(`Page load completed in ${loadTime}ms`, "info", {
+              loadTime,
+            });
+          } catch (error) {
+            sharedLogger.log("Health check failed", "error", error);
+          }
+        }, 1000);
+      });
+
+      // Keyboard shortcut help
+      console.log("🔍 SHARED SHORTCUTS:");
+      console.log("  Ctrl+Shift+L: Toggle debug mode");
+      console.log("  Ctrl+K: Search (if available)");
+      console.log("  Ctrl+N: New share");
+      console.log("  Esc: Close modals");
+    </script>
+  </body>
+</html>

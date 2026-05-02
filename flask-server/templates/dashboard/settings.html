@@ -1,0 +1,3655 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings - SnippetFlow</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" />
+    <style>
+      :root {
+        --cyber-primary: #00ffff;
+        --cyber-secondary: #ff00ff;
+        --cyber-accent: #ffff00;
+        --cyber-bg: #0a0a0f;
+        --cyber-surface: #1a1a2e;
+        --cyber-surface-hover: #16213e;
+        --cyber-text: #e0e0e0;
+        --cyber-text-dim: #a0a0a0;
+        --cyber-border: #333366;
+        --cyber-success: #00ff88;
+        --cyber-warning: #ffaa00;
+        --cyber-danger: #ff4444;
+        --glass-bg: rgba(26, 26, 46, 0.8);
+        --glass-border: rgba(0, 255, 255, 0.2);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--cyber-bg);
+        color: var(--cyber-text);
+        overflow-x: hidden;
+        min-height: 100vh;
+      }
+
+      /* Cyberpunk Background */
+      .cyber-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background: linear-gradient(
+          45deg,
+          #0a0a0f 0%,
+          #1a1a2e 50%,
+          #0a0a0f 100%
+        );
+      }
+
+      .cyber-grid {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: linear-gradient(
+            rgba(0, 255, 255, 0.1) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+        animation: gridPulse 4s ease-in-out infinite;
+      }
+
+      @keyframes gridPulse {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.1;
+        }
+      }
+
+      .cyber-orbs {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(60px);
+        animation: float 6s ease-in-out infinite;
+      }
+
+      .orb:nth-child(1) {
+        width: 200px;
+        height: 200px;
+        background: rgba(0, 255, 255, 0.1);
+        top: 20%;
+        left: 10%;
+        animation-delay: 0s;
+      }
+
+      .orb:nth-child(2) {
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 0, 255, 0.1);
+        top: 60%;
+        right: 20%;
+        animation-delay: 2s;
+      }
+
+      .orb:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        background: rgba(255, 255, 0, 0.1);
+        bottom: 20%;
+        left: 50%;
+        animation-delay: 4s;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) scale(1);
+        }
+        50% {
+          transform: translateY(-20px) scale(1.1);
+        }
+      }
+
+      /* Header */
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--glass-border);
+        padding: 1rem 2rem;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        text-decoration: none;
+        color: var(--cyber-text);
+      }
+
+      .brand-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(0, 255, 255, 0.8);
+        }
+      }
+
+      .brand-text {
+        font-family: "Orbitron", monospace;
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--cyber-border);
+        background: var(--glass-bg);
+        color: var(--cyber-text);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn:hover {
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        transform: translateY(-2px);
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+        min-height: calc(100vh - 100px);
+      }
+
+      /* Sidebar Navigation */
+      .settings-nav {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        height: fit-content;
+        position: sticky;
+        top: 120px;
+      }
+
+      .nav-title {
+        font-family: "Orbitron", monospace;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--cyber-primary);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 1px solid transparent;
+      }
+
+      .nav-item:hover {
+        background: var(--cyber-surface-hover);
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+      }
+
+      .nav-item.active {
+        background: linear-gradient(
+          45deg,
+          rgba(0, 255, 255, 0.1),
+          rgba(255, 0, 255, 0.1)
+        );
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .nav-item i {
+        width: 20px;
+        text-align: center;
+        color: var(--cyber-primary);
+      }
+
+      /* Settings Content */
+      .settings-content {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        min-height: 600px;
+      }
+
+      .content-section {
+        display: none;
+        padding: 2rem;
+        animation: fadeIn 0.5s ease-in-out;
+      }
+
+      .content-section.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .section-title {
+        font-family: "Orbitron", monospace;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .section-subtitle {
+        color: var(--cyber-text-dim);
+        margin-bottom: 2rem;
+        font-size: 1rem;
+      }
+
+      /* Form Elements */
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--cyber-text);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 8px;
+        color: var(--cyber-text);
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 8px;
+        color: var(--cyber-text);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .form-select:focus {
+        outline: none;
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      }
+
+      /* Toggle Switch */
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+      }
+
+      .toggle-input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        transition: 0.3s;
+        border-radius: 30px;
+      }
+
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background: var(--cyber-text-dim);
+        transition: 0.3s;
+        border-radius: 50%;
+      }
+
+      .toggle-input:checked + .toggle-slider {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+      }
+
+      .toggle-input:checked + .toggle-slider:before {
+        transform: translateX(30px);
+        background: white;
+      }
+
+      /* Settings Cards */
+      .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .settings-card {
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+      }
+
+      .settings-card:hover {
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.2);
+        transform: translateY(-5px);
+      }
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: var(--cyber-primary);
+      }
+
+      .card-description {
+        color: var(--cyber-text-dim);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+      }
+
+      /* Avatar Upload */
+      .avatar-container {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 3px solid var(--cyber-primary);
+        object-fit: cover;
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+      }
+
+      .avatar-upload {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .upload-btn {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .upload-btn:hover {
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      /* Storage Usage */
+      .storage-info {
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-top: 1rem;
+      }
+
+      .storage-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+      }
+
+      .storage-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--cyber-surface);
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 1rem 0;
+      }
+
+      .storage-fill {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        width: 68%;
+        transition: width 0.5s ease;
+        box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      }
+
+      /* Button Styles */
+      .btn-primary {
+        background: linear-gradient(
+          45deg,
+          var(--cyber-primary),
+          var(--cyber-secondary)
+        );
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--cyber-text);
+        border: 1px solid var(--cyber-border);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .btn-danger {
+        background: linear-gradient(45deg, var(--cyber-danger), #cc0000);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-danger:hover {
+        box-shadow: 0 0 30px rgba(255, 68, 68, 0.5);
+        transform: translateY(-2px);
+      }
+
+      /* Integrations */
+      .integration-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: var(--cyber-surface);
+        border: 1px solid var(--cyber-border);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .integration-item:hover {
+        border-color: var(--cyber-primary);
+        box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+      }
+
+      .integration-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .integration-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .github {
+        background: linear-gradient(45deg, #333, #666);
+      }
+      .vscode {
+        background: linear-gradient(45deg, #007acc, #0099ff);
+      }
+      .chrome {
+        background: linear-gradient(45deg, #4285f4, #34a853);
+      }
+
+      .integration-details h4 {
+        color: var(--cyber-text);
+        margin-bottom: 0.25rem;
+      }
+
+      .integration-details p {
+        color: var(--cyber-text-dim);
+        font-size: 0.9rem;
+      }
+
+      .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+      }
+
+      .status-connected {
+        background: rgba(0, 255, 136, 0.2);
+        color: var(--cyber-success);
+        border: 1px solid var(--cyber-success);
+      }
+
+      .status-disconnected {
+        background: rgba(255, 68, 68, 0.2);
+        color: var(--cyber-danger);
+        border: 1px solid var(--cyber-danger);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          grid-template-columns: 1fr;
+          padding: 1rem;
+        }
+
+        .settings-nav {
+          position: static;
+          order: 2;
+        }
+
+        .header-content {
+          padding: 0 1rem;
+        }
+
+        .nav-title {
+          text-align: center;
+        }
+      }
+
+      
+
+      /* Glitch Effect */
+      .glitch {
+        position: relative;
+        color: var(--cyber-primary);
+        font-size: 2rem;
+        font-weight: bold;
+        text-shadow: 0.05em 0 0 var(--cyber-secondary),
+          -0.05em -0.025em 0 var(--cyber-accent),
+          0.025em 0.05em 0 var(--cyber-danger);
+        animation: glitch 725ms infinite;
+      }
+
+      @keyframes glitch {
+        0%,
+        61.5%,
+        100% {
+          transform: translate3d(0, 0, 0);
+        }
+        20% {
+          transform: translate3d(-2px, 2px, 0);
+        }
+        40% {
+          transform: translate3d(-2px, -2px, 0);
+        }
+        60% {
+          transform: translate3d(2px, 2px, 0) scale3d(-1, -1, 1);
+        }
+        80% {
+          transform: translate3d(2px, -2px, 0);
+        }
+      }
+      /* Enhanced logging and debugging styles */
+.debug-info {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.9);
+  color: var(--cyber-green);
+  padding: 10px;
+  border-radius: 5px;
+  font-family: monospace;
+  font-size: 12px;
+  max-width: 300px;
+  z-index: 9999;
+  display: none;
+}
+
+.debug-info.show {
+  display: block;
+}
+
+/* Real data indicator */
+.real-data-indicator {
+  position: relative;
+}
+
+.real-data-indicator::after {
+  content: "🔴 LIVE";
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--cyber-green);
+  color: white;
+  font-size: 8px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+/* Enhanced form field styling for real data */
+.form-input.real-data {
+  border-left: 3px solid var(--cyber-green);
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.form-input.real-data:focus {
+  box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.2);
+}
+
+/* Loading state for data fields */
+.form-input.loading {
+  background: linear-gradient(90deg, var(--glass-bg) 25%, rgba(0, 245, 255, 0.1) 50%, var(--glass-bg) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Enhanced notification styles */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  color: var(--cyber-text);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transform: translateX(400px);
+  transition: transform 0.3s ease;
+  z-index: 3000;
+  min-width: 300px;
+  box-shadow: var(--shadow-cyber);
+}
+
+.toast.show {
+  transform: translateX(0);
+}
+
+.toast.success {
+  border-left: 4px solid var(--cyber-green);
+}
+
+.toast.error {
+  border-left: 4px solid var(--cyber-danger);
+}
+
+.toast.info {
+  border-left: 4px solid var(--cyber-primary);
+}
+
+.toast i {
+  font-size: 1.2rem;
+}
+
+.toast.success i {
+  color: var(--cyber-green);
+}
+
+.toast.error i {
+  color: var(--cyber-danger);
+}
+
+.toast.info i {
+  color: var(--cyber-primary);
+}
+    </style>
+  </head>
+  <body>
+    <div class="cyber-bg">
+      <div class="cyber-grid"></div>
+      <div class="cyber-orbs">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="header-content">
+        <a href="#" class="brand">
+          <div class="brand-icon">
+            <i class="fas fa-code"></i>
+          </div>
+          <span class="brand-text">SnippetFlow</span>
+        </a>
+        <div class="header-actions">
+          <a href="#" class="btn">
+            <i class="fas fa-arrow-left"></i>
+            Back to Dashboard
+          </a>
+          <button class="btn" id="saveAllBtn">
+            <i class="fas fa-save"></i>
+            Save All
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container">
+      <aside class="settings-nav">
+        <div class="nav-title">Settings</div>
+        <div class="nav-item active" data-section="account">
+          <i class="fas fa-user"></i>
+          <span>Account</span>
+        </div>
+        <div class="nav-item" data-section="appearance">
+          <i class="fas fa-palette"></i>
+          <span>Appearance</span>
+        </div>
+        <div class="nav-item" data-section="notifications">
+          <i class="fas fa-bell"></i>
+          <span>Notifications</span>
+        </div>
+        <div class="nav-item" data-section="security">
+          <i class="fas fa-shield-alt"></i>
+          <span>Security</span>
+        </div>
+        <div class="nav-item" data-section="editor">
+          <i class="fas fa-code"></i>
+          <span>Editor</span>
+        </div>
+        <div class="nav-item" data-section="integrations">
+          <i class="fas fa-plug"></i>
+          <span>Integrations</span>
+        </div>
+        <div class="nav-item" data-section="storage">
+          <i class="fas fa-database"></i>
+          <span>Storage</span>
+        </div>
+        <div class="nav-item" data-section="advanced">
+          <i class="fas fa-cogs"></i>
+          <span>Advanced</span>
+        </div>
+      </aside>
+
+      <main class="settings-content">
+        <!-- Account Section -->
+        <section class="content-section active" id="account">
+          <h1 class="section-title">Account Settings</h1>
+          <p class="section-subtitle">
+            Manage your profile information and account preferences
+          </p>
+          <div class="avatar-container">
+            <img
+              src="{% if user.avatar_url %}{{ user.avatar_url }}{% elif user.profile_settings and user.profile_settings.get('avatar_url') %}{{ user.profile_settings.get('avatar_url') }}{% else %}https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face{% endif %}"
+              alt="Profile Avatar"
+              class="avatar"
+              id="settingsAvatar"
+              data-user-email="{{ user.email if user.email else '' }}"
+              data-user-username="{{ user.username if user.username else '' }}"
+              data-user-plan="{{ user.plan_type if user.plan_type else 'free' }}"
+              data-user-role="{{ user.profile_settings.get('role', 'Developer') if user.profile_settings else 'Developer' }}"
+              onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face'; console.log('Settings avatar fallback triggered');" />
+            <div class="avatar-upload">
+              <button class="upload-btn">Change Avatar</button>
+              <small style="color: var(--cyber-text-dim)"
+                >JPG, PNG up to 2MB</small
+              >
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Personal Information</h3>
+              <p class="card-description">
+                Update your basic profile information
+              </p>
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input
+                  type="text"
+                  class="form-input"
+                  id="settingsFullName"
+                  value="{% if user.username and user.username.strip() %}{{ user.username.title() }}{% else %}{{ user.email.split('@')[0].replace('.', ' ').replace('_', ' ').title() if user.email else '' }}{% endif %}"
+                  placeholder="Enter your full name" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Address</label>
+                <input
+                  type="email"
+                  class="form-input"
+                  id="settingsEmail"
+                  value="{{ user.email if user.email else '' }}"
+                  placeholder="Enter your email" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Bio</label>
+                <textarea
+                  class="form-input"
+                  id="settingsBio"
+                  rows="3"
+                  placeholder="Tell us about yourself...">
+{{ user.profile_settings.bio if user.profile_settings and user.profile_settings.bio else 'Full-stack developer passionate about clean code and innovative solutions.' }}</textarea
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3 class="card-title">Account Status</h3>
+            <p class="card-description">
+              Your current plan and usage statistics
+            </p>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+              ">
+              <span>Plan Type:</span>
+              <strong style="color: var(--cyber-primary)"
+                >{{ user.plan_type.title() if user.plan_type else 'Free' }}
+                Plan</strong
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+              ">
+              <span>Member Since:</span>
+              <span
+                >{{ user.created_at.strftime('%B %Y') if user.created_at else
+                'Unknown' }}</span
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+              ">
+              <span>Total Snippets:</span>
+              <strong
+                style="color: var(--cyber-success)"
+                id="settingsTotalSnippets"
+                >{{ stats.total_snippets if stats else 0 }}</strong
+              >
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 1rem;
+              ">
+              <span>Total Collections:</span>
+              <strong
+                style="color: var(--cyber-primary)"
+                id="settingsTotalCollections"
+                >{{ stats.total_collections if stats else 0 }}</strong
+              >
+            </div>
+          </div>
+        </section>
+
+        <!-- Appearance Section -->
+        <section class="content-section" id="appearance">
+          <h1 class="section-title">Appearance</h1>
+          <p class="section-subtitle">
+            Customize the look and feel of your SnippetFlow experience
+          </p>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Theme Settings</h3>
+              <p class="card-description">Choose your preferred visual theme</p>
+              <div class="form-group">
+                <label class="form-label">Color Theme</label>
+                <select class="form-select">
+                  <option value="cyberpunk" selected>
+                    Cyberpunk (Current)
+                  </option>
+                  <option value="dark">Dark Mode</option>
+                  <option value="light">Light Mode</option>
+                  <option value="matrix">Matrix Green</option>
+                  <option value="neon">Neon Dreams</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Accent Color</label>
+                <select class="form-select">
+                  <option value="cyan" selected>Cyan Blue</option>
+                  <option value="magenta">Magenta Pink</option>
+                  <option value="green">Neon Green</option>
+                  <option value="purple">Electric Purple</option>
+                  <option value="orange">Cyber Orange</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <h3 class="card-title">Visual Effects</h3>
+            <p class="card-description">
+              Control animations and visual enhancements
+            </p>
+            <div
+              class="form-group"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+              <div>
+                <label class="form-label">Enable Animations</label>
+                <small style="color: var(--cyber-text-dim); display: block"
+                  >Smooth transitions and effects</small
+                >
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" class="toggle-input" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div
+              class="form-group"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+              <div>
+                <label class="form-label">Glitch Effects</label>
+                <small style="color: var(--cyber-text-dim); display: block"
+                  >Cyberpunk visual distortions</small
+                >
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" class="toggle-input" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div
+              class="form-group"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              ">
+              <div>
+                <label class="form-label">Particle Effects</label>
+                <small style="color: var(--cyber-text-dim); display: block"
+                  >Background floating orbs</small
+                >
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" class="toggle-input" checked />
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Notifications Section -->
+        <section class="content-section" id="notifications">
+          <h1 class="section-title">Notifications</h1>
+          <p class="section-subtitle">
+            Control how and when you receive notifications
+          </p>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Email Notifications</h3>
+              <p class="card-description">Manage email alerts and updates</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">New Snippet Shared</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >When someone shares a snippet with you</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Team Invitations</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Invites to join teams or projects</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Weekly Summary</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Your weekly activity report</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Browser Notifications</h3>
+              <p class="card-description">Real-time desktop notifications</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Enable Notifications</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Allow browser notifications</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input
+                    type="checkbox"
+                    class="toggle-input"
+                    id="browserNotifs" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Sound Alerts</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Play sound with notifications</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Notification Frequency</label>
+                <select class="form-select">
+                  <option value="instant" selected>Instant</option>
+                  <option value="hourly">Hourly Digest</option>
+                  <option value="daily">Daily Summary</option>
+                  <option value="weekly">Weekly Only</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Security Section -->
+        <section class="content-section" id="security">
+          <h1 class="section-title">Security & Privacy</h1>
+          <p class="section-subtitle">
+            Protect your account and manage privacy settings
+          </p>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Password & Authentication</h3>
+              <p class="card-description">Secure your account access</p>
+              <div class="form-group">
+                <label class="form-label">Current Password</label>
+                <input
+                  type="password"
+                  class="form-input"
+                  placeholder="Enter current password" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">New Password</label>
+                <input
+                  type="password"
+                  class="form-input"
+                  placeholder="Enter new password" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Confirm Password</label>
+                <input
+                  type="password"
+                  class="form-input"
+                  placeholder="Confirm new password" />
+              </div>
+              <button class="btn-primary">Update Password</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Two-Factor Authentication</h3>
+              <p class="card-description">Add an extra layer of security</p>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  margin-bottom: 1rem;
+                ">
+                <div>
+                  <strong>Status:</strong>
+                  <span class="status-badge status-disconnected">Disabled</span>
+                </div>
+                <button class="btn-primary">Enable 2FA</button>
+              </div>
+              <p style="color: var(--cyber-text-dim); font-size: 0.9rem">
+                Protect your account with an additional security code from your
+                phone.
+              </p>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">API Keys</h3>
+              <p class="card-description">Manage your API access tokens</p>
+              <div
+                style="
+                  background: var(--cyber-surface);
+                  padding: 1rem;
+                  border-radius: 8px;
+                  margin-bottom: 1rem;
+                ">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  ">
+                  <div>
+                    <strong>Personal Access Token</strong>
+                    <p
+                      style="
+                        color: var(--cyber-text-dim);
+                        font-size: 0.8rem;
+                        margin: 0;
+                      ">
+                      Created: Jan 15, 2024
+                    </p>
+                  </div>
+                  <button class="btn-danger" style="padding: 0.5rem 1rem">
+                    Revoke
+                  </button>
+                </div>
+              </div>
+              <button class="btn-secondary">Generate New Token</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Privacy Settings</h3>
+              <p class="card-description">Control your data and visibility</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Public Profile</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Make your profile visible to others</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Show Activity Status</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Display when you're online</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Default Snippet Visibility</label>
+                <select class="form-select">
+                  <option value="private" selected>Private</option>
+                  <option value="public">Public</option>
+                  <option value="unlisted">Unlisted</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Editor Section -->
+        <section class="content-section" id="editor">
+          <h1 class="section-title">Editor Preferences</h1>
+          <p class="section-subtitle">Customize your code editing experience</p>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Code Editor Theme</h3>
+              <p class="card-description">
+                Choose your preferred syntax highlighting
+              </p>
+              <div class="form-group">
+                <label class="form-label">Editor Theme</label>
+                <select class="form-select">
+                  <option value="cyberpunk" selected>Cyberpunk Dark</option>
+                  <option value="dracula">Dracula</option>
+                  <option value="monokai">Monokai</option>
+                  <option value="github-dark">GitHub Dark</option>
+                  <option value="vscode-dark">VS Code Dark</option>
+                  <option value="atom-dark">Atom One Dark</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Font Family</label>
+                <select class="form-select">
+                  <option value="fira-code" selected>Fira Code</option>
+                  <option value="jetbrains-mono">JetBrains Mono</option>
+                  <option value="source-code-pro">Source Code Pro</option>
+                  <option value="consolas">Consolas</option>
+                  <option value="monaco">Monaco</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Font Size</label>
+                <select class="form-select">
+                  <option value="12">12px</option>
+                  <option value="14" selected>14px</option>
+                  <option value="16">16px</option>
+                  <option value="18">18px</option>
+                  <option value="20">20px</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Editor Behavior</h3>
+              <p class="card-description">Configure editor functionality</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Auto-Save</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Automatically save changes</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Line Numbers</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Show line numbers</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Word Wrap</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Wrap long lines</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Auto-Complete</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Suggest code completions</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Formatting</h3>
+              <p class="card-description">Code formatting preferences</p>
+              <div class="form-group">
+                <label class="form-label">Tab Size</label>
+                <select class="form-select">
+                  <option value="2">2 spaces</option>
+                  <option value="4" selected>4 spaces</option>
+                  <option value="8">8 spaces</option>
+                  <option value="tab">Tab character</option>
+                </select>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Format on Save</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Auto-format code when saving</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Trim Whitespace</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Remove trailing spaces</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Integrations Section -->
+        <section class="content-section" id="integrations">
+          <h1 class="section-title">Integrations</h1>
+          <p class="section-subtitle">
+            Connect SnippetFlow with your favorite tools
+          </p>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <div class="integration-icon github">
+                <i class="fab fa-github"></i>
+              </div>
+              <div class="integration-details">
+                <h4>GitHub</h4>
+                <p>Sync snippets with your GitHub repositories</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <span class="status-badge status-connected">Connected</span>
+              <button class="btn-secondary">Configure</button>
+            </div>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <div class="integration-icon vscode">
+                <i class="fas fa-code"></i>
+              </div>
+              <div class="integration-details">
+                <h4>VS Code Extension</h4>
+                <p>Access snippets directly from your editor</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <span class="status-badge status-connected">Connected</span>
+              <button class="btn-secondary">Manage</button>
+            </div>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <div class="integration-icon chrome">
+                <i class="fab fa-chrome"></i>
+              </div>
+              <div class="integration-details">
+                <h4>Chrome Extension</h4>
+                <p>Save and access snippets from any webpage</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <span class="status-badge status-disconnected"
+                >Not Connected</span
+              >
+              <button class="btn-primary">Install</button>
+            </div>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <div
+                class="integration-icon"
+                style="background: linear-gradient(45deg, #ff6b35, #f7931e)">
+                <i class="fab fa-slack"></i>
+              </div>
+              <div class="integration-details">
+                <h4>Slack</h4>
+                <p>Share snippets in your team channels</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <span class="status-badge status-disconnected"
+                >Not Connected</span
+              >
+              <button class="btn-primary">Connect</button>
+            </div>
+          </div>
+
+          <div class="integration-item">
+            <div class="integration-info">
+              <div
+                class="integration-icon"
+                style="background: linear-gradient(45deg, #7289da, #5865f2)">
+                <i class="fab fa-discord"></i>
+              </div>
+              <div class="integration-details">
+                <h4>Discord</h4>
+                <p>Share code snippets in Discord servers</p>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem">
+              <span class="status-badge status-disconnected"
+                >Not Connected</span
+              >
+              <button class="btn-primary">Connect</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Storage Section -->
+        <section class="content-section" id="storage">
+          <h1 class="section-title">Storage & Data</h1>
+          <p class="section-subtitle">
+            Manage your data storage and backup options
+          </p>
+
+          <div class="storage-info">
+            <div class="storage-header">
+              <h3 style="color: var(--cyber-primary); margin: 0">
+                Storage Usage
+              </h3>
+              <span style="color: var(--cyber-text-dim)"
+                >6.8 GB of 10 GB used</span
+              >
+            </div>
+            <div class="storage-bar">
+              <div class="storage-fill"></div>
+            </div>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+                margin-top: 1rem;
+              ">
+              <div>
+                <strong style="color: var(--cyber-success)">Snippets:</strong>
+                <span style="color: var(--cyber-text-dim)">4.2 GB</span>
+              </div>
+              <div>
+                <strong style="color: var(--cyber-warning)">Assets:</strong>
+                <span style="color: var(--cyber-text-dim)">1.8 GB</span>
+              </div>
+              <div>
+                <strong style="color: var(--cyber-primary)">Backups:</strong>
+                <span style="color: var(--cyber-text-dim)">0.8 GB</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-grid" style="margin-top: 2rem">
+            <div class="settings-card">
+              <h3 class="card-title">Backup Settings</h3>
+              <p class="card-description">Automatic backup configuration</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Auto Backup</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Automatically backup your data</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Backup Frequency</label>
+                <select class="form-select">
+                  <option value="daily" selected>Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+              <button class="btn-primary">Create Backup Now</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Data Export</h3>
+              <p class="card-description">
+                Download your data in various formats
+              </p>
+              <div class="form-group">
+                <label class="form-label">Export Format</label>
+                <select class="form-select">
+                  <option value="json" selected>JSON</option>
+                  <option value="csv">CSV</option>
+                  <option value="xml">XML</option>
+                  <option value="zip">ZIP Archive</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Include</label>
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 0.5rem;
+                    margin-top: 0.5rem;
+                  ">
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      color: var(--cyber-text-dim);
+                    ">
+                    <input
+                      type="checkbox"
+                      checked
+                      style="accent-color: var(--cyber-primary)" />
+                    Snippets
+                  </label>
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      color: var(--cyber-text-dim);
+                    ">
+                    <input
+                      type="checkbox"
+                      checked
+                      style="accent-color: var(--cyber-primary)" />
+                    Tags
+                  </label>
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      color: var(--cyber-text-dim);
+                    ">
+                    <input
+                      type="checkbox"
+                      style="accent-color: var(--cyber-primary)" />
+                    Comments
+                  </label>
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                      color: var(--cyber-text-dim);
+                    ">
+                    <input
+                      type="checkbox"
+                      style="accent-color: var(--cyber-primary)" />
+                    Metadata
+                  </label>
+                </div>
+              </div>
+              <button class="btn-secondary">Export Data</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Data Retention</h3>
+              <p class="card-description">Control how long your data is kept</p>
+              <div class="form-group">
+                <label class="form-label">Delete Old Backups</label>
+                <select class="form-select">
+                  <option value="never">Never</option>
+                  <option value="30days">After 30 days</option>
+                  <option value="90days" selected>After 90 days</option>
+                  <option value="1year">After 1 year</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Trash Retention</label>
+                <select class="form-select">
+                  <option value="7days">7 days</option>
+                  <option value="30days" selected>30 days</option>
+                  <option value="forever">Forever</option>
+                </select>
+              </div>
+              <button class="btn-danger">Clear All Trash</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Advanced Section -->
+        <section class="content-section" id="advanced">
+          <h1 class="section-title">Advanced Settings</h1>
+          <p class="section-subtitle">
+            Power user options and experimental features
+          </p>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3 class="card-title">Experimental Features</h3>
+              <p class="card-description">
+                Try out new features before they're released
+              </p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">AI Code Suggestions</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Get AI-powered code completions</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Voice Commands</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Control SnippetFlow with voice</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Beta UI</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Try the new interface design</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Performance</h3>
+              <p class="card-description">Optimize app performance</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Hardware Acceleration</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Use GPU for better performance</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Preload Content</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Load content in advance</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" checked />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Cache Size</label>
+                <select class="form-select">
+                  <option value="small">Small (50MB)</option>
+                  <option value="medium" selected>Medium (200MB)</option>
+                  <option value="large">Large (500MB)</option>
+                  <option value="unlimited">Unlimited</option>
+                </select>
+              </div>
+              <button class="btn-secondary">Clear Cache</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Developer Options</h3>
+              <p class="card-description">Advanced settings for developers</p>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Debug Mode</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Enable detailed logging</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div
+                class="form-group"
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                ">
+                <div>
+                  <label class="form-label">Console Access</label>
+                  <small style="color: var(--cyber-text-dim); display: block"
+                    >Enable developer console</small
+                  >
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" class="toggle-input" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">API Version</label>
+                <select class="form-select">
+                  <option value="v1">API v1 (Stable)</option>
+                  <option value="v2" selected>API v2 (Current)</option>
+                  <option value="v3">API v3 (Beta)</option>
+                </select>
+              </div>
+              <button class="btn-secondary">Download Debug Logs</button>
+            </div>
+
+            <div class="settings-card">
+              <h3 class="card-title">Danger Zone</h3>
+              <p class="card-description" style="color: var(--cyber-danger)">
+                Irreversible actions - proceed with caution
+              </p>
+              <div
+                style="
+                  border: 1px solid var(--cyber-danger);
+                  border-radius: 8px;
+                  padding: 1rem;
+                  background: rgba(255, 68, 68, 0.1);
+                ">
+                <h4 style="color: var(--cyber-danger); margin-bottom: 0.5rem">
+                  Reset All Settings
+                </h4>
+                <p
+                  style="
+                    color: var(--cyber-text-dim);
+                    font-size: 0.9rem;
+                    margin-bottom: 1rem;
+                  ">
+                  This will reset all your preferences to default values. This
+                  action cannot be undone.
+                </p>
+                <button class="btn-danger">Reset to Defaults</button>
+              </div>
+              <div
+                style="
+                  border: 1px solid var(--cyber-danger);
+                  border-radius: 8px;
+                  padding: 1rem;
+                  background: rgba(255, 68, 68, 0.1);
+                  margin-top: 1rem;
+                ">
+                <h4 style="color: var(--cyber-danger); margin-bottom: 0.5rem">
+                  Delete Account
+                </h4>
+                <p
+                  style="
+                    color: var(--cyber-text-dim);
+                    font-size: 0.9rem;
+                    margin-bottom: 1rem;
+                  ">
+                  Permanently delete your account and all associated data. This
+                  action is irreversible.
+                </p>
+                <button class="btn-danger" onclick="confirmAccountDeletion()">
+                  Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="glitch">Confirm Action</h2>
+          <span class="close" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p id="modalMessage">Are you sure you want to proceed?</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+          <button class="btn-danger" id="confirmBtn">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="successToast" class="toast">
+      <i class="fas fa-check-circle"></i>
+      <span>Settings saved successfully!</span>
+    </div>
+
+    <style>
+      /* Modal Styles */
+      .modal {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        max-width: 500px;
+        width: 90%;
+        animation: modalSlideIn 0.3s ease-out;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: translateY(-50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--cyber-border);
+      }
+
+      .modal-header h2 {
+        margin: 0;
+        font-family: "Orbitron", monospace;
+      }
+
+      .close {
+        color: var(--cyber-text-dim);
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .close:hover {
+        color: var(--cyber-primary);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-top: 1px solid var(--cyber-border);
+      }
+
+      /* Toast Styles */
+      .toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(45deg, var(--cyber-success), #00cc66);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        transform: translateX(400px);
+        transition: transform 0.3s ease;
+        z-index: 1001;
+      }
+
+      .toast.show {
+        transform: translateX(0);
+      }
+
+      /* Additional responsive styles */
+      @media (max-width: 480px) {
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .avatar-container {
+          flex-direction: column;
+          text-align: center;
+        }
+
+        .modal-content {
+          margin: 1rem;
+          width: calc(100% - 2rem);
+        }
+      }
+    </style>
+
+    <script>
+      // Navigation functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const navItems = document.querySelectorAll(".nav-item");
+        const contentSections = document.querySelectorAll(".content-section");
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", function () {
+            const targetSection = this.getAttribute("data-section");
+
+            // Remove active class from all nav items and sections
+            navItems.forEach((nav) => nav.classList.remove("active"));
+            contentSections.forEach((section) =>
+              section.classList.remove("active")
+            );
+
+            // Add active class to clicked nav item and corresponding section
+            this.classList.add("active");
+            document.getElementById(targetSection).classList.add("active");
+          });
+        });
+
+        // Browser notification permission
+        const browserNotifsToggle = document.getElementById("browserNotifs");
+        if (browserNotifsToggle) {
+          browserNotifsToggle.addEventListener("change", function () {
+            if (this.checked && Notification.permission === "default") {
+              Notification.requestPermission().then((permission) => {
+                if (permission !== "granted") {
+                  this.checked = false;
+                }
+              });
+            }
+          });
+        }
+
+        // Save all settings
+        document
+          .getElementById("saveAllBtn")
+          .addEventListener("click", function () {
+            saveAllSettings();
+          });
+
+        // Auto-save functionality
+        const inputs = document.querySelectorAll(
+          ".form-input, .form-select, .toggle-input"
+        );
+        inputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            // Simulate auto-save with a small delay
+            setTimeout(() => {
+              showToast("Settings auto-saved");
+            }, 500);
+          });
+        });
+      });
+
+      // Modal functions
+      function confirmAccountDeletion() {
+        document.getElementById("modalMessage").textContent =
+          'This will permanently delete your account and all data. Type "DELETE" to confirm:';
+
+        const modalBody = document.querySelector(".modal-body");
+        modalBody.innerHTML = `
+                <p style="color: var(--cyber-danger); margin-bottom: 1rem;">
+                    This will permanently delete your account and all data. This action cannot be undone.
+                </p>
+                <input type="text" class="form-input" id="deleteConfirmInput" 
+                       placeholder="Type DELETE to confirm" style="margin-bottom: 1rem;">
+            `;
+
+        document.getElementById("confirmBtn").onclick = function () {
+          const input = document.getElementById("deleteConfirmInput");
+          if (input.value === "DELETE") {
+            // Simulate account deletion
+            showToast("Account deletion initiated...", "danger");
+            closeModal();
+          } else {
+            input.style.borderColor = "var(--cyber-danger)";
+            input.placeholder = "You must type DELETE exactly";
+          }
+        };
+
+        document.getElementById("confirmModal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("confirmModal").style.display = "none";
+      }
+
+      // Toast notification
+      function showToast(message, type = "success") {
+        const toast = document.getElementById("successToast");
+        const icon = toast.querySelector("i");
+        const text = toast.querySelector("span");
+
+        text.textContent = message;
+
+        if (type === "danger") {
+          toast.style.background =
+            "linear-gradient(45deg, var(--cyber-danger), #cc0000)";
+          icon.className = "fas fa-exclamation-triangle";
+        } else {
+          toast.style.background =
+            "linear-gradient(45deg, var(--cyber-success), #00cc66)";
+          icon.className = "fas fa-check-circle";
+        }
+
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      // Save all settings
+      function saveAllSettings() {
+        // Simulate saving process
+        const saveBtn = document.getElementById("saveAllBtn");
+        const originalText = saveBtn.innerHTML;
+
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        setTimeout(() => {
+          saveBtn.innerHTML = originalText;
+          saveBtn.disabled = false;
+          showToast("All settings saved successfully!");
+        }, 2000);
+      }
+
+      // Theme switching functionality
+      function switchTheme(theme) {
+        const root = document.documentElement;
+
+        switch (theme) {
+          case "dark":
+            root.style.setProperty("--cyber-primary", "#ffffff");
+            root.style.setProperty("--cyber-secondary", "#cccccc");
+            break;
+          case "matrix":
+            root.style.setProperty("--cyber-primary", "#00ff00");
+            root.style.setProperty("--cyber-secondary", "#008800");
+            break;
+          case "neon":
+            root.style.setProperty("--cyber-primary", "#ff0080");
+            root.style.setProperty("--cyber-secondary", "#8000ff");
+            break;
+          default:
+            // Cyberpunk theme (default)
+            root.style.setProperty("--cyber-primary", "#00ffff");
+            root.style.setProperty("--cyber-secondary", "#ff00ff");
+        }
+      }
+
+      // Keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        // Ctrl/Cmd + S to save
+        if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+          e.preventDefault();
+          saveAllSettings();
+        }
+
+        // Escape to close modal
+        if (e.key === "Escape") {
+          closeModal();
+        }
+      });
+
+      // Smooth scrolling for navigation
+      function smoothScrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" });
+        }
+      }
+
+      // Initialize tooltips and enhanced interactions
+      document.addEventListener("DOMContentLoaded", function () {
+        // Add hover effects to cards
+        const cards = document.querySelectorAll(".settings-card");
+        cards.forEach((card) => {
+          card.addEventListener("mouseenter", function () {
+            this.style.transform = "translateY(-5px) scale(1.02)";
+          });
+
+          card.addEventListener("mouseleave", function () {
+            this.style.transform = "translateY(0) scale(1)";
+          });
+        });
+
+        // Enhanced toggle animations
+        const toggles = document.querySelectorAll(".toggle-input");
+        toggles.forEach((toggle) => {
+          toggle.addEventListener("change", function () {
+            const slider = this.nextElementSibling;
+            if (this.checked) {
+              slider.style.boxShadow = "0 0 20px rgba(0, 255, 255, 0.8)";
+            } else {
+              slider.style.boxShadow = "none";
+            }
+          });
+        });
+      });
+
+      // Performance monitoring
+      function clearCache() {
+        if ("caches" in window) {
+          caches.keys().then((names) => {
+            names.forEach((name) => {
+              caches.delete(name);
+            });
+          });
+        }
+        showToast("Cache cleared successfully!");
+      }
+
+      // Export data functionality
+      function exportData(format) {
+        const data = {
+          settings: gatherAllSettings(),
+          snippets: [], // Would be populated from actual data
+          timestamp: new Date().toISOString(),
+        };
+
+        let content, filename, mimeType;
+
+        switch (format) {
+          case "json":
+            content = JSON.stringify(data, null, 2);
+            filename = "snippetflow-export.json";
+            mimeType = "application/json";
+            break;
+          case "csv":
+            content = convertToCSV(data);
+            filename = "snippetflow-export.csv";
+            mimeType = "text/csv";
+            break;
+          default:
+            content = JSON.stringify(data, null, 2);
+            filename = "snippetflow-export.json";
+            mimeType = "application/json";
+        }
+
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast(`Data exported as ${format.toUpperCase()}`);
+      }
+
+      // Gather all settings from the form
+      function gatherAllSettings() {
+        const settings = {};
+
+        // Account settings
+        settings.account = {
+          name:
+            document.querySelector('input[placeholder="Enter your full name"]')
+              ?.value || "",
+          email:
+            document.querySelector('input[placeholder="Enter your email"]')
+              ?.value || "",
+          bio:
+            document.querySelector(
+              'textarea[placeholder="Tell us about yourself..."]'
+            )?.value || "",
+        };
+
+        // Appearance settings
+        settings.appearance = {
+          theme:
+            document.querySelector("select option[selected]")?.value ||
+            "cyberpunk",
+          animations:
+            document.querySelector("#appearance .toggle-input:nth-of-type(1)")
+              ?.checked || true,
+          glitchEffects:
+            document.querySelector("#appearance .toggle-input:nth-of-type(2)")
+              ?.checked || true,
+          particleEffects:
+            document.querySelector("#appearance .toggle-input:nth-of-type(3)")
+              ?.checked || true,
+        };
+
+        // Notification settings
+        settings.notifications = {
+          emailNotifications: true,
+          browserNotifications:
+            document.getElementById("browserNotifs")?.checked || false,
+          soundAlerts: true,
+          frequency: "instant",
+        };
+
+        // Security settings
+        settings.security = {
+          twoFactorEnabled: false,
+          publicProfile: true,
+          showActivityStatus: false,
+          defaultVisibility: "private",
+        };
+
+        // Editor settings
+        settings.editor = {
+          theme: "cyberpunk",
+          fontFamily: "fira-code",
+          fontSize: 14,
+          autoSave: true,
+          lineNumbers: true,
+          wordWrap: false,
+          autoComplete: true,
+          tabSize: 4,
+          formatOnSave: true,
+          trimWhitespace: true,
+        };
+
+        return settings;
+      }
+
+      // Convert data to CSV format
+      function convertToCSV(data) {
+        const headers = ["Setting", "Value", "Category"];
+        const rows = [headers.join(",")];
+
+        Object.keys(data.settings).forEach((category) => {
+          Object.keys(data.settings[category]).forEach((setting) => {
+            const value = data.settings[category][setting];
+            rows.push(`"${setting}","${value}","${category}"`);
+          });
+        });
+
+        return rows.join("\n");
+      }
+
+      // Reset all settings to defaults
+      function resetToDefaults() {
+        document.getElementById("modalMessage").textContent =
+          "This will reset all your settings to default values. This action cannot be undone.";
+
+        document.getElementById("confirmBtn").onclick = function () {
+          // Reset all form elements to their default values
+          const inputs = document.querySelectorAll(".form-input");
+          const selects = document.querySelectorAll(".form-select");
+          const toggles = document.querySelectorAll(".toggle-input");
+
+          inputs.forEach((input) => {
+            if (input.type === "text" || input.type === "email") {
+              input.value = input.getAttribute("placeholder") || "";
+            } else if (input.type === "password") {
+              input.value = "";
+            }
+          });
+
+          selects.forEach((select) => {
+            select.selectedIndex = 0;
+          });
+
+          toggles.forEach((toggle) => {
+            toggle.checked = toggle.hasAttribute("checked");
+          });
+
+          closeModal();
+          showToast("Settings reset to defaults");
+        };
+
+        document.getElementById("confirmModal").style.display = "flex";
+      }
+
+      // Advanced features
+      function enableDebugMode() {
+        console.log("Debug mode enabled");
+        window.SnippetFlowDebug = {
+          settings: gatherAllSettings(),
+          version: "2.0.0",
+          build: "cyberpunk-edition",
+        };
+        showToast("Debug mode enabled - Check console");
+      }
+
+      function downloadDebugLogs() {
+        const logs = {
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          settings: gatherAllSettings(),
+          performance: {
+            memory: performance.memory
+              ? {
+                  used: performance.memory.usedJSHeapSize,
+                  total: performance.memory.totalJSHeapSize,
+                  limit: performance.memory.jsHeapSizeLimit,
+                }
+              : "Not available",
+            timing: performance.timing,
+          },
+          errors: window.errorLog || [],
+        };
+
+        const content = JSON.stringify(logs, null, 2);
+        const blob = new Blob([content], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "snippetflow-debug-logs.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast("Debug logs downloaded");
+      }
+
+      // Error logging
+      window.errorLog = [];
+      window.addEventListener("error", function (e) {
+        window.errorLog.push({
+          message: e.message,
+          filename: e.filename,
+          lineno: e.lineno,
+          colno: e.colno,
+          timestamp: new Date().toISOString(),
+        });
+      });
+
+      // Storage usage simulation
+      function updateStorageUsage() {
+        const totalStorage = 10 * 1024 * 1024 * 1024; // 10GB in bytes
+        const usedStorage = 6.8 * 1024 * 1024 * 1024; // 6.8GB in bytes
+        const percentage = (usedStorage / totalStorage) * 100;
+
+        const storageBar = document.querySelector(".storage-fill");
+        if (storageBar) {
+          storageBar.style.width = percentage + "%";
+        }
+      }
+
+      // Initialize storage usage on page load
+      document.addEventListener("DOMContentLoaded", updateStorageUsage);
+
+      // Backup functionality
+      function createBackup() {
+        const backupBtn = event.target;
+        const originalText = backupBtn.textContent;
+
+        backupBtn.textContent = "Creating Backup...";
+        backupBtn.disabled = true;
+
+        setTimeout(() => {
+          const backupData = {
+            version: "2.0.0",
+            timestamp: new Date().toISOString(),
+            settings: gatherAllSettings(),
+            snippets: [], // Would contain actual snippet data
+            metadata: {
+              totalSnippets: 247,
+              totalTags: 89,
+              lastModified: new Date().toISOString(),
+            },
+          };
+
+          const content = JSON.stringify(backupData, null, 2);
+          const blob = new Blob([content], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `snippetflow-backup-${
+            new Date().toISOString().split("T")[0]
+          }.json`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          backupBtn.textContent = originalText;
+          backupBtn.disabled = false;
+          showToast("Backup created successfully!");
+        }, 2000);
+      }
+
+      // Integration management
+      function connectIntegration(service) {
+        const integrationItem = event.target.closest(".integration-item");
+        const statusBadge = integrationItem.querySelector(".status-badge");
+        const button = event.target;
+
+        button.textContent = "Connecting...";
+        button.disabled = true;
+
+        setTimeout(() => {
+          statusBadge.textContent = "Connected";
+          statusBadge.className = "status-badge status-connected";
+          button.textContent = "Configure";
+          button.className = "btn-secondary";
+          button.disabled = false;
+
+          showToast(`${service} connected successfully!`);
+        }, 1500);
+      }
+
+      // Add event listeners for dynamic elements
+      document.addEventListener("click", function (e) {
+        // Handle backup button
+        if (e.target.textContent === "Create Backup Now") {
+          createBackup();
+        }
+
+        // Handle export button
+        if (e.target.textContent === "Export Data") {
+          const format = e.target
+            .closest(".settings-card")
+            .querySelector(".form-select").value;
+          exportData(format);
+        }
+
+        // Handle reset button
+        if (e.target.textContent === "Reset to Defaults") {
+          resetToDefaults();
+        }
+
+        // Handle debug logs button
+        if (e.target.textContent === "Download Debug Logs") {
+          downloadDebugLogs();
+        }
+
+        // Handle clear cache button
+        if (e.target.textContent === "Clear Cache") {
+          clearCache();
+        }
+
+        // Handle integration connections
+        if (
+          e.target.textContent === "Connect" ||
+          e.target.textContent === "Install"
+        ) {
+          const serviceName = e.target
+            .closest(".integration-item")
+            .querySelector("h4").textContent;
+          connectIntegration(serviceName);
+        }
+      });
+
+      // Advanced keyboard shortcuts
+      document.addEventListener("keydown", function (e) {
+        // Alt + number keys for quick navigation
+        if (e.altKey && e.key >= "1" && e.key <= "8") {
+          e.preventDefault();
+          const navItems = document.querySelectorAll(".nav-item");
+          const index = parseInt(e.key) - 1;
+          if (navItems[index]) {
+            navItems[index].click();
+          }
+        }
+
+        // Ctrl/Cmd + Shift + D for debug mode
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "D") {
+          e.preventDefault();
+          enableDebugMode();
+        }
+      });
+
+      // Theme preview functionality
+      function previewTheme(themeName) {
+        const originalTheme = {
+          primary: getComputedStyle(document.documentElement).getPropertyValue(
+            "--cyber-primary"
+          ),
+          secondary: getComputedStyle(
+            document.documentElement
+          ).getPropertyValue("--cyber-secondary"),
+        };
+
+        switchTheme(themeName);
+
+        // Revert after 3 seconds if not saved
+        setTimeout(() => {
+          const currentTheme = document.querySelector("select").value;
+          if (currentTheme !== themeName) {
+            document.documentElement.style.setProperty(
+              "--cyber-primary",
+              originalTheme.primary
+            );
+            document.documentElement.style.setProperty(
+              "--cyber-secondary",
+              originalTheme.secondary
+            );
+          }
+        }, 3000);
+      }
+
+      // Initialize enhanced features
+      document.addEventListener("DOMContentLoaded", function () {
+        loadRealUserDataForSettings();
+
+        // Update save button to use real data function
+        const saveAllBtn = document.getElementById("saveAllBtn");
+        if (saveAllBtn) {
+          saveAllBtn.addEventListener("click", saveAllSettingsWithRealData);
+        }
+        // Add theme preview to select
+        const themeSelect = document.querySelector("select");
+        if (themeSelect) {
+          themeSelect.addEventListener("change", function () {
+            previewTheme(this.value);
+          });
+        }
+
+        // Initialize tooltips for complex settings
+        const complexSettings = document.querySelectorAll("[data-tooltip]");
+        complexSettings.forEach((setting) => {
+          setting.addEventListener("mouseenter", function () {
+            // Could implement custom tooltip here
+          });
+        });
+
+        // Performance monitoring
+        if ("performance" in window) {
+          const loadTime =
+            performance.timing.loadEventEnd -
+            performance.timing.navigationStart;
+          console.log(`Settings page loaded in ${loadTime}ms`);
+        }
+      });
+
+      // Final initialization
+      console.log("SnippetFlow Settings v2.0.0 - Cyberpunk Edition Loaded");
+      console.log(
+        "Use Alt+1-8 for quick navigation, Ctrl+Shift+D for debug mode"
+      );
+
+      // ===== ENHANCED REAL DATA INTEGRATION =====
+      function loadRealUserDataForSettings() {
+        console.log("🔍 SETTINGS - ===== LOADING REAL USER DATA START =====");
+
+        try {
+          // Extract real data from server-side rendered elements
+          const avatarElement = document.getElementById("settingsAvatar");
+          console.log("🔍 SETTINGS - Avatar element found:", !!avatarElement);
+
+          if (!avatarElement) {
+            console.error("❌ SETTINGS - Avatar element not found");
+            return;
+          }
+
+          // Extract user data from data attributes
+          const realUserData = {
+            email: avatarElement.dataset.userEmail || "",
+            username: avatarElement.dataset.userUsername || "",
+            plan_type: avatarElement.dataset.userPlan || "free",
+            role: avatarElement.dataset.userRole || "Developer",
+          };
+
+          console.log("📊 SETTINGS - Real user data extracted:", realUserData);
+
+          // Update form fields with real data
+          updateSettingsFormWithRealData(realUserData);
+
+          // Update stats display
+          updateSettingsStatsDisplay();
+
+          // Update storage display
+          updateStorageDisplay(realUserData.plan_type);
+
+          console.log("✅ SETTINGS - Real data loading completed");
+        } catch (error) {
+          console.error("❌ SETTINGS - Error loading real data:", error);
+          console.error("❌ SETTINGS - Error stack:", error.stack);
+          showToast("Error loading user data", "error");
+        }
+
+        console.log("🔍 SETTINGS - ===== LOADING REAL USER DATA END =====");
+      }
+
+      function updateSettingsFormWithRealData(userData) {
+        console.log("🔍 SETTINGS - ===== UPDATING FORM WITH REAL DATA =====");
+
+        try {
+          // Update email field
+          const emailField = document.getElementById("settingsEmail");
+          if (emailField && userData.email) {
+            emailField.value = userData.email;
+            console.log("✅ SETTINGS - Updated email field:", userData.email);
+          }
+
+          // Update full name field
+          const nameField = document.getElementById("settingsFullName");
+          if (nameField) {
+            let displayName = userData.username || userData.email.split("@")[0];
+            displayName = displayName
+              .replace(/[._]/g, " ")
+              .replace(/\b\w/g, (l) => l.toUpperCase());
+            nameField.value = displayName;
+            console.log("✅ SETTINGS - Updated name field:", displayName);
+          }
+
+          // Update role field
+          const roleField = document.getElementById("settingsRole");
+          if (roleField) {
+            roleField.value = userData.role;
+            console.log("✅ SETTINGS - Updated role field:", userData.role);
+          }
+
+          console.log("✅ SETTINGS - Form update completed");
+        } catch (error) {
+          console.error("❌ SETTINGS - Error updating form:", error);
+        }
+      }
+
+      function updateSettingsStatsDisplay() {
+        console.log("🔍 SETTINGS - ===== UPDATING STATS DISPLAY =====");
+
+        try {
+          // Get stats from server-rendered elements
+          const snippetsElement = document.getElementById(
+            "settingsTotalSnippets"
+          );
+          const collectionsElement = document.getElementById(
+            "settingsTotalCollections"
+          );
+
+          if (snippetsElement) {
+            const snippetCount = snippetsElement.textContent || "0";
+            console.log("📊 SETTINGS - Snippets count:", snippetCount);
+          }
+
+          if (collectionsElement) {
+            const collectionCount = collectionsElement.textContent || "0";
+            console.log("📊 SETTINGS - Collections count:", collectionCount);
+          }
+
+          console.log("✅ SETTINGS - Stats display updated");
+        } catch (error) {
+          console.error("❌ SETTINGS - Error updating stats:", error);
+        }
+      }
+
+
+      function updateStorageDisplay(planType) {
+        console.log("🔍 SETTINGS - ===== UPDATING STORAGE DISPLAY =====");
+
+        try {
+          const storageBar = document.getElementById("storageBar");
+          const storageText = document.getElementById("storageUsageText");
+
+          // Calculate storage based on plan type
+          const maxStorage = planType === "pro" ? 50 : 10; // GB
+          const usedStorage = 0.1; // Default minimal usage
+          const percentage = (usedStorage / maxStorage) * 100;
+
+          if (storageBar) {
+            storageBar.style.width = percentage + "%";
+            console.log(`✅ SETTINGS - Updated storage bar: ${percentage}%`);
+          }
+
+          if (storageText) {
+            storageText.textContent = `${usedStorage} GB of ${maxStorage} GB used`;
+            console.log(
+              `✅ SETTINGS - Updated storage text: ${usedStorage}/${maxStorage} GB`
+            );
+          }
+
+          console.log("✅ SETTINGS - Storage display updated");
+        } catch (error) {
+          console.error("❌ SETTINGS - Error updating storage:", error);
+        }
+      }
+
+      // Enhanced save function with real data
+      async function saveAllSettingsWithRealData() {
+        console.log("🔍 SETTINGS - ===== SAVE ALL SETTINGS START =====");
+
+        try {
+          const formData = {
+            fullName: document.getElementById("settingsFullName")?.value || "",
+            email: document.getElementById("settingsEmail")?.value || "",
+            bio: document.getElementById("settingsBio")?.value || "",
+            role: document.getElementById("settingsRole")?.value || "",
+            // Add other settings as needed
+          };
+
+          console.log("📤 SETTINGS - Form data to save:", formData);
+
+          // Show saving state
+          const saveBtn = document.getElementById("saveAllBtn");
+          if (saveBtn) {
+            const originalText = saveBtn.innerHTML;
+            saveBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            saveBtn.disabled = true;
+
+            // Simulate save (replace with actual API call)
+            setTimeout(() => {
+              saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+              setTimeout(() => {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+              }, 2000);
+
+              showToast("Settings saved successfully!", "success");
+              console.log("✅ SETTINGS - Save completed");
+            }, 1500);
+          }
+        } catch (error) {
+          console.error("❌ SETTINGS - Save error:", error);
+          showToast("Error saving settings", "error");
+        }
+      }
+      // ===== ADVANCED DEBUGGING SYSTEM =====
+class SettingsDebugger {
+  constructor() {
+    this.logs = [];
+    this.isEnabled = localStorage.getItem('settings-debug') === 'true';
+    this.init();
+  }
+  
+  init() {
+    if (this.isEnabled) {
+      this.createDebugPanel();
+      this.interceptConsole();
+    }
+    
+    // Enable debug mode with Ctrl+Shift+D
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        this.toggleDebug();
+      }
+    });
+  }
+  
+  toggleDebug() {
+    this.isEnabled = !this.isEnabled;
+    localStorage.setItem('settings-debug', this.isEnabled.toString());
+    
+    if (this.isEnabled) {
+      this.createDebugPanel();
+      showToast("Debug mode enabled! Press Ctrl+Shift+D to toggle", "info");
+    } else {
+      this.removeDebugPanel();
+      showToast("Debug mode disabled", "info");
+    }
+  }
+  
+  createDebugPanel() {
+    if (document.getElementById('debugPanel')) return;
+    
+    const panel = document.createElement('div');
+    panel.id = 'debugPanel';
+    panel.className = 'debug-info show';
+    panel.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <strong>🔍 Settings Debug</strong>
+        <button onclick="settingsDebugger.clearLogs()" style="background: none; border: 1px solid var(--cyber-green); color: var(--cyber-green); padding: 2px 6px; border-radius: 3px; cursor: pointer;">Clear</button>
+      </div>
+      <div id="debugLogs" style="max-height: 200px; overflow-y: auto; font-size: 10px;"></div>
+      <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--cyber-green);">
+        <div>User Data: <span id="debugUserData">Loading...</span></div>
+        <div>Form State: <span id="debugFormState">Checking...</span></div>
+        <div>Last Action: <span id="debugLastAction">None</span></div>
+      </div>
+    `;
+    
+    document.body.appendChild(panel);
+    this.updateDebugInfo();
+  }
+  
+  removeDebugPanel() {
+    const panel = document.getElementById('debugPanel');
+    if (panel) panel.remove();
+  }
+  
+  log(message, type = 'info') {
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = { timestamp, message, type };
+    this.logs.push(logEntry);
+    
+    if (this.logs.length > 50) {
+      this.logs.shift(); // Keep only last 50 logs
+    }
+    
+    if (this.isEnabled) {
+      this.updateLogDisplay();
+    }
+  }
+  
+  updateLogDisplay() {
+    const logsContainer = document.getElementById('debugLogs');
+    if (!logsContainer) return;
+    
+    logsContainer.innerHTML = this.logs.slice(-10).map(log => 
+      `<div style="color: ${this.getLogColor(log.type)};">[${log.timestamp}] ${log.message}</div>`
+    ).join('');
+    
+    logsContainer.scrollTop = logsContainer.scrollHeight;
+  }
+  
+  getLogColor(type) {
+    switch(type) {
+      case 'error': return '#ff4444';
+      case 'success': return '#00ff88';
+      case 'warning': return '#ffaa00';
+      default: return '#00ffff';
+    }
+  }
+  
+  updateDebugInfo() {
+    if (!this.isEnabled) return;
+    
+    setTimeout(() => {
+      // Update user data info
+      const avatarElement = document.getElementById("settingsAvatar");
+      const userDataSpan = document.getElementById('debugUserData');
+      if (userDataSpan && avatarElement) {
+        const email = avatarElement.dataset.userEmail || 'N/A';
+        const plan = avatarElement.dataset.userPlan || 'N/A';
+        userDataSpan.textContent = `${email} (${plan})`;
+      }
+      
+      // Update form state
+      const formStateSpan = document.getElementById('debugFormState');
+      if (formStateSpan) {
+        const filledFields = document.querySelectorAll('.form-input').length;
+        const realDataFields = document.querySelectorAll('.form-input.real-data').length;
+        formStateSpan.textContent = `${realDataFields}/${filledFields} real`;
+      }
+    }, 100);
+  }
+  
+  clearLogs() {
+    this.logs = [];
+    this.updateLogDisplay();
+  }
+  
+  interceptConsole() {
+    const originalLog = console.log;
+    const originalError = console.error;
+    const originalWarn = console.warn;
+    
+    console.log = (...args) => {
+      if (args[0] && args[0].includes('SETTINGS')) {
+        this.log(args.join(' '), 'info');
+      }
+      originalLog.apply(console, args);
+    };
+    
+    console.error = (...args) => {
+      if (args[0] && args[0].includes('SETTINGS')) {
+        this.log(args.join(' '), 'error');
+      }
+      originalError.apply(console, args);
+    };
+    
+    console.warn = (...args) => {
+      if (args[0] && args[0].includes('SETTINGS')) {
+        this.log(args.join(' '), 'warning');
+      }
+      originalWarn.apply(console, args);
+    };
+  }
+}
+
+// Initialize debugger
+const settingsDebugger = new SettingsDebugger();
+
+// Enhanced data validation system
+function validateRealDataIntegrity() {
+  console.log("🔍 SETTINGS - ===== VALIDATING DATA INTEGRITY =====");
+  
+  const validationResults = {
+    avatarElement: false,
+    userDataAttributes: false,
+    formFields: false,
+    statsElements: false
+  };
+  
+  try {
+    // Check avatar element
+    const avatarElement = document.getElementById("settingsAvatar");
+    validationResults.avatarElement = !!avatarElement;
+    console.log("✅ SETTINGS - Avatar element check:", validationResults.avatarElement);
+    
+    if (avatarElement) {
+      // Check data attributes
+      const hasEmail = !!avatarElement.dataset.userEmail;
+      const hasUsername = !!avatarElement.dataset.userUsername;
+      const hasPlan = !!avatarElement.dataset.userPlan;
+      const hasRole = !!avatarElement.dataset.userRole;
+      
+      validationResults.userDataAttributes = hasEmail && hasPlan;
+      console.log("📊 SETTINGS - Data attributes:", {
+        email: hasEmail,
+        username: hasUsername,
+        plan: hasPlan,
+        role: hasRole
+      });
+    }
+    
+    // Check form fields
+    const requiredFields = ['settingsFullName', 'settingsEmail', 'settingsBio', 'settingsRole'];
+    const foundFields = requiredFields.filter(id => document.getElementById(id));
+    validationResults.formFields = foundFields.length === requiredFields.length;
+    console.log("📝 SETTINGS - Form fields check:", foundFields.length + "/" + requiredFields.length);
+    
+    // Check stats elements
+    const statsElements = ['settingsTotalSnippets', 'settingsTotalCollections'];
+    const foundStats = statsElements.filter(id => document.getElementById(id));
+    validationResults.statsElements = foundStats.length > 0;
+    console.log("📊 SETTINGS - Stats elements check:", foundStats.length + "/" + statsElements.length);
+    
+    // Overall validation
+    const isValid = Object.values(validationResults).every(result => result);
+    console.log("🔍 SETTINGS - Overall validation:", isValid ? "✅ PASSED" : "❌ FAILED");
+    console.log("📊 SETTINGS - Validation results:", validationResults);
+    
+    if (settingsDebugger.isEnabled) {
+      settingsDebugger.log(`Data validation: ${isValid ? 'PASSED' : 'FAILED'}`, isValid ? 'success' : 'error');
+      settingsDebugger.updateDebugInfo();
+    }
+    
+    return validationResults;
+    
+  } catch (error) {
+    console.error("❌ SETTINGS - Validation error:", error);
+    if (settingsDebugger.isEnabled) {
+      settingsDebugger.log(`Validation error: ${error.message}`, 'error');
+    }
+    return validationResults;
+  }
+}
+
+// Enhanced form field marking system
+function markRealDataFields() {
+  console.log("🔍 SETTINGS - ===== MARKING REAL DATA FIELDS =====");
+  
+  try {
+    const fieldsToMark = [
+      'settingsFullName',
+      'settingsEmail', 
+      'settingsBio',
+      'settingsRole'
+    ];
+    
+    fieldsToMark.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (field && field.value.trim()) {
+        field.classList.add('real-data');
+        field.classList.add('real-data-indicator');
+        console.log(`✅ SETTINGS - Marked field as real data: ${fieldId}`);
+      }
+    });
+    
+    console.log("✅ SETTINGS - Real data field marking completed");
+    
+  } catch (error) {
+    console.error("❌ SETTINGS - Error marking fields:", error);
+  }
+}
+// ===== ENHANCED SINGLE CONSOLIDATED DOM CONTENT LOADED EVENT =====
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("🚀 SETTINGS SYSTEM - Booting up enhanced neural interface...");
+  
+  // Initialize debugger first
+  if (settingsDebugger.isEnabled) {
+    settingsDebugger.log("Settings system initializing...", "info");
+  }
+  
+  // Phase 1: Core system validation
+  setTimeout(() => {
+    console.log("🔍 SETTINGS - Phase 1: Validating system integrity...");
+    const validation = validateRealDataIntegrity();
+    
+    if (!validation.avatarElement) {
+      console.error("❌ SETTINGS - Critical: Avatar element not found!");
+      showToast("Settings initialization failed - missing avatar element", "error");
+      return;
+    }
+    
+    // Phase 2: Load real user data
+    setTimeout(() => {
+      console.log("🔍 SETTINGS - Phase 2: Loading real user data...");
+      loadRealUserDataForSettings();
+      markRealDataFields();
+      
+      // Phase 3: Initialize navigation and form tracking
+      setTimeout(() => {
+        console.log("🔍 SETTINGS - Phase 3: Initializing navigation and tracking...");
+        
+        // Navigation functionality
+        const navItems = document.querySelectorAll(".nav-item");
+        const contentSections = document.querySelectorAll(".content-section");
+
+        navItems.forEach((item) => {
+          item.addEventListener("click", function () {
+            const targetSection = this.getAttribute("data-section");
+            console.log(`🔍 SETTINGS - Navigation to: ${targetSection}`);
+            
+            if (settingsDebugger.isEnabled) {
+              settingsDebugger.log(`Navigated to: ${targetSection}`, "info");
+              document.getElementById('debugLastAction').textContent = `Navigate to ${targetSection}`;
+            }
+
+            // Remove active class from all nav items and sections
+            navItems.forEach((nav) => nav.classList.remove("active"));
+            contentSections.forEach((section) => section.classList.remove("active"));
+
+            // Add active class to clicked nav item and corresponding section
+                        // Add active class to clicked nav item and corresponding section
+            this.classList.add("active");
+            const targetElement = document.getElementById(targetSection);
+            if (targetElement) {
+              targetElement.classList.add("active");
+            } else {
+              console.error(`❌ SETTINGS - Section not found: ${targetSection}`);
+            }
+          });
+        });
+
+        // Enhanced save button functionality
+        const saveAllBtn = document.getElementById("saveAllBtn");
+        if (saveAllBtn) {
+          saveAllBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            console.log("🔍 SETTINGS - Save all button clicked");
+            
+            if (settingsDebugger.isEnabled) {
+              settingsDebugger.log("Save all settings initiated", "info");
+              document.getElementById('debugLastAction').textContent = "Save all settings";
+            }
+            
+            saveAllSettingsWithRealData();
+          });
+        }
+
+        // Browser notification permission
+        const browserNotifsToggle = document.getElementById("browserNotifs");
+        if (browserNotifsToggle) {
+          browserNotifsToggle.addEventListener("change", function () {
+            if (this.checked && Notification.permission === "default") {
+              Notification.requestPermission().then((permission) => {
+                if (permission !== "granted") {
+                  this.checked = false;
+                }
+              });
+            }
+          });
+        }
+
+        // Auto-save functionality with enhanced logging
+        const inputs = document.querySelectorAll(".form-input, .form-select, .toggle-input");
+        inputs.forEach((input) => {
+          input.addEventListener("change", function () {
+            console.log(`🔍 SETTINGS - Field changed: ${this.id || this.name || 'unnamed'}`);
+            
+            if (settingsDebugger.isEnabled) {
+              settingsDebugger.log(`Field changed: ${this.id} = ${this.value}`, "info");
+              document.getElementById('debugLastAction').textContent = `Changed ${this.id}`;
+            }
+            
+            // Simulate auto-save with a small delay
+            setTimeout(() => {
+              showToast("Settings auto-saved", "success");
+            }, 500);
+          });
+        });
+
+        console.log("✅ SETTINGS - Phase 3 completed: Navigation and tracking initialized");
+        
+        // Phase 4: Final system checks and notifications
+        setTimeout(() => {
+          console.log("🔍 SETTINGS - Phase 4: Final system verification...");
+          
+          // Final validation
+          const finalValidation = validateRealDataIntegrity();
+          const allSystemsGo = Object.values(finalValidation).every(result => result);
+          
+          if (allSystemsGo) {
+            console.log("🚀 SETTINGS SYSTEM - All neural pathways online! System ready.");
+            showToast("Settings system initialized with real data! 🚀", "success");
+            
+            if (settingsDebugger.isEnabled) {
+              settingsDebugger.log("System fully initialized - all checks passed", "success");
+            }
+          } else {
+            console.warn("⚠️ SETTINGS SYSTEM - Some components failed validation");
+            showToast("Settings system initialized with warnings", "warning");
+            
+            if (settingsDebugger.isEnabled) {
+              settingsDebugger.log("System initialized with warnings", "warning");
+            }
+          }
+          
+          // Update debug panel if enabled
+          if (settingsDebugger.isEnabled) {
+            settingsDebugger.updateDebugInfo();
+          }
+          
+        }, 500);
+        
+      }, 300);
+    }, 500);
+  }, 200);
+});
+// ===== END ENHANCED CONSOLIDATED EVENT =====
+
+// Enhanced error handling and recovery
+window.addEventListener("error", function (e) {
+  console.error("❌ SETTINGS GLOBAL ERROR:", e.error);
+  
+  if (settingsDebugger.isEnabled) {
+    settingsDebugger.log(`Global error: ${e.message}`, "error");
+  }
+  
+  showToast("An unexpected error occurred in settings", "error");
+});
+
+window.addEventListener("unhandledrejection", function (e) {
+  console.error("❌ SETTINGS UNHANDLED PROMISE REJECTION:", e.reason);
+  
+  if (settingsDebugger.isEnabled) {
+    settingsDebugger.log(`Promise rejection: ${e.reason}`, "error");
+  }
+  
+  showToast("An unexpected promise error occurred", "error");
+});
+
+// Enhanced toast notification system
+function showToast(message, type = "success") {
+  console.log(`📢 SETTINGS TOAST [${type.toUpperCase()}]: ${message}`);
+  
+  // Remove existing toasts
+  const existingToasts = document.querySelectorAll('.toast');
+  existingToasts.forEach(toast => toast.remove());
+  
+  // Create new toast
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  
+  const icons = {
+    success: 'check-circle',
+    error: 'exclamation-circle', 
+    warning: 'exclamation-triangle',
+    info: 'info-circle'
+  };
+  
+  toast.innerHTML = `
+    <i class="fas fa-${icons[type] || icons.info}"></i>
+    <span>${message}</span>
+  `;
+  
+  document.body.appendChild(toast);
+  
+  // Show toast
+  setTimeout(() => toast.classList.add('show'), 100);
+  
+  // Auto remove
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, type === 'error' ? 5000 : 3000);
+  
+  // Log to debugger
+  if (settingsDebugger.isEnabled) {
+    settingsDebugger.log(`Toast: ${message}`, type);
+  }
+}
+
+// Keyboard shortcuts for power users
+document.addEventListener("keydown", function (e) {
+  // Ctrl/Cmd + S to save all settings
+  if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+    e.preventDefault();
+    console.log("🔍 SETTINGS - Keyboard shortcut: Save all");
+    
+    if (settingsDebugger.isEnabled) {
+      settingsDebugger.log("Keyboard shortcut: Save all", "info");
+    }
+    
+    saveAllSettingsWithRealData();
+  }
+  
+  // Alt + number keys for quick navigation
+  if (e.altKey && e.key >= "1" && e.key <= "8") {
+    e.preventDefault();
+    const navItems = document.querySelectorAll(".nav-item");
+    const index = parseInt(e.key) - 1;
+    if (navItems[index]) {
+      console.log(`🔍 SETTINGS - Keyboard shortcut: Navigate to section ${index + 1}`);
+      navItems[index].click();
+    }
+  }
+  
+  // Escape to close any open modals
+  if (e.key === "Escape") {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+      if (modal.style.display === 'flex') {
+        modal.style.display = 'none';
+        console.log("🔍 SETTINGS - Keyboard shortcut: Close modal");
+      }
+    });
+  }
+});
+
+// Performance monitoring for settings page
+if ('performance' in window) {
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+      console.log(`⚡ SETTINGS PERFORMANCE - Page loaded in ${loadTime}ms`);
+      
+      if (settingsDebugger.isEnabled) {
+        settingsDebugger.log(`Page load time: ${loadTime}ms`, "info");
+      }
+      
+      if (loadTime > 3000) {
+        console.warn("⚠️ SETTINGS PERFORMANCE - Slow page load detected");
+        showToast("Settings page loaded slowly - check network connection", "warning");
+      }
+    }, 100);
+  });
+}
+
+// Final system status log
+console.log("🔍 SETTINGS SYSTEM - Enhanced real data integration loaded");
+console.log("🔍 SETTINGS SHORTCUTS - Ctrl+S: Save, Alt+1-8: Navigate, Ctrl+Shift+D: Debug");
+console.log("🔍 SETTINGS DEBUG - Debug mode available via Ctrl+Shift+D");
+
+// ===== REAL DATA SYNCHRONIZATION SYSTEM =====
+async function syncWithProfileData() {
+  console.log("🔍 SETTINGS - ===== SYNCING WITH PROFILE DATA =====");
+  
+  try {
+    // Attempt to fetch fresh data from profile endpoint
+    const response = await fetch('/dashboard/api/user-profile');
+    
+    if (response.ok) {
+      const profileData = await response.json();
+      console.log("📥 SETTINGS - Fresh profile data received:", profileData);
+      
+      if (profileData.success) {
+        // Update settings with fresh profile data
+        updateSettingsWithProfileData(profileData.data);
+        showToast("Settings synchronized with latest profile data", "success");
+        
+        if (settingsDebugger.isEnabled) {
+          settingsDebugger.log("Profile data sync successful", "success");
+        }
+      }
+    } else {
+      console.warn("⚠️ SETTINGS - Profile API not available, using template data");
+      
+      if (settingsDebugger.isEnabled) {
+        settingsDebugger.log("Profile API unavailable - using template data", "warning");
+      }
+    }
+    
+  } catch (error) {
+    console.warn("⚠️ SETTINGS - Profile sync failed, using template data:", error.message);
+    
+    if (settingsDebugger.isEnabled) {
+      settingsDebugger.log(`Profile sync failed: ${error.message}`, "warning");
+    }
+  }
+  
+  console.log("🔍 SETTINGS - ===== PROFILE SYNC COMPLETE =====");
+}
+
+function updateSettingsWithProfileData(profileData) {
+  console.log("🔍 SETTINGS - Updating settings with fresh profile data");
+  
+  try {
+    // Update form fields with fresh data
+    if (profileData.user) {
+      const emailField = document.getElementById("settingsEmail");
+      if (emailField && profileData.user.email) {
+        emailField.value = profileData.user.email;
+        emailField.classList.add('real-data');
+      }
+      
+      const nameField = document.getElementById("settingsFullName");
+      if (nameField && profileData.user.username) {
+        nameField.value = profileData.user.username;
+        nameField.classList.add('real-data');
+      }
+    }
+    
+    // Update profile settings
+    if (profileData.profile_settings) {
+      const bioField = document.getElementById("settingsBio");
+      if (bioField && profileData.profile_settings.bio) {
+        bioField.value = profileData.profile_settings.bio;
+        bioField.classList.add('real-data');
+      }
+      
+      const roleField = document.getElementById("settingsRole");
+      if (roleField && profileData.profile_settings.role) {
+        roleField.value = profileData.profile_settings.role;
+        roleField.classList.add('real-data');
+      }
+    }
+    
+    // Update stats
+    if (profileData.stats) {
+      const snippetsElement = document.getElementById("settingsTotalSnippets");
+      if (snippetsElement) {
+        snippetsElement.textContent = profileData.stats.total_snippets || 0;
+      }
+      
+      const collectionsElement = document.getElementById("settingsTotalCollections");
+      if (collectionsElement) {
+        collectionsElement.textContent = profileData.stats.total_collections || 0;
+      }
+    }
+    
+    console.log("✅ SETTINGS - Profile data update completed");
+    
+  } catch (error) {
+    console.error("❌ SETTINGS - Error updating with profile data:", error);
+  }
+}
+
+// Auto-sync with profile data every 5 minutes
+setInterval(() => {
+  console.log("🔄 SETTINGS - Auto-syncing with profile data...");
+  syncWithProfileData();
+}, 5 * 60 * 1000);
+
+// Initial sync attempt
+setTimeout(() => {
+  syncWithProfileData();
+}, 2000);
+    </script>
+  </body>
+</html>

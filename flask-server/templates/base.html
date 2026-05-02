@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Code Snippet Manager</title>
+
+    <!-- Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap"
+      rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <!-- Futuristic Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap"
+      rel="stylesheet" />
+
+    <!-- Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.css"
+      rel="stylesheet" />
+
+    <!-- Syntax Highlighting -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css"
+      rel="stylesheet" />
+
+    <!-- Custom CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}" />
+
+    <!-- Base Styles -->
+    <style>
+      :root {
+        --primary: #8b5cf6;
+        --primary-dark: #7c3aed;
+        --primary-light: #a78bfa;
+        --secondary: #06b6d4;
+        --accent: #f59e0b;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --info: #3b82f6;
+        --primary-hue: 270;
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #13131a;
+        --bg-tertiary: #1a1a24;
+        --text-primary: #e4e4e7;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent-primary: hsl(var(--primary-hue), 100%, 70%);
+        --accent-secondary: hsl(var(--primary-hue), 80%, 60%);
+        --border-color: #27272a;
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+
+        --bg-primary: #0f0f23;
+        --bg-secondary: #1a1a3e;
+        --bg-card: #252550;
+        --bg-input: #2d2d5f;
+
+        --text-primary: #ffffff;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+
+        --border: #3f3f46;
+        --border-light: #52525b;
+
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+        --shadow-glow: 0 0 20px rgb(139 92 246 / 0.3);
+
+        --gradient-primary: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        --gradient-secondary: linear-gradient(135deg, #f59e0b, #ef4444);
+        --gradient-bg: linear-gradient(135deg, #0f0f23, #1a1a3e);
+      }
+
+      [data-theme="light"] {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f8fafc;
+        --bg-tertiary: #f1f5f9;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --glass-bg: rgba(0, 0, 0, 0.05);
+        --glass-border: rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(139, 92, 246, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(6, 182, 212, 0.1) 0%,
+            transparent 50%
+          );
+        background-attachment: fixed;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: 1px solid transparent;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover:before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: var(--gradient-primary);
+        color: white;
+        box-shadow: var(--shadow-glow);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-xl), var(--shadow-glow);
+      }
+
+      .btn-secondary {
+        background: var(--bg-card);
+        color: var(--text-primary);
+        border-color: var(--border);
+      }
+
+      .btn-secondary:hover {
+        background: var(--bg-input);
+        border-color: var(--border-light);
+        transform: translateY(-1px);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        border-radius: 0.75rem;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+      }
+
+      .form-input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .alert {
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+      }
+
+      .alert-success {
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: var(--success);
+      }
+
+      .alert-error {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        color: var(--danger);
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: currentColor;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .glass-card {
+        background: rgba(37, 37, 80, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        backdrop-filter: blur(10px);
+        box-shadow: var(--shadow-xl);
+      }
+
+      .navbar {
+        background: rgba(15, 15, 35, 0.8);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      
+
+      .navbar-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          padding: 0 0.5rem;
+        }
+
+        .btn {
+          padding: 0.625rem 1.25rem;
+          font-size: 0.8125rem;
+        }
+
+        .form-input {
+          padding: 0.75rem 0.875rem;
+        }
+      }
+    </style>
+
+    {% block styles %}{% endblock %}
+  </head>
+  <body class="min-h-screen bg-gradient-to-br from-bg-primary via-bg-secondary to-bg-tertiary text-text-primary font-inter">
+    <!-- Navigation Bar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-glass-bg backdrop-blur-xl border-b border-glass-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-lg flex items-center justify-center">
+                            <i data-lucide="code" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold bg-gradient-to-r from-accent-primary to-accent-secondary bg-clip-text text-transparent">
+                            SnippetVault
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Main Navigation -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="{{ url_for('dashboard.index') }}" 
+                       class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-glass-bg {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4 mr-2"></i>
+                        Dashboard
+                    </a>
+                    <a href="{{ url_for('dashboard.snippets') }}" 
+                       class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-glass-bg {% if request.endpoint == 'dashboard.snippets' %}active{% endif %}">
+                        <i data-lucide="code-2" class="w-4 h-4 mr-2"></i>
+                        Snippets
+                    </a>
+                    <a href="{{ url_for('dashboard.collections') }}" 
+                       class="nav-link px-4 py-2 rounded-lg text-sm font-medium transition-all hover:bg-glass-bg {% if request.endpoint == 'dashboard.collections' %}active{% endif %}">
+                        <i data-lucide="folder" class="w-4 h-4 mr-2"></i>
+                        Collections
+                    </a>
+                </div>
+
+                <!-- Right Side Actions -->
+                <div class="flex items-center space-x-3">
+                    <!-- Search -->
+                    <div class="hidden sm:block relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-text-muted"></i>
+                        </div>
+                        <input type="text" 
+                               id="global-search"
+                               placeholder="Search snippets..."
+                               class="w-64 pl-10 pr-4 py-2 bg-glass-bg border border-glass-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent-primary/50 focus:border-accent-primary/50 transition-all">
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" 
+                            class="p-2 rounded-lg bg-glass-bg border border-glass-border hover:bg-glass-border transition-all">
+                        <i data-lucide="sun" class="w-4 h-4 hidden dark:block"></i>
+                        <i data-lucide="moon" class="w-4 h-4 block dark:hidden"></i>
+                    </button>
+
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-lg bg-glass-bg border border-glass-border hover:bg-glass-border transition-all">
+                        <i data-lucide="bell" class="w-4 h-4"></i>
+                        <span class="absolute -top-1 -right-1 w-3 h-3 bg-accent-primary rounded-full flex items-center justify-center">
+                            <span class="w-1.5 h-1.5 bg-white rounded-full"></span>
+                        </span>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="relative">
+                        <button id="user-menu-button" 
+                                class="flex items-center space-x-2 p-2 rounded-lg bg-glass-bg border border-glass-border hover:bg-glass-border transition-all">
+                            <div class="w-6 h-6 bg-gradient-to-br from-accent-primary to-accent-secondary rounded-full flex items-center justify-center">
+                                <span class="text-xs font-semibold text-white">
+                                    {{ current_user.email[0].upper() if current_user.is_authenticated and current_user.email else 'G' }}
+                                </span>
+                            </div>
+                            <span class="hidden sm:block text-sm font-medium">
+                                {{ current_user.username if current_user.is_authenticated else 'Guest' }}
+                            </span>
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="user-menu" 
+                             class="absolute right-0 mt-2 w-48 bg-bg-secondary border border-border-color rounded-lg shadow-xl opacity-0 invisible transform scale-95 transition-all duration-200">
+                            <div class="py-1">
+                                <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-glass-bg transition-colors">
+                                    <i data-lucide="user" class="w-4 h-4 mr-3"></i>
+                                    Profile
+                                </a>
+                                <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-glass-bg transition-colors">
+                                    <i data-lucide="settings" class="w-4 h-4 mr-3"></i>
+                                    Settings
+                                </a>
+                                <a href="#" class="flex items-center px-4 py-2 text-sm hover:bg-glass-bg transition-colors">
+                                    <i data-lucide="help-circle" class="w-4 h-4 mr-3"></i>
+                                    Help
+                                </a>
+                                <hr class="my-1 border-border-color">
+                                <a href="{{ url_for('auth.logout') }}" 
+                                   class="flex items-center px-4 py-2 text-sm text-red-400 hover:bg-glass-bg transition-colors">
+                                    <i data-lucide="log-out" class="w-4 h-4 mr-3"></i>
+                                    Sign out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="md:hidden p-2 rounded-lg bg-glass-bg border border-glass-border">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div id="mobile-menu" class="md:hidden bg-bg-secondary border-t border-border-color hidden">
+            <div class="px-4 py-3 space-y-1">
+                <a href="{{ url_for('dashboard.index') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium hover:bg-glass-bg transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 mr-3"></i>
+                    Dashboard
+                </a>
+                <a href="{{ url_for('dashboard.snippets') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium hover:bg-glass-bg transition-colors">
+                    <i data-lucide="code-2" class="w-4 h-4 mr-3"></i>
+                    Snippets
+                </a>
+                <a href="{{ url_for('dashboard.collections') }}" 
+                   class="flex items-center px-3 py-2 rounded-lg text-sm font-medium hover:bg-glass-bg transition-colors">
+                    <i data-lucide="folder" class="w-4 h-4 mr-3"></i>
+                    Collections
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="pt-16 min-h-screen">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+        <div class="bg-bg-secondary border border-border-color rounded-xl p-6 max-w-sm mx-4">
+            <div class="flex items-center space-x-3">
+                <div class="animate-spin rounded-full h-6 w-6 border-2 border-accent-primary border-t-transparent"></div>
+                <span class="text-sm font-medium">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        // Theme Management
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        html.setAttribute('data-theme', savedTheme);
+        
+        themeToggle?.addEventListener('click', () => {
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        // User Menu Toggle
+        const userMenuButton = document.getElementById('user-menu-button');
+        const userMenu = document.getElementById('user-menu');
+        
+        userMenuButton?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userMenu.classList.toggle('opacity-0');
+            userMenu.classList.toggle('invisible');
+            userMenu.classList.toggle('scale-95');
+        });
+        
+        document.addEventListener('click', () => {
+            userMenu?.classList.add('opacity-0', 'invisible', 'scale-95');
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuButton?.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Global Search
+        const globalSearch = document.getElementById('global-search');
+        globalSearch?.addEventListener('input', (e) => {
+            // Implement global search functionality
+            console.log('Searching:', e.target.value);
+        });
+
+        // Toast Notification System
+        window.showToast = (message, type = 'info') => {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                success: 'check-circle',
+                error: 'x-circle',
+                warning: 'alert-triangle',
+                info: 'info'
+            };
+            
+            const colors = {
+                success: 'border-green-500 bg-green-500/10 text-green-400',
+                error: 'border-red-500 bg-red-500/10 text-red-400',
+                warning: 'border-yellow-500 bg-yellow-500/10 text-yellow-400',
+                info: 'border-blue-500 bg-blue-500/10 text-blue-400'
+            };
+            
+            toast.className = `flex items-center space-x-3 p-4 border rounded-lg backdrop-blur-sm transition-all transform translate-x-full ${colors[type]}`;
+            toast.innerHTML = `
+                <i data-lucide="${icons[type]}" class="w-5 h-5 flex-shrink-0"></i>
+                <span class="text-sm font-medium">${message}</span>
+                <button class="ml-2 hover:opacity-70" onclick="this.parentElement.remove()">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            lucide.createIcons({ nameAttr: 'data-lucide' });
+            
+            // Animate in
+            setTimeout(() => toast.classList.remove('translate-x-full'), 100);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        };
+
+        // Loading Overlay
+        window.showLoading = () => {
+            document.getElementById('loading-overlay').classList.remove('hidden');
+            document.getElementById('loading-overlay').classList.add('flex');
+        };
+        
+        window.hideLoading = () => {
+            document.getElementById('loading-overlay').classList.add('hidden');
+            document.getElementById('loading-overlay').classList.remove('flex');
+        };
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

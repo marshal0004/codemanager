@@ -1,0 +1,90 @@
+2025-05-30 21:03:33,754 - app - INFO - [__init__.py:100] - Starting application initialization...
+2025-05-30 21:03:33,754 - app - INFO - [__init__.py:121] - ✅ Configuration loaded for environment: development
+2025-05-30 21:03:33,759 - app - INFO - [__init__.py:139] - ✅ Extensions initialized successfully
+2025-05-30 21:03:33,760 - app - ERROR - [__init__.py:77] - ❌ Redis connection failed: Error 111 connecting to localhost:6379. Connection refused.
+2025-05-30 21:03:33,760 - app - INFO - [__init__.py:156] - ✅ CORS configured successfully
+2025-05-30 21:03:33,780 - app - INFO - [__init__.py:170] - ✅ SocketIO initialized successfully
+2025-05-30 21:03:33,843 - app - INFO - [__init__.py:201] - ✅ All blueprints registered successfully
+2025-05-30 21:03:33,843 - app - INFO - [__init__.py:61] - ✅ All models loaded successfully
+2025-05-30 21:03:33,845 - app - ERROR - [__init__.py:218] - ❌ Database initialization error: Foreign key associated with column 'team_members.team_id' could not find table 'teams' with which to generate a foreign key to target column 'id'
+2025-05-30 21:03:33,851 - app - ERROR - [__init__.py:219] - Traceback (most recent call last):
+  File "/home/neeraj/code-snippet-manager/flask-server/app/__init__.py", line 215, in create_app
+    db.create_all()
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+    self._call_for_binds(bind_key, "create_all")
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2455, in _run_ddl_visitor
+    ).traverse_single(element)
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 960, in visit_metadata
+    collection = sort_tables_and_constraints(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 1392, in sort_tables_and_constraints
+    dependent_on = fkc.referred_table
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 4799, in referred_table
+    return self.elements[0].column.table
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1226, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 3199, in column
+    return self._resolve_column()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 3222, in _resolve_column
+    raise exc.NoReferencedTableError(
+sqlalchemy.exc.NoReferencedTableError: Foreign key associated with column 'team_members.team_id' could not find table 'teams' with which to generate a foreign key to target column 'id'
+
+2025-05-30 21:13:09,366 - app - INFO - [__init__.py:100] - Starting application initialization...
+2025-05-30 21:13:09,366 - app - INFO - [__init__.py:121] - ✅ Configuration loaded for environment: development
+2025-05-30 21:13:09,372 - app - INFO - [__init__.py:139] - ✅ Extensions initialized successfully
+2025-05-30 21:13:09,373 - app - ERROR - [__init__.py:77] - ❌ Redis connection failed: Error 111 connecting to localhost:6379. Connection refused.
+2025-05-30 21:13:09,373 - app - INFO - [__init__.py:156] - ✅ CORS configured successfully
+2025-05-30 21:13:09,391 - app - INFO - [__init__.py:170] - ✅ SocketIO initialized successfully
+2025-05-30 21:13:09,446 - app - INFO - [__init__.py:201] - ✅ All blueprints registered successfully
+2025-05-30 21:13:09,446 - app - INFO - [__init__.py:61] - ✅ All models loaded successfully
+2025-05-30 21:13:09,447 - app - ERROR - [__init__.py:218] - ❌ Database initialization error: Foreign key associated with column 'team_members.invited_by_id' could not find table 'users' with which to generate a foreign key to target column 'id'
+2025-05-30 21:13:09,449 - app - ERROR - [__init__.py:219] - Traceback (most recent call last):
+  File "/home/neeraj/code-snippet-manager/flask-server/app/__init__.py", line 215, in create_app
+    db.create_all()
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 900, in create_all
+    self._call_for_binds(bind_key, "create_all")
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/flask_sqlalchemy/extension.py", line 881, in _call_for_binds
+    getattr(metadata, op_name)(bind=engine)
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 5924, in create_all
+    bind._run_ddl_visitor(
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3248, in _run_ddl_visitor
+    conn._run_ddl_visitor(visitorcallable, element, **kwargs)
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2455, in _run_ddl_visitor
+    ).traverse_single(element)
+      ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/visitors.py", line 664, in traverse_single
+    return meth(obj, **kw)
+           ^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 960, in visit_metadata
+    collection = sort_tables_and_constraints(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/ddl.py", line 1392, in sort_tables_and_constraints
+    dependent_on = fkc.referred_table
+                   ^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 4799, in referred_table
+    return self.elements[0].column.table
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1226, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 3199, in column
+    return self._resolve_column()
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/neeraj/.pyenv/versions/3.11.9/lib/python3.11/site-packages/sqlalchemy/sql/schema.py", line 3222, in _resolve_column
+    raise exc.NoReferencedTableError(
+sqlalchemy.exc.NoReferencedTableError: Foreign key associated with column 'team_members.invited_by_id' could not find table 'users' with which to generate a foreign key to target column 'id'
+

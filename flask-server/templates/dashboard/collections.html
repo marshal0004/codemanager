@@ -1,0 +1,2132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Collections - Code Snippet Manager</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary-bg: #0a0a0a;
+        --secondary-bg: #111111;
+        --card-bg: rgba(255, 255, 255, 0.05);
+        --glass-bg: rgba(255, 255, 255, 0.1);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --text-primary: #ffffff;
+        --text-secondary: #a0a0a0;
+        --accent-blue: #00d4ff;
+        --accent-purple: #8b5cf6;
+        --accent-green: #10b981;
+        --accent-orange: #f59e0b;
+        --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        --gradient-4: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+        --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      body {
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--primary-bg);
+        color: var(--text-primary);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Animated Background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(120, 119, 198, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(255, 119, 198, 0.3) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 40% 40%,
+            rgba(120, 219, 255, 0.3) 0%,
+            transparent 50%
+          );
+        z-index: -1;
+        animation: backgroundFloat 20s ease-in-out infinite;
+      }
+
+      @keyframes backgroundFloat {
+        0%,
+        100% {
+          transform: translateX(0) translateY(0) rotate(0deg);
+        }
+        33% {
+          transform: translateX(30px) translateY(-30px) rotate(0.5deg);
+        }
+        66% {
+          transform: translateX(-20px) translateY(20px) rotate(-0.5deg);
+        }
+      }
+
+      /* Header */
+      .header {
+        background: rgba(17, 17, 17, 0.9);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid var(--border-color);
+        padding: 1rem 0;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+
+      .header-content {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      /* Favorite button specific styles */
+      .favorite-btn {
+        transition: all 0.3s ease;
+      }
+
+      .favorite-btn:hover {
+        color: #fbbf24 !important;
+        transform: scale(1.2);
+      }
+
+      .favorite-btn[data-favorited="true"] {
+        color: #fbbf24;
+      }
+
+      .favorite-btn[data-favorited="false"] {
+        color: var(--text-secondary);
+      }
+
+      /* Favorite collections section styles */
+      #favoriteCollectionsSection {
+        margin-bottom: 3rem;
+      }
+
+      #favoriteCollectionsSection h2 {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      /* Enhanced button styles for favorite toggle */
+      #showFavoritesBtn {
+        position: relative;
+        overflow: hidden;
+      }
+
+      #showFavoritesBtn.active {
+        background: var(--gradient-3) !important;
+        color: white !important;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+      }
+
+      #showFavoritesBtn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      #showFavoritesBtn:hover::before {
+        left: 100%;
+      }
+
+      /* Animation for favorite star */
+      @keyframes starPulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.3);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .favorite-btn.just-favorited {
+        animation: starPulse 0.6s ease;
+      }
+
+      .header-title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        background: var(--gradient-3);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      /* Main Container */
+      .container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+      }
+
+      /* Collection Stats */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-card {
+        background: rgb(20 11 11 / 39%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgb(75 39 60);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--gradient-3);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .stat-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-glow);
+      }
+
+      .stat-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .stat-info h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .stat-info p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        opacity: 0.8;
+      }
+
+      /* Action Bar */
+      .action-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1rem 1.5rem;
+      }
+
+      .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 400px;
+      }
+
+      .search-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem 1rem 0.75rem 2.5rem;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-secondary);
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 1rem;
+      }
+
+      /* Buttons */
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .btn:hover::before {
+        left: 100%;
+      }
+
+      .btn-primary {
+        background: var(--gradient-3);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.3);
+      }
+
+      .btn-secondary {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      /* Collections Grid */
+      .collections-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .collection-card {
+        background: rgb(0 0 0 / 38%);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgb(78 73 73);
+        border-radius: 16px;
+        padding: 1.5rem;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .collection-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--gradient-1);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.3s ease;
+      }
+
+      .collection-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .collection-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-soft);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .collection-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .collection-info h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .collection-info p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+      }
+
+      .collection-actions {
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .collection-card:hover .collection-actions {
+        opacity: 1;
+      }
+
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .action-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: var(--text-primary);
+      }
+
+      .collection-stats {
+        display: flex;
+        justify-content: space-between;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-item .number {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+      }
+
+      .stat-item .label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .collection-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .tag {
+        padding: 0.3rem 0.8rem;
+        background: rgba(139, 92, 246, 0.2);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: #c4b5fd;
+      }
+
+      .collection-progress {
+        margin-top: 1rem;
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+      }
+
+      .progress-bar {
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: var(--gradient-3);
+        border-radius: 2px;
+        transition: width 0.3s ease;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        grid-column: 1 / -1;
+      }
+
+      .empty-icon {
+        font-size: 4rem;
+        color: var(--text-secondary);
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-secondary);
+      }
+
+      .empty-state p {
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: modalFade 0.3s ease;
+      }
+
+      @keyframes modalFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .modal-content {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+        animation: modalSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes modalSlide {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .modal-header h2 {
+        font-size: 1.3rem;
+        font-weight: 600;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: var(--text-secondary);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: color 0.2s ease;
+      }
+
+      .close-btn:hover {
+        color: var(--text-primary);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--text-primary);
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 0 1rem;
+        }
+
+        .action-bar {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
+        }
+
+        .search-container {
+          max-width: none;
+        }
+
+        .action-buttons {
+          justify-content: center;
+        }
+
+        .collections-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* Animations */
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .collection-card {
+        animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .collection-card:nth-child(1) {
+        animation-delay: 0.1s;
+      }
+      .collection-card:nth-child(2) {
+        animation-delay: 0.2s;
+      }
+      .collection-card:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      .collection-card:nth-child(4) {
+        animation-delay: 0.4s;
+      }
+      .collection-card:nth-child(5) {
+        animation-delay: 0.5s;
+      }
+      .collection-card:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+      .collection-card:nth-child(6) {
+        animation-delay: 0.6s;
+      }
+
+      /* Enhanced action button styles for better event handling */
+      .collection-actions {
+        position: relative;
+        z-index: 10;
+      }
+
+      .action-btn {
+        position: relative;
+        z-index: 11;
+        pointer-events: auto;
+      }
+
+      .collection-card {
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Ensure modal appears above everything */
+      .modal {
+        z-index: 9999;
+      }
+
+      .modal-content {
+        z-index: 10000;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="header-title">
+          <i class="fas fa-layer-group"></i>
+          <h1>Collections</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary">
+            <i class="fas fa-download"></i>
+            Export All
+          </button>
+          <!-- Replace the empty state button -->
+          <button
+            class="btn btn-primary"
+            onclick="CollectionModal.openForCreate({
+  onSuccess: function(collection) {
+    console.log('✅ Collection created:', collection);
+    showToast(`Collection '${collection.name}' created successfully!`, 'success');
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
+  }
+})">
+            <i class="fas fa-plus"></i>
+            Create Collection
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+      <!-- Collection Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-info">
+              <h3>{{ stats.total_collections if stats else 0 }}</h3>
+              <p>Total Collections</p>
+            </div>
+            <div class="stat-icon" style="background: var(--gradient-1)">
+              <i class="fas fa-layer-group"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-info">
+              <h3>{{ stats.total_snippets if stats else 0 }}</h3>
+              <p>Total Snippets</p>
+            </div>
+            <div class="stat-icon" style="background: var(--gradient-2)">
+              <i class="fas fa-code"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-info">
+              <h3>{{ stats.shared_collections if stats else 0 }}</h3>
+              <p>Shared Collections</p>
+            </div>
+            <div class="stat-icon" style="background: var(--gradient-3)">
+              <i class="fas fa-share-alt"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-content">
+            <div class="stat-info">
+              <h3>{{ stats.organization_rate if stats else 0 }}%</h3>
+              <p>organization rate</p>
+            </div>
+            <div class="stat-icon" style="background: var(--gradient-4)">
+              <i class="fas fa-chart-pie"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Favorite Collections Section (Hidden by default) -->
+      <div id="favoriteCollectionsSection" style="display: none">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+          ">
+          <h2
+            style="
+              font-size: 1.8rem;
+              font-weight: 600;
+              color: var(--text-primary);
+            ">
+            <i
+              class="fas fa-star"
+              style="color: #fbbf24; margin-right: 0.5rem"></i>
+            Favorite Collections
+          </h2>
+          <button
+            id="showAllBtn"
+            class="btn btn-secondary"
+            onclick="toggleFavoriteView()"
+            style="
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid var(--border-color);
+            ">
+            <span id="showAllBtnText">Show All</span>
+          </button>
+        </div>
+        <div class="collections-grid" id="favoriteCollectionsGrid">
+          <!-- Favorite collections will be loaded here -->
+        </div>
+      </div>
+
+      <!-- All Collections Section -->
+      <div id="allCollectionsSection">
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input
+              type="text"
+              class="search-input"
+              placeholder="Search collections..."
+              id="searchInput" />
+          </div>
+          <div class="action-buttons">
+            <button
+              id="showFavoritesBtn"
+              class="btn btn-secondary"
+              onclick="toggleFavoriteView()"
+              style="
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid var(--border-color);
+              ">
+              <i class="fas fa-star"></i>
+              <span id="favoritesBtnText">Show Favorites</span>
+            </button>
+            <button class="btn btn-secondary">
+              <i class="fas fa-filter"></i>
+              Filter
+            </button>
+            <button class="btn btn-secondary">
+              <i class="fas fa-sort"></i>
+              Sort
+            </button>
+          </div>
+        </div>
+
+        <!-- Collections Grid -->
+        <div class="collections-grid" id="collectionsGrid">
+          {% if collections %} {% for collection in collections %}
+          <div
+            class="collection-card"
+            data-collection-id="{{ collection.id }}"
+            onclick="openCollection('{{ collection.id }}')">
+            <div class="collection-header">
+              <div class="collection-info">
+                <h3>
+                  {% if collection.name.lower() in ['react', 'react components']
+                  %}
+                  <i class="fas fa-react" style="color: #61dafb"></i>
+                  {% elif collection.name.lower() in ['python', 'python
+                  utilities'] %}
+                  <i class="fab fa-python" style="color: #3776ab"></i>
+                  {% elif collection.name.lower() in ['javascript', 'js',
+                  'javascript snippets'] %}
+                  <i class="fab fa-js-square" style="color: #f7df1e"></i>
+                  {% elif collection.name.lower() in ['css', 'css animations']
+                  %}
+                  <i class="fab fa-css3-alt" style="color: #1572b6"></i>
+                  {% else %}
+                  <i class="fas fa-folder" style="color: #3b82f6"></i>
+                  {% endif %} {{ collection.name }}
+                </h3>
+                <p>
+                  {{ collection.description or 'No description available' }}
+                </p>
+              </div>
+              <div class="collection-actions">
+                <button class="action-btn" title="Edit">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn" title="Share">
+                  <i class="fas fa-share"></i>
+                </button>
+                <button
+                  class="action-btn favorite-btn"
+                  title="Favorite"
+                  onclick="toggleCollectionFavorite(event, '{{ collection.id }}')"
+                  data-favorited="{{ collection.is_favorite or false }}"
+                  {%
+                  if
+                  collection.is_favorite
+                  %}style="color: #fbbf24;"
+                  {%
+                  endif
+                  %}>
+                  <i class="fas fa-star"></i>
+                </button>
+                <button
+                  class="action-btn"
+                  title="Delete"
+                  onclick="deleteCollection(event, '{{ collection.id }}', '{{ collection.name }}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="collection-stats">
+              <div class="stat-item">
+                <div class="number">
+                  {{ collection_stats[collection.id].snippet_count if
+                  collection.id in collection_stats else 0 }}
+                </div>
+                <div class="label">Snippets</div>
+              </div>
+              <div class="stat-item">
+                <div class="number">
+                  {{ collection_stats[collection.id].contributor_count if
+                  collection.id in collection_stats else 1 }}
+                </div>
+                <div class="label">Contributors</div>
+              </div>
+              <div class="stat-item">
+                <div class="number">
+                  {{ collection_stats[collection.id].view_count if collection.id
+                  in collection_stats else 0 }}
+                </div>
+                <div class="label">Views</div>
+              </div>
+            </div>
+            <div class="collection-tags">
+              {% if collection.name.lower() in ['react', 'react components'] %}
+              <span class="tag">React</span>
+              <span class="tag">Components</span>
+              <span class="tag">UI</span>
+              {% elif collection.name.lower() in ['python', 'python utilities']
+              %}
+              <span class="tag">Python</span>
+              <span class="tag">Algorithms</span>
+              <span class="tag">Utils</span>
+              {% elif collection.name.lower() in ['javascript', 'js',
+              'javascript snippets'] %}
+              <span class="tag">JavaScript</span>
+              <span class="tag">ES6+</span>
+              <span class="tag">Patterns</span>
+              {% elif collection.name.lower() in ['css', 'css animations'] %}
+              <span class="tag">CSS</span>
+              <span class="tag">Animations</span>
+              <span class="tag">Transitions</span>
+              {% else %}
+              <span class="tag">Custom</span>
+              <span class="tag">Collection</span>
+              {% endif %}
+            </div>
+            <div class="collection-progress">
+              <div class="progress-label">
+                <span>Completion</span>
+                {% if collection.id in collection_stats %}
+                <span
+                  >{{ collection_stats[collection.id].completion_rate }}%</span
+                >
+                {% else %}
+                <span>0%</span>
+                {% endif %}
+              </div>
+              <div class="progress-bar">
+                {% if collection.id in collection_stats %} {% if
+                collection_stats[collection.id].completion_rate >= 90 %}
+                <div class="progress-fill" style="width: 90%"></div>
+                {% elif collection_stats[collection.id].completion_rate >= 75 %}
+                <div class="progress-fill" style="width: 75%"></div>
+                {% elif collection_stats[collection.id].completion_rate >= 50 %}
+                <div class="progress-fill" style="width: 50%"></div>
+                {% elif collection_stats[collection.id].completion_rate >= 25 %}
+                <div class="progress-fill" style="width: 25%"></div>
+                {% else %}
+                <div class="progress-fill" style="width: 10%"></div>
+                {% endif %} {% else %}
+                <div class="progress-fill" style="width: 75%"></div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          {% endfor %} {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="fas fa-folder-open"></i>
+            </div>
+            <h3>No Collections Yet</h3>
+            <p>Create your first collection to organize your code snippets</p>
+            <button class="btn btn-primary" onclick="openCreateModal()">
+              <i class="fas fa-plus"></i>
+              Create Collection
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteConfirmModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Delete Collection</h2>
+          <button class="close-btn" onclick="closeDeleteModal()">
+            &times;
+          </button>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <p>
+            Are you sure you want to delete "<span
+              id="deleteCollectionName"></span
+            >"?
+          </p>
+          <p
+            style="
+              color: var(--text-secondary);
+              font-size: 0.9rem;
+              margin-top: 0.5rem;
+            ">
+            This action cannot be undone.
+          </p>
+        </div>
+        <div class="form-group">
+          <label>What should happen to snippets in this collection?</label>
+          <select
+            id="deleteAction"
+            style="
+              width: 100%;
+              padding: 0.75rem;
+              background: rgba(255, 255, 255, 0.05);
+              border: 1px solid var(--border-color);
+              border-radius: 8px;
+              color: var(--text-primary);
+            ">
+            <option value="move_to_parent">Move to parent collection</option>
+            <option value="delete_all">Delete everything permanently</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            onclick="closeDeleteModal()">
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn"
+            style="background: #ef4444; color: white"
+            onclick="confirmDelete()">
+            Delete Collection
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Collection Modal -->
+    <div id="createCollectionModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Create New Collection</h2>
+          <button class="close-btn" onclick="closeCreateModal()">
+            &times;
+          </button>
+        </div>
+        <form id="createCollectionForm">
+          <div class="form-group">
+            <label for="collectionTitle">Collection Title *</label>
+            <input
+              type="text"
+              id="collectionTitle"
+              name="title"
+              required
+              placeholder="Enter collection title..."
+              maxlength="100" />
+            <small style="color: var(--text-secondary); font-size: 0.8rem">
+              Maximum 100 characters
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="collectionDescription">Description</label>
+            <textarea
+              id="collectionDescription"
+              name="description"
+              placeholder="Describe your collection..."
+              maxlength="500"
+              rows="4"></textarea>
+            <small style="color: var(--text-secondary); font-size: 0.8rem">
+              Maximum 500 characters (optional)
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label for="collectionTags">Tags</label>
+            <input
+              type="text"
+              id="collectionTags"
+              name="tags"
+              placeholder="Enter tags separated by commas (e.g., React, JavaScript, UI)"
+              maxlength="200" />
+            <small style="color: var(--text-secondary); font-size: 0.8rem">
+              Separate multiple tags with commas
+            </small>
+          </div>
+
+          <div class="form-group">
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                cursor: pointer;
+              ">
+              <input
+                type="checkbox"
+                id="isPublic"
+                name="is_public"
+                style="
+                  width: 18px;
+                  height: 18px;
+                  accent-color: var(--accent-blue);
+                  cursor: pointer;
+                " />
+              <span>Make this collection public</span>
+            </label>
+            <small
+              style="
+                color: var(--text-secondary);
+                font-size: 0.8rem;
+                margin-left: 1.5rem;
+              ">
+              Public collections can be viewed by other users
+            </small>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeCreateModal()">
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary"
+              id="createCollectionBtn">
+              <i class="fas fa-plus"></i>
+              Create Collection
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      let currentCollectionId = null;
+
+      // Delete Collection Function
+      function deleteCollection(event, collectionId, name) {
+        console.log("🎯 Delete collection called:", collectionId, name);
+
+        // Prevent event bubbling to parent card
+        event.stopPropagation();
+        event.preventDefault();
+
+        console.log("🛡️ Event propagation stopped - modal should open");
+
+        currentCollectionId = collectionId;
+        document.getElementById("deleteCollectionName").textContent = name;
+        document.getElementById("deleteConfirmModal").classList.add("active");
+
+        console.log("✅ Delete modal opened for collection:", name);
+      }
+      // Enhanced event handling for all action buttons
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🎯 Initializing enhanced action button handlers");
+
+        // Handle all action buttons to prevent event bubbling
+        document.querySelectorAll(".action-btn").forEach((button) => {
+          button.addEventListener("click", function (e) {
+            console.log("🛡️ Action button clicked, preventing bubbling");
+            e.stopPropagation();
+            e.preventDefault();
+          });
+        });
+
+        // Handle edit buttons specifically
+        // Handle edit buttons specifically
+        document
+          .querySelectorAll('.action-btn[title="Edit"]')
+          .forEach((button) => {
+            button.addEventListener("click", function (e) {
+              e.stopPropagation();
+              console.log("✏️ Edit button clicked");
+
+              // Get collection data from the card
+              const collectionCard = e.target.closest(".collection-card");
+              const collectionId =
+                collectionCard.getAttribute("data-collection-id");
+              const collectionName = collectionCard
+                .querySelector(".collection-info h3")
+                .textContent.trim();
+              const collectionDescription = collectionCard
+                .querySelector(".collection-info p")
+                .textContent.trim();
+
+              // Get tags from the collection card
+              const tagElements = collectionCard.querySelectorAll(
+                ".collection-tags .tag"
+              );
+              const tags = Array.from(tagElements)
+                .map((tag) => tag.textContent.trim())
+                .join(", ");
+
+              console.log("📝 Editing collection:", {
+                id: collectionId,
+                name: collectionName,
+                description: collectionDescription,
+                tags: tags,
+              });
+
+              // Check if CollectionModal is available
+              if (typeof CollectionModal !== "undefined") {
+                CollectionModal.openForEdit(
+                  {
+                    id: collectionId,
+                    name: collectionName,
+                    description:
+                      collectionDescription === "No description available"
+                        ? ""
+                        : collectionDescription,
+                    tags: tags,
+                    is_public: false, // You can enhance this to get actual public status
+                  },
+                  {
+                    onSuccess: function (collection) {
+                      console.log("✅ Collection updated:", collection);
+                      showToast(
+                        `Collection "${collection.name}" updated successfully!`,
+                        "success"
+                      );
+                      setTimeout(() => {
+                        window.location.reload();
+                      }, 1000);
+                    },
+                  }
+                );
+              } else {
+                console.error("❌ CollectionModal service not available");
+                showToast(
+                  "Collection modal service not loaded. Please refresh the page.",
+                  "error"
+                );
+              }
+            });
+          });
+
+        // Handle share buttons specifically
+        document
+          .querySelectorAll('.action-btn[title="Share"]')
+          .forEach((button) => {
+            button.addEventListener("click", function (e) {
+              e.stopPropagation();
+              console.log("📤 Share button clicked");
+
+              // Get collection data from the card
+              const collectionCard = e.target.closest(".collection-card");
+              const collectionId =
+                collectionCard.getAttribute("data-collection-id");
+              const collectionName = collectionCard
+                .querySelector(".collection-info h3")
+                .textContent.trim();
+
+              console.log(
+                "📤 Opening share modal for collection:",
+                collectionId,
+                collectionName
+              );
+
+              // Open share modal
+              if (typeof CollectionModal !== "undefined") {
+                CollectionModal.openShareModal(collectionId, collectionName);
+              } else {
+                console.error("❌ CollectionModal service not available");
+                showToast(
+                  "Share service not loaded. Please refresh the page.",
+                  "error"
+                );
+              }
+            });
+          });
+
+        console.log("✅ Action button handlers initialized");
+      });
+      // Close Modal
+      function closeDeleteModal() {
+        document
+          .getElementById("deleteConfirmModal")
+          .classList.remove("active");
+        currentCollectionId = null;
+      }
+
+      // Confirm Delete using HTTP request (uses your existing Flask route)
+
+      async function confirmDelete() {
+        const action = document.getElementById("deleteAction").value;
+
+        try {
+          console.log(
+            "🎯 Sending DELETE request to:",
+            `/api/collections/${currentCollectionId}`
+          );
+          showToast("Deleting collection...", "info");
+
+          const response = await fetch(
+            `/api/collections/${currentCollectionId}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+              },
+              body: JSON.stringify({
+                action: action,
+                target_collection_id: null,
+              }),
+            }
+          );
+
+          console.log("📡 Response status:", response.status);
+          const result = await response.json();
+          console.log("📡 Response data:", result);
+
+          if (response.ok && result.success) {
+            console.log("✅ Collection deleted successfully:", result);
+            removeCollectionCard(currentCollectionId);
+            showToast(result.message, "success");
+
+            setTimeout(() => {
+              window.location.reload();
+            }, 1500);
+          } else {
+            console.error("❌ Delete failed:", result);
+            showToast(result.message || "Failed to delete collection", "error");
+          }
+        } catch (error) {
+          console.error("❌ Delete request failed:", error);
+          showToast("Network error: Failed to delete collection", "error");
+        }
+
+        closeDeleteModal();
+      }
+
+      // Remove Collection Card with smooth animation
+      function removeCollectionCard(collectionId) {
+        console.log("🎯 Removing collection card:", collectionId);
+        const card = document.querySelector(
+          `[data-collection-id="${collectionId}"]`
+        );
+        if (card) {
+          // Add removal animation
+          card.style.transition = "all 0.5s cubic-bezier(0.4, 0, 0.2, 1)";
+          card.style.transform = "translateY(-20px) scale(0.95)";
+          card.style.opacity = "0";
+          card.style.filter = "blur(2px)";
+
+          setTimeout(() => {
+            if (card.parentNode) {
+              card.remove();
+              console.log("✅ Collection card removed from DOM");
+            }
+          }, 500);
+        } else {
+          console.log("❌ Collection card not found in DOM");
+        }
+      }
+
+      // Enhanced Toast Notification
+      function showToast(message, type = "info") {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll(".toast-notification");
+        existingToasts.forEach((toast) => toast.remove());
+
+        const toast = document.createElement("div");
+        toast.className = "toast-notification";
+
+        // Icon based on type
+        const icon = type === "success" ? "✅" : type === "error" ? "❌" : "ℹ️";
+
+        toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${
+          type === "success"
+            ? "#10b981"
+            : type === "error"
+            ? "#ef4444"
+            : "#3b82f6"
+        };
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        z-index: 10000;
+        animation: slideInRight 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 400px;
+        backdrop-filter: blur(10px);
+    `;
+
+        toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+        document.body.appendChild(toast);
+
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+          toast.style.animation =
+            "slideOutRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards";
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.remove();
+            }
+          }, 400);
+        }, 4000);
+      }
+
+      // Close modal when clicking outside
+      document.addEventListener("click", function (e) {
+        if (e.target.classList.contains("modal")) {
+          e.target.classList.remove("active");
+        }
+      });
+
+      // Add this function to your existing script section
+      function openCollection(collectionId) {
+        console.log("🎯 Opening collection:", collectionId);
+        console.log(
+          "🔗 Redirecting to:",
+          `/dashboard/collections/${collectionId}`
+        );
+        window.location.href = `/dashboard/collections/${collectionId}`;
+      }
+
+      // Add enhanced CSS animations
+      const style = document.createElement("style");
+      style.textContent = `
+    @keyframes slideInRight {
+        from { 
+            transform: translateX(100%); 
+            opacity: 0; 
+        }
+        to { 
+            transform: translateX(0); 
+            opacity: 1; 
+        }
+    }
+    @keyframes slideOutRight {
+        from { 
+            transform: translateX(0); 
+            opacity: 1; 
+        }
+        to { 
+            transform: translateX(100%); 
+            opacity: 0; 
+        }
+    }
+`;
+      document.head.appendChild(style);
+
+      console.log("✅ Collection delete system initialized");
+
+      // Create Collection Modal Functions
+      function openCreateModal() {
+        console.log("🎯 Opening create collection modal");
+        document
+          .getElementById("createCollectionModal")
+          .classList.add("active");
+        // Focus on title input for better UX
+        setTimeout(() => {
+          document.getElementById("collectionTitle").focus();
+        }, 300);
+      }
+
+      function closeCreateModal() {
+        console.log("🎯 Closing create collection modal");
+        document
+          .getElementById("createCollectionModal")
+          .classList.remove("active");
+        // Reset form
+        document.getElementById("createCollectionForm").reset();
+      }
+
+      // Handle Create Collection Form Submission
+      document.addEventListener("DOMContentLoaded", function () {
+        const createForm = document.getElementById("createCollectionForm");
+
+        if (createForm) {
+          createForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+            console.log("🎯 Create collection form submitted");
+
+            const submitBtn = document.getElementById("createCollectionBtn");
+            const originalText = submitBtn.innerHTML;
+
+            // Show loading state
+            submitBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin"></i> Creating...';
+            submitBtn.disabled = true;
+
+            try {
+              // Collect form data
+              const formData = {
+                name: document.getElementById("collectionTitle").value.trim(),
+                description: document
+                  .getElementById("collectionDescription")
+                  .value.trim(),
+                tags: document.getElementById("collectionTags").value.trim(),
+                is_public: document.getElementById("isPublic").checked,
+              };
+
+              console.log("📤 Sending collection data:", formData);
+
+              // Validate required fields
+              if (!formData.name) {
+                throw new Error("Collection title is required");
+              }
+
+              // Send request to create collection
+              const response = await fetch("/api/collections", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "X-Requested-With": "XMLHttpRequest",
+                },
+                body: JSON.stringify(formData),
+              });
+
+              console.log("📡 Create response status:", response.status);
+              const result = await response.json();
+              console.log("📡 Create response data:", result);
+
+              if (response.ok && result.success) {
+                console.log("✅ Collection created successfully:", result);
+
+                // Show success message
+                showToast(
+                  `Collection "${formData.name}" created successfully!`,
+                  "success"
+                );
+
+                // Close modal
+                closeCreateModal();
+
+                // Add new collection to the grid dynamically
+                addCollectionToGrid(result.collection);
+
+                // Optional: Redirect to the new collection
+                setTimeout(() => {
+                  if (result.collection && result.collection.id) {
+                    console.log(
+                      "🔗 Redirecting to new collection:",
+                      result.collection.id
+                    );
+                    window.location.href = `/dashboard/collections/${result.collection.id}`;
+                  }
+                }, 1500);
+              } else {
+                console.error("❌ Create collection failed:", result);
+                throw new Error(
+                  result.message || "Failed to create collection"
+                );
+              }
+            } catch (error) {
+              console.error("❌ Create collection error:", error);
+              showToast(
+                error.message || "Failed to create collection",
+                "error"
+              );
+            } finally {
+              // Reset button state
+              submitBtn.innerHTML = originalText;
+              submitBtn.disabled = false;
+            }
+          });
+        }
+      });
+
+      // Add new collection card to the grid dynamically
+      function addCollectionToGrid(collection) {
+        console.log("🎯 Adding new collection to grid:", collection);
+
+        const collectionsGrid = document.getElementById("collectionsGrid");
+        const emptyState = collectionsGrid.querySelector(".empty-state");
+
+        // Remove empty state if it exists
+        if (emptyState) {
+          emptyState.remove();
+        }
+
+        // Create new collection card HTML
+        const collectionCard = document.createElement("div");
+        collectionCard.className = "collection-card";
+        collectionCard.setAttribute("data-collection-id", collection.id);
+        collectionCard.onclick = () => openCollection(collection.id);
+
+        // Determine icon based on collection name
+        let iconHtml = '<i class="fas fa-folder" style="color: #3b82f6"></i>';
+        const name = collection.name.toLowerCase();
+
+        if (name.includes("react")) {
+          iconHtml = '<i class="fab fa-react" style="color: #61dafb"></i>';
+        } else if (name.includes("python")) {
+          iconHtml = '<i class="fab fa-python" style="color: #3776ab"></i>';
+        } else if (name.includes("javascript") || name.includes("js")) {
+          iconHtml = '<i class="fab fa-js-square" style="color: #f7df1e"></i>';
+        } else if (name.includes("css")) {
+          iconHtml = '<i class="fab fa-css3-alt" style="color: #1572b6"></i>';
+        }
+
+        // Generate tags HTML
+        let tagsHtml = "";
+        if (collection.tags) {
+          const tags = collection.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag);
+          tagsHtml = tags
+            .map((tag) => `<span class="tag">${tag}</span>`)
+            .join("");
+        } else {
+          tagsHtml =
+            '<span class="tag">New</span><span class="tag">Collection</span>';
+        }
+
+        collectionCard.innerHTML = `
+    <div class="collection-header">
+      <div class="collection-info">
+        <h3>
+          ${iconHtml}
+          ${collection.name}
+        </h3>
+        <p>${collection.description || "No description available"}</p>
+      </div>
+      <div class="collection-actions">
+        <button class="action-btn" title="Edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="action-btn" title="Share">
+          <i class="fas fa-share"></i>
+        </button>
+        <button class="action-btn" title="Delete" onclick="deleteCollection(event, '${
+          collection.id
+        }', '${collection.name}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div class="collection-stats">
+      <div class="stat-item">
+        <div class="number">0</div>
+        <div class="label">Snippets</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">1</div>
+        <div class="label">Contributors</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">0</div>
+        <div class="label">Views</div>
+      </div>
+    </div>
+    <div class="collection-tags">
+      ${tagsHtml}
+    </div>
+    <div class="collection-progress">
+      <div class="progress-label">
+        <span>Completion</span>
+        <span>0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 10%"></div>
+      </div>
+    </div>
+  `;
+
+        // Add animation class
+        collectionCard.style.opacity = "0";
+        collectionCard.style.transform = "translateY(20px)";
+
+        // Insert at the beginning of the grid
+        collectionsGrid.insertBefore(
+          collectionCard,
+          collectionsGrid.firstChild
+        );
+
+        // Trigger animation
+        setTimeout(() => {
+          collectionCard.style.transition =
+            "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+          collectionCard.style.opacity = "1";
+          collectionCard.style.transform = "translateY(0)";
+        }, 100);
+
+        console.log("✅ Collection card added to grid successfully");
+      }
+
+      // ===== FAVORITE COLLECTIONS FUNCTIONALITY =====
+
+      let showingFavorites = false;
+      let favoriteCollections = [];
+
+      // Toggle Collection Favorite
+      async function toggleCollectionFavorite(event, collectionId) {
+        console.log(`⭐ ===== TOGGLE COLLECTION FAVORITE START =====`);
+        console.log(`⭐ Collection ID: ${collectionId}`);
+
+        // Prevent event bubbling
+        event.stopPropagation();
+        event.preventDefault();
+
+        try {
+          console.log(`⭐ Making API call to toggle collection favorite...`);
+          const response = await fetch(
+            `/api/collections/${collectionId}/favorite`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+              },
+            }
+          );
+
+          console.log(`⭐ API Response status: ${response.status}`);
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          console.log(`⭐ API Response data:`, result);
+
+          if (result.success) {
+            const newFavoriteStatus = result.is_favorite;
+            console.log(`⭐ Server returned new status: ${newFavoriteStatus}`);
+
+            // Update UI button
+            const card = document.querySelector(
+              `[data-collection-id="${collectionId}"]`
+            );
+            if (card) {
+              const btn = card.querySelector(".favorite-btn");
+              if (btn) {
+                const newColor = newFavoriteStatus ? "#fbbf24" : "";
+                btn.style.color = newColor;
+                btn.dataset.favorited = newFavoriteStatus;
+                console.log(
+                  `⭐ Updated UI button: color=${newColor}, dataset=${newFavoriteStatus}`
+                );
+              }
+            }
+
+            // Show appropriate message
+            const message = newFavoriteStatus
+              ? "Added to favorites ⭐"
+              : "Removed from favorites 💔";
+            showToast(message, "success");
+            console.log(`⭐ Showed toast: ${message}`);
+
+            // Refresh favorite collections if showing favorites
+            if (showingFavorites) {
+              console.log(`⭐ Currently showing favorites, refreshing view...`);
+              setTimeout(() => {
+                loadFavoriteCollections();
+              }, 100);
+            }
+
+            console.log(`⭐ ===== TOGGLE COLLECTION FAVORITE SUCCESS =====`);
+          } else {
+            console.error(`⭐ Server error:`, result);
+            showToast(result.message || "Failed to update favorite", "error");
+          }
+        } catch (error) {
+          console.error("❌ TOGGLE COLLECTION FAVORITE ERROR:", error);
+          console.error("❌ Error stack:", error.stack);
+          showToast("Failed to update favorite", "error");
+        }
+      }
+
+      // Load Favorite Collections
+      async function loadFavoriteCollections() {
+        console.log(`⭐ ===== LOADING FAVORITE COLLECTIONS =====`);
+
+        try {
+          const response = await fetch("/api/collections/favorites");
+
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const data = await response.json();
+          console.log(`⭐ Loaded favorite collections:`, data);
+
+          favoriteCollections = data.collections || [];
+          displayFavoriteCollections(favoriteCollections);
+        } catch (error) {
+          console.error("❌ Error loading favorite collections:", error);
+          showToast("Failed to load favorite collections", "error");
+        }
+      }
+
+      // Display Favorite Collections
+      function displayFavoriteCollections(collections) {
+        console.log(`⭐ Displaying ${collections.length} favorite collections`);
+
+        const favoriteGrid = document.getElementById("favoriteCollectionsGrid");
+        const favoriteSection = document.getElementById(
+          "favoriteCollectionsSection"
+        );
+
+        if (!favoriteGrid || !favoriteSection) {
+          console.error("❌ Favorite collections elements not found");
+          return;
+        }
+
+        if (collections.length === 0) {
+          favoriteGrid.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
+        <i class="fas fa-star" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+        <h3>No Favorite Collections</h3>
+        <p>Star some collections to see them here!</p>
+      </div>
+    `;
+        } else {
+          favoriteGrid.innerHTML = "";
+          collections.forEach((collection) => {
+            const card = createCollectionCard(collection, true); // true indicates it's a favorite
+            favoriteGrid.appendChild(card);
+          });
+        }
+      }
+
+      // Create Collection Card (enhanced version)
+      function createCollectionCard(collection, isFavorite = false) {
+        const card = document.createElement("div");
+        card.className = "collection-card";
+        card.setAttribute("data-collection-id", collection.id);
+        card.onclick = () => openCollection(collection.id);
+
+        // Determine icon based on collection name
+        let iconHtml = '<i class="fas fa-folder" style="color: #3b82f6"></i>';
+        const name = collection.name.toLowerCase();
+
+        if (name.includes("react")) {
+          iconHtml = '<i class="fab fa-react" style="color: #61dafb"></i>';
+        } else if (name.includes("python")) {
+          iconHtml = '<i class="fab fa-python" style="color: #3776ab"></i>';
+        } else if (name.includes("javascript") || name.includes("js")) {
+          iconHtml = '<i class="fab fa-js-square" style="color: #f7df1e"></i>';
+        } else if (name.includes("css")) {
+          iconHtml = '<i class="fab fa-css3-alt" style="color: #1572b6"></i>';
+        }
+
+        // Generate tags HTML
+        let tagsHtml = "";
+        if (collection.tags) {
+          const tags = collection.tags
+            .split(",")
+            .map((tag) => tag.trim())
+            .filter((tag) => tag);
+          tagsHtml = tags
+            .map((tag) => `<span class="tag">${tag}</span>`)
+            .join("");
+        } else {
+          tagsHtml = '<span class="tag">Collection</span>';
+        }
+
+        card.innerHTML = `
+    <div class="collection-header">
+      <div class="collection-info">
+        <h3>
+          ${iconHtml}
+          ${collection.name}
+        </h3>
+        <p>${collection.description || "No description available"}</p>
+      </div>
+      <div class="collection-actions">
+        <button class="action-btn" title="Edit">
+          <i class="fas fa-edit"></i>
+        </button>
+        <button class="action-btn" title="Share">
+          <i class="fas fa-share"></i>
+        </button>
+        <button 
+          class="action-btn favorite-btn" 
+          title="Favorite" 
+          onclick="toggleCollectionFavorite(event, '${collection.id}')" 
+          data-favorited="${collection.is_favorite || false}"
+          style="color: ${collection.is_favorite ? "#fbbf24" : ""}">
+          <i class="fas fa-star"></i>
+        </button>
+        <button class="action-btn" title="Delete" onclick="deleteCollection(event, '${
+          collection.id
+        }', '${collection.name}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div class="collection-stats">
+      <div class="stat-item">
+        <div class="number">0</div>
+        <div class="label">Snippets</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">1</div>
+        <div class="label">Contributors</div>
+      </div>
+      <div class="stat-item">
+        <div class="number">0</div>
+        <div class="label">Views</div>
+      </div>
+    </div>
+    <div class="collection-tags">
+      ${tagsHtml}
+    </div>
+    <div class="collection-progress">
+      <div class="progress-label">
+        <span>Completion</span>
+        <span>0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 75%"></div>
+      </div>
+    </div>
+  `;
+
+        return card;
+      }
+
+      // Toggle Favorite View
+      function toggleFavoriteView() {
+        console.log(`⭐ ===== TOGGLE FAVORITE VIEW =====`);
+        console.log(`⭐ Current state: showingFavorites = ${showingFavorites}`);
+
+        const favoriteSection = document.getElementById(
+          "favoriteCollectionsSection"
+        );
+        const allSection = document.getElementById("allCollectionsSection");
+        const favoritesBtn = document.getElementById("showFavoritesBtn");
+        const favoritesBtnText = document.getElementById("favoritesBtnText");
+
+        if (
+          !favoriteSection ||
+          !allSection ||
+          !favoritesBtn ||
+          !favoritesBtnText
+        ) {
+          console.error(
+            "❌ Required elements not found for favorite view toggle"
+          );
+          return;
+        }
+
+        showingFavorites = !showingFavorites;
+
+        if (showingFavorites) {
+          console.log(`⭐ Switching to favorites view`);
+          favoriteSection.style.display = "block";
+          allSection.style.display = "none";
+          favoritesBtnText.textContent = "Show All";
+          favoritesBtn.style.background = "var(--gradient-3)";
+          favoritesBtn.style.color = "white";
+
+          // Load favorite collections
+          loadFavoriteCollections();
+        } else {
+          console.log(`⭐ Switching to all collections view`);
+          favoriteSection.style.display = "none";
+          allSection.style.display = "block";
+          favoritesBtnText.textContent = "Show Favorites";
+          favoritesBtn.style.background = "rgba(255, 255, 255, 0.05)";
+          favoritesBtn.style.color = "var(--text-primary)";
+        }
+
+        console.log(
+          `⭐ View toggled successfully: showingFavorites = ${showingFavorites}`
+        );
+      }
+
+      // Initialize favorite functionality on page load
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("⭐ Initializing favorite collections functionality");
+
+        // Load favorite collections count for initial display
+        loadFavoriteCollections();
+      });
+
+      console.log("✅ Favorite collections functionality loaded");
+    </script>
+    <script src="{{ url_for('static', filename='js/collection-modal-service.js') }}"></script>
+
+    <style>
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        to {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+      }
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+    </style>
+  </body>
+</html>

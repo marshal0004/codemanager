@@ -1,0 +1,570 @@
+/* ===== COLLABORATIVE EDITOR STYLES ===== */
+
+/* User Cursors */
+.collaborative-cursor {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.collaborative-cursor.visible {
+    opacity: 1;
+}
+
+.cursor-line {
+    width: 2px;
+    height: 20px;
+    background: #FF6B6B;
+    border-radius: 1px;
+    animation: cursorBlink 1s infinite;
+}
+
+.cursor-label {
+    position: absolute;
+    top: -25px;
+    left: -10px;
+    background: #FF6B6B;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    font-family: 'Rajdhani', sans-serif;
+}
+
+@keyframes cursorBlink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+/* Typing Indicators */
+.typing-indicator {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: #00FFFF;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    z-index: 999;
+    pointer-events: none;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+.typing-dots {
+    display: inline-block;
+    margin-right: 5px;
+}
+
+.typing-dots span {
+    display: inline-block;
+    width: 4px;
+    height: 4px;
+    background: #00FFFF;
+    border-radius: 50%;
+    margin: 0 1px;
+    animation: typingDots 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typingDots {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.4;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+/* User Status Animations */
+.user-status.typing-animation {
+    animation: pulse 1s infinite;
+    background: #FF0080 !important;
+    box-shadow: 0 0 15px #FF0080 !important;
+}
+
+.user-status.editing {
+    animation: editingPulse 2s infinite;
+}
+
+@keyframes editingPulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Live Activity Animations */
+.activity-item.new {
+    animation: slideInRight 0.5s ease-out;
+    border-left-color: #00FFFF;
+    background: rgba(0, 255, 255, 0.1);
+}
+
+@keyframes slideInRight {
+    0% {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Real-time Notifications */
+.collaboration-notification {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: linear-gradient(135deg, #FF00FF, #00FFFF);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    z-index: 10001;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 20px rgba(255, 0, 255, 0.3);
+}
+
+.collaboration-notification.show {
+    transform: translateX(0);
+}
+
+.collaboration-notification .notification-icon {
+    display: inline-block;
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+/* User Color Variations */
+.user-color-1 { background: #FF6B6B !important; box-shadow: 0 0 10px #FF6B6B !important; }
+.user-color-2 { background: #4ECDC4 !important; box-shadow: 0 0 10px #4ECDC4 !important; }
+.user-color-3 { background: #45B7D1 !important; box-shadow: 0 0 10px #45B7D1 !important; }
+.user-color-4 { background: #96CEB4 !important; box-shadow: 0 0 10px #96CEB4 !important; }
+.user-color-5 { background: #FFEAA7 !important; box-shadow: 0 0 10px #FFEAA7 !important; }
+.user-color-6 { background: #DDA0DD !important; box-shadow: 0 0 10px #DDA0DD !important; }
+.user-color-7 { background: #98D8C8 !important; box-shadow: 0 0 10px #98D8C8 !important; }
+.user-color-8 { background: #F7DC6F !important; box-shadow: 0 0 10px #F7DC6F !important; }
+
+/* Cursor Color Variations */
+.cursor-color-1 .cursor-line, .cursor-color-1 .cursor-label { background: #FF6B6B; }
+.cursor-color-2 .cursor-line, .cursor-color-2 .cursor-label { background: #4ECDC4; }
+.cursor-color-3 .cursor-line, .cursor-color-3 .cursor-label { background: #45B7D1; }
+.cursor-color-4 .cursor-line, .cursor-color-4 .cursor-label { background: #96CEB4; }
+.cursor-color-5 .cursor-line, .cursor-color-5 .cursor-label { background: #FFEAA7; }
+.cursor-color-6 .cursor-line, .cursor-color-6 .cursor-label { background: #DDA0DD; }
+.cursor-color-7 .cursor-line, .cursor-color-7 .cursor-label { background: #98D8C8; }
+.cursor-color-8 .cursor-line, .cursor-color-8 .cursor-label { background: #F7DC6F; }
+
+/* Enhanced User Items */
+.user-item.online {
+    border-left: 3px solid #00FF80;
+    background: rgba(0, 255, 128, 0.05);
+}
+
+.user-item.typing {
+    border-left: 3px solid #FF0080;
+    background: rgba(255, 0, 128, 0.05);
+}
+
+.user-item .user-name.current-user {
+    color: #00FFFF;
+    font-weight: 700;
+}
+
+/* Live Code Highlighting */
+.code-editor.collaborative {
+    position: relative;
+}
+
+.live-edit-highlight {
+    position: absolute;
+    background: rgba(255, 0, 255, 0.1);
+    border: 1px solid rgba(255, 0, 255, 0.3);
+    pointer-events: none;
+    animation: liveEditPulse 2s infinite;
+}
+
+@keyframes liveEditPulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
+/* Connection Status Indicators */
+.collaboration-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #B8B8FF;
+}
+
+.collaboration-status.connected {
+    color: #00FF80;
+}
+
+.collaboration-status.disconnected {
+    color: #FF4040;
+}
+
+.collaboration-status .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s infinite;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .collaborative-cursor {
+        display: none; /* Hide cursors on mobile */
+    }
+    
+    .typing-indicator {
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    
+    .collaboration-notification {
+        right: 10px;
+        left: 10px;
+        transform: translateY(-100%);
+    }
+    
+    .collaboration-notification.show {
+        transform: translateY(0);
+    }
+}
+
+/* Dark Theme Compatibility */
+@media (prefers-color-scheme: dark) {
+    .typing-indicator {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+    }
+    
+    .collaboration-notification {
+        background: linear-gradient(135deg, #8000FF, #00FFFF);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .collaborative-cursor .cursor-line {
+        background: #FFFFFF;
+        border: 1px solid #000000;
+    }
+    
+    .cursor-label {
+        background: #000000;
+        color: #FFFFFF;
+        border: 1px solid #FFFFFF;
+    }
+    
+    .typing-indicator {
+        background: #000000;
+        color: #FFFFFF;
+        border: 1px solid #FFFFFF;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .collaborative-cursor,
+    .typing-indicator,
+    .collaboration-notification {
+        display: none !important;
+    }
+}
+
+/* Accessibility Improvements */
+.collaborative-cursor[aria-label] {
+    position: relative;
+}
+
+.collaborative-cursor[aria-label]::after {
+    content: attr(aria-label);
+    position: absolute;
+    top: -30px;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.collaborative-cursor:hover::after {
+    opacity: 1;
+}
+
+/* Focus Indicators */
+.code-editor:focus {
+    outline: 2px solid #00FFFF;
+    outline-offset: 2px;
+}
+
+/* Selection Highlighting */
+.collaborative-selection {
+    position: absolute;
+    background: rgba(255, 0, 255, 0.2);
+    border: 1px solid rgba(255, 0, 255, 0.4);
+    pointer-events: none;
+    z-index: 998;
+}
+
+/* Live Changes Animation */
+.live-change-flash {
+    animation: flashChange 0.5s ease-out;
+}
+
+@keyframes flashChange {
+    0% { background: rgba(0, 255, 255, 0.3); }
+    100% { background: transparent; }
+}
+
+/* User Avatar in Cursor */
+.cursor-avatar {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    border: 2px solid white;
+    background-size: cover;
+    background-position: center;
+}
+
+/* Collaboration Toolbar */
+.collaboration-toolbar {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #00FFFF;
+    border-radius: 8px;
+    padding: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 1001;
+    backdrop-filter: blur(10px);
+}
+
+.collaboration-toolbar button {
+    background: transparent;
+    border: 1px solid #00FFFF;
+    color: #00FFFF;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s ease;
+}
+
+.collaboration-toolbar button:hover {
+    background: #00FFFF;
+    color: #000000;
+}
+
+.collaboration-toolbar button.active {
+    background: #FF00FF;
+    border-color: #FF00FF;
+    color: white;
+}
+
+/* Conflict Resolution Modal */
+.conflict-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #1a0d2e, #0d1421);
+    border: 2px solid #FF00FF;
+    border-radius: 12px;
+    padding: 20px;
+    z-index: 10002;
+    min-width: 400px;
+    box-shadow: 0 0 30px rgba(255, 0, 255, 0.5);
+}
+
+.conflict-modal h3 {
+    color: #FF00FF;
+    margin-bottom: 15px;
+    font-family: 'Orbitron', monospace;
+}
+
+.conflict-options {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.conflict-options button {
+    flex: 1;
+    padding: 8px 16px;
+    border: 1px solid #00FFFF;
+    background: transparent;
+    color: #00FFFF;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.conflict-options button:hover {
+    background: #00FFFF;
+    color: #000000;
+}
+
+/* Loading States */
+.collaboration-loading {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid #00FFFF;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success/Error States */
+.collaboration-success {
+    color: #00FF80;
+    animation: successPulse 0.5s ease-out;
+}
+
+.collaboration-error {
+    color: #FF4040;
+    animation: errorShake 0.5s ease-out;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Minimap Integration */
+.collaboration-minimap {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid #00FFFF;
+    overflow: hidden;
+}
+
+.minimap-cursor {
+    position: absolute;
+    width: 2px;
+    height: 4px;
+    right: 2px;
+    border-radius: 1px;
+}
+
+/* Performance Optimizations */
+.collaborative-cursor,
+.typing-indicator {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .collaborative-cursor,
+    .typing-indicator,
+    .activity-item,
+    .collaboration-notification {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .user-status.typing-animation {
+        animation: none !important;
+        background: #FF0080 !important;
+    }
+}
+
+/* Custom Scrollbar for Collaboration Elements */
+.collaboration-panel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.collaboration-panel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.collaboration-panel::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #FF00FF, #00FFFF);
+    border-radius: 3px;
+}
+
+.collaboration-panel::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #00FFFF, #FF00FF);
+}
+
+/* Final Touches */
+.collaborative-editor-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.collaborative-editor-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 49%, rgba(0, 255, 255, 0.1) 50%, transparent 51%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.collaborative-editor-container.active::before {
+    opacity: 1;
+}
+
+/* End of Collaboration CSS */

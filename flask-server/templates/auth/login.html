@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Code Snippet Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://unpkg.com/zustand@4.4.1/esm/vanilla.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              "cyber-black": "#0a0a0f",
+              "cyber-dark": "#0f0f23",
+              "cyber-purple": "#8b5cf6",
+              "cyber-blue": "#06b6d4",
+              "cyber-green": "#10b981",
+              "cyber-pink": "#ec4899",
+              "cyber-yellow": "#f59e0b",
+            },
+            fontFamily: {
+              cyber: ["Orbitron", "monospace"],
+              mono: ["Space Mono", "monospace"],
+            },
+            animation: {
+              "glow-pulse": "glow-pulse 2s ease-in-out infinite alternate",
+              "slide-up": "slide-up 0.6s ease-out",
+              "matrix-rain": "matrix-rain 20s linear infinite",
+              glitch: "glitch 2s infinite",
+              "scan-line": "scan-line 2s linear infinite",
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      @keyframes glow-pulse {
+        from {
+          box-shadow: 0 0 20px rgba(139, 92, 246, 0.3),
+            0 0 40px rgba(6, 182, 212, 0.2);
+        }
+        to {
+          box-shadow: 0 0 30px rgba(139, 92, 246, 0.6),
+            0 0 60px rgba(6, 182, 212, 0.4);
+        }
+      }
+
+      @keyframes slide-up {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes matrix-rain {
+        0% {
+          transform: translateY(-100vh);
+        }
+        100% {
+          transform: translateY(100vh);
+        }
+      }
+
+      @keyframes glitch {
+        0%,
+        100% {
+          transform: translate(0);
+        }
+        20% {
+          transform: translate(-2px, 2px);
+        }
+        40% {
+          transform: translate(-2px, -2px);
+        }
+        60% {
+          transform: translate(2px, 2px);
+        }
+        80% {
+          transform: translate(2px, -2px);
+        }
+      }
+
+      @keyframes scan-line {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100vw);
+        }
+      }
+
+      .cyber-grid {
+        background-image: linear-gradient(
+            rgba(139, 92, 246, 0.1) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+      }
+
+      .neon-border {
+        border: 2px solid transparent;
+        background: linear-gradient(#0a0a0f, #0a0a0f) padding-box,
+          linear-gradient(45deg, #8b5cf6, #06b6d4, #10b981) border-box;
+      }
+
+      .glass-morphism {
+        background: rgba(15, 15, 35, 0.4);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(139, 92, 246, 0.2);
+      }
+
+      .scan-line {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #06b6d4, transparent);
+        animation: scan-line 3s ease-in-out infinite;
+      }
+
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        opacity: 0.1;
+      }
+
+      input:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.5),
+          0 0 20px rgba(139, 92, 246, 0.3);
+      }
+
+      .cyber-button {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .cyber-button::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
+
+      .cyber-button:hover::before {
+        left: 100%;
+      }
+
+      .text-glow {
+        text-shadow: 0 0 10px currentColor;
+      }
+
+      .particle-system {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-cyber-black text-white font-mono min-h-screen overflow-x-hidden">
+    <!-- Animated Background -->
+    <div id="matrix-background" class="matrix-bg"></div>
+    <div class="cyber-grid fixed inset-0 z-0"></div>
+
+    <!-- Particle System -->
+    <div id="particle-system" class="particle-system"></div>
+
+    <!-- Scan Line Effect -->
+    <div class="scan-line"></div>
+
+    <div
+      class="min-h-screen flex items-center justify-center p-4 relative z-10">
+      <!-- Login Container -->
+      <div class="w-full max-w-md relative animate-slide-up">
+        <!-- Main Login Card -->
+        <div
+          class="glass-morphism rounded-2xl p-8 neon-border animate-glow-pulse relative overflow-hidden">
+          <!-- Decorative Elements -->
+          <div
+            class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-cyber-purple to-cyber-blue opacity-20 rounded-full blur-xl"></div>
+          <div
+            class="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-cyber-green to-cyber-pink opacity-20 rounded-full blur-lg"></div>
+
+          <!-- Header -->
+          <div class="text-center mb-8 relative">
+            <div class="text-6xl mb-4 text-cyber-blue animate-glow-pulse">
+              <i class="fas fa-code text-glow"></i>
+            </div>
+            <h1
+              class="text-3xl font-cyber font-bold bg-gradient-to-r from-cyber-purple via-cyber-blue to-cyber-green bg-clip-text text-transparent mb-2">
+              Welcome Back
+            </h1>
+            <p class="text-sm text-gray-400 font-mono">
+              Sign in to your account to continue
+            </p>
+            <div
+              class="mt-2 h-0.5 bg-gradient-to-r from-transparent via-cyber-blue to-transparent"></div>
+          </div>
+
+          <!-- Login Form -->
+          <form
+            id="loginForm"
+            method="POST"
+            action="/auth/login"
+            novalidate
+            class="space-y-6">
+            <!-- Email Field -->
+            <div class="relative group">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <i
+                  class="fas fa-envelope text-cyber-blue group-focus-within:text-cyber-purple transition-colors"></i>
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                class="w-full pl-10 pr-4 py-3 bg-cyber-dark/80 border border-gray-600 rounded-lg focus:border-cyber-purple focus:ring-2 focus:ring-cyber-purple/50 transition-all duration-300 font-mono text-sm"
+                placeholder="Enter email"
+                required
+                autocomplete="email" />
+              <div
+                class="absolute inset-0 rounded-lg bg-gradient-to-r from-cyber-purple/20 to-cyber-blue/20 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+              <div
+                id="emailError"
+                class="mt-1 text-xs text-red-400 opacity-0 transition-opacity font-mono"></div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="relative group">
+              <div
+                class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none z-10">
+                <i
+                  class="fas fa-lock text-cyber-blue group-focus-within:text-cyber-purple transition-colors"></i>
+              </div>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="w-full pl-10 pr-12 py-3 bg-cyber-dark/80 border border-gray-600 rounded-lg focus:border-cyber-purple focus:ring-2 focus:ring-cyber-purple/50 transition-all duration-300 font-mono text-sm"
+                placeholder="Enter password..."
+                required
+                autocomplete="current-password" />
+              <button
+                type="button"
+                id="passwordToggle"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center z-10">
+                <i
+                  class="fas fa-eye text-gray-400 hover:text-cyber-blue transition-colors"></i>
+              </button>
+              <div
+                class="absolute inset-0 rounded-lg bg-gradient-to-r from-cyber-purple/20 to-cyber-blue/20 opacity-0 group-focus-within:opacity-100 transition-opacity pointer-events-none"></div>
+              <div
+                id="passwordError"
+                class="mt-1 text-xs text-red-400 opacity-0 transition-opacity font-mono"></div>
+            </div>
+
+            <!-- Forgot Password -->
+            <div class="text-right">
+              <a
+                href="#"
+                id="forgotPasswordLink"
+                class="text-sm text-cyber-blue hover:text-cyber-purple transition-colors font-mono">
+                Forgot your password?
+              </a>
+            </div>
+
+            <!-- Login Button -->
+            <button
+              type="submit"
+              id="loginBtn"
+              class="w-full cyber-button bg-gradient-to-r from-cyber-purple to-cyber-blue hover:from-cyber-blue hover:to-cyber-purple py-3 px-6 rounded-lg font-cyber font-bold text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-cyber-purple/50 relative overflow-hidden">
+              <span
+                class="relative z-10 flex items-center justify-center gap-2">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+              </span>
+            </button>
+          </form>
+
+          <!-- Divider -->
+          <div class="my-8 flex items-center">
+            <div
+              class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+            <span class="px-4 text-xs text-gray-400 font-mono"
+              >New to SnippetVault?</span
+            >
+            <div
+              class="flex-1 h-px bg-gradient-to-r from-transparent via-gray-600 to-transparent"></div>
+          </div>
+
+          <!-- Register Link -->
+          <div class="text-center">
+            <p class="text-sm text-gray-400 font-mono">
+              Don't have an account?
+              <a
+                href="/auth/register"
+                class="text-cyber-green hover:text-cyber-blue transition-colors font-bold">
+                Create one here
+              </a>
+            </p>
+          </div>
+
+          <!-- Status Indicators -->
+          <div class="mt-6 flex justify-center space-x-4 text-xs">
+            <div class="flex items-center gap-1 text-cyber-green">
+              <div
+                class="w-2 h-2 bg-cyber-green rounded-full animate-pulse"></div>
+              <span class="font-mono">SECURE</span>
+            </div>
+            <div class="flex items-center gap-1 text-cyber-blue">
+              <div
+                class="w-2 h-2 bg-cyber-blue rounded-full animate-pulse"></div>
+              <span class="font-mono">ENCRYPTED</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+      // Enhanced error logging
+      window.addEventListener("error", function (e) {
+        console.error("Global Error:", {
+          message: e.message,
+          filename: e.filename,
+          lineno: e.lineno,
+          colno: e.colno,
+          error: e.error,
+        });
+      });
+
+      // Check if Zustand is available
+      if (typeof zustand === "undefined") {
+        console.error("Zustand not loaded properly");
+      }
+
+      // Simple state management fallback
+      const AppState = {
+        isLoading: false,
+        email: "",
+        password: "",
+        showPassword: false,
+
+        setLoading: function (loading) {
+          this.isLoading = loading;
+          console.log("Loading state changed:", loading);
+        },
+        setEmail: function (email) {
+          this.email = email;
+          console.log("Email updated:", email);
+        },
+        setPassword: function (password) {
+          this.password = password;
+          console.log("Password updated:", password ? "***hidden***" : "empty");
+        },
+        togglePasswordVisibility: function () {
+          this.showPassword = !this.showPassword;
+          console.log("Password visibility toggled:", this.showPassword);
+          return this.showPassword;
+        },
+      };
+
+      // Try to use Zustand, fallback to AppState
+      let useStore;
+      try {
+        if (typeof zustand !== "undefined" && zustand.create) {
+          const { create } = zustand;
+          useStore = create((set, get) => ({
+            isLoading: false,
+            email: "",
+            password: "",
+            showPassword: false,
+
+            setLoading: (loading) => set({ isLoading: loading }),
+            setEmail: (email) => set({ email }),
+            setPassword: (password) => set({ password }),
+            togglePasswordVisibility: () =>
+              set((state) => ({ showPassword: !state.showPassword })),
+          }));
+          console.log("Zustand store initialized successfully");
+        } else {
+          throw new Error("Zustand not available");
+        }
+      } catch (error) {
+        console.warn("Zustand initialization failed, using fallback:", error);
+        useStore = {
+          getState: () => AppState,
+          setState: (updates) => Object.assign(AppState, updates),
+        };
+      }
+
+      // D3.js Particle System
+      function initParticleSystem() {
+        const container = d3.select("#particle-system");
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = container
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const particles = d3.range(50).map(() => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 2,
+          vy: (Math.random() - 0.5) * 2,
+          size: Math.random() * 3 + 1,
+          opacity: Math.random() * 0.5 + 0.2,
+        }));
+
+        const particleElements = svg
+          .selectAll("circle")
+          .data(particles)
+          .enter()
+          .append("circle")
+          .attr("r", (d) => d.size)
+          .attr("fill", () => {
+            const colors = ["#8b5cf6", "#06b6d4", "#10b981", "#ec4899"];
+            return colors[Math.floor(Math.random() * colors.length)];
+          })
+          .attr("opacity", (d) => d.opacity);
+
+        function animate() {
+          particles.forEach((p) => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+          });
+
+          particleElements.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+
+          requestAnimationFrame(animate);
+        }
+
+        animate();
+      }
+
+      // Matrix Background Effect
+      function initMatrixBackground() {
+        const container = d3.select("#matrix-background");
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        const svg = container
+          .append("svg")
+          .attr("width", width)
+          .attr("height", height);
+
+        const chars =
+          "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+        const columns = Math.floor(width / 20);
+
+        const drops = d3.range(columns).map(() => Math.random() * height);
+
+        function drawMatrix() {
+          svg.selectAll("text").remove();
+
+          drops.forEach((drop, i) => {
+            const char = chars[Math.floor(Math.random() * chars.length)];
+
+            svg
+              .append("text")
+              .attr("x", i * 20)
+              .attr("y", drop)
+              .attr("fill", "#10b981")
+              .attr("font-size", "14px")
+              .attr("font-family", "monospace")
+              .attr("opacity", 0.8)
+              .text(char);
+
+            drops[i] = drop > height && Math.random() > 0.975 ? 0 : drop + 20;
+          });
+        }
+
+        setInterval(drawMatrix, 100);
+      }
+
+      // Original JavaScript functionality preserved
+      document.addEventListener("DOMContentLoaded", function () {
+        const store = useStore.getState();
+        const form = document.getElementById("loginForm");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const passwordToggle = document.getElementById("passwordToggle");
+        const loginBtn = document.getElementById("loginBtn");
+        const forgotPasswordLink =
+          document.getElementById("forgotPasswordLink");
+
+        // Initialize D3 effects
+        initParticleSystem();
+        initMatrixBackground();
+
+        // Toast notification system
+        function showToast(message, type = "info") {
+          const container = document.getElementById("toast-container");
+          const toast = document.createElement("div");
+
+          const bgColors = {
+            info: "bg-cyber-blue/20 border-cyber-blue",
+            success: "bg-cyber-green/20 border-cyber-green",
+            error: "bg-red-500/20 border-red-500",
+            warning: "bg-cyber-yellow/20 border-cyber-yellow",
+          };
+
+          toast.className = `${bgColors[type]} border glass-morphism rounded-lg p-4 font-mono text-sm transform translate-x-full transition-transform duration-300`;
+          toast.textContent = message;
+
+          container.appendChild(toast);
+
+          setTimeout(() => {
+            toast.classList.remove("translate-x-full");
+          }, 100);
+
+          setTimeout(() => {
+            toast.classList.add("translate-x-full");
+            setTimeout(() => toast.remove(), 300);
+          }, 5000);
+        }
+
+        // Enhanced loading state management with logging
+        function setLoading(button, isLoading) {
+          try {
+            console.log("Setting loading state:", isLoading);
+
+            // Update store
+            if (useStore && useStore.getState) {
+              const store = useStore.getState();
+              if (store.setLoading) {
+                store.setLoading(isLoading);
+              }
+            } else {
+              AppState.setLoading(isLoading);
+            }
+
+            if (isLoading) {
+              button.disabled = true;
+              button.innerHTML = `
+                            <div class="flex items-center justify-center gap-2">
+                                <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                ACCESSING...
+                            </div>
+                        `;
+              console.log("Button set to loading state");
+            } else {
+              button.disabled = false;
+              button.innerHTML = `
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Sign In
+                            </span>
+                        `;
+              console.log("Button reset to normal state");
+            }
+          } catch (error) {
+            console.error("Error setting loading state:", error);
+          }
+        }
+        // Password visibility toggle with enhanced logging
+        passwordToggle.addEventListener("click", function (e) {
+          try {
+            e.preventDefault();
+            console.log("Password toggle clicked");
+
+            // Toggle the password visibility
+            const currentType = passwordInput.getAttribute("type");
+            const newType = currentType === "password" ? "text" : "password";
+
+            passwordInput.setAttribute("type", newType);
+            console.log(
+              "Password type changed from",
+              currentType,
+              "to",
+              newType
+            );
+
+            // Update the icon
+            const icon = this.querySelector("i");
+            if (newType === "text") {
+              icon.className =
+                "fas fa-eye-slash text-gray-400 hover:text-cyber-blue transition-colors";
+              console.log("Password is now visible");
+            } else {
+              icon.className =
+                "fas fa-eye text-gray-400 hover:text-cyber-blue transition-colors";
+              console.log("Password is now hidden");
+            }
+
+            // Update store state
+            if (useStore && useStore.getState) {
+              const store = useStore.getState();
+              if (store.togglePasswordVisibility) {
+                store.togglePasswordVisibility();
+              }
+            } else {
+              AppState.togglePasswordVisibility();
+            }
+          } catch (error) {
+            console.error("Error in password toggle:", error);
+          }
+        });
+        // Enhanced real-time validation with logging
+        emailInput.addEventListener("blur", function () {
+          console.log("Email field blurred, validating...");
+          validateEmail();
+        });
+
+        passwordInput.addEventListener("blur", function () {
+          console.log("Password field blurred, validating...");
+          validatePassword();
+        });
+
+        // Clear validation on input with logging
+        emailInput.addEventListener("input", function (e) {
+          console.log("Email input changed");
+          clearValidation("emailError");
+          // Update store
+          if (useStore && useStore.getState) {
+            const store = useStore.getState();
+            if (store.setEmail) {
+              store.setEmail(e.target.value);
+            }
+          } else {
+            AppState.setEmail(e.target.value);
+          }
+        });
+
+        passwordInput.addEventListener("input", function (e) {
+          console.log("Password input changed");
+          clearValidation("passwordError");
+          // Update store
+          if (useStore && useStore.getState) {
+            const store = useStore.getState();
+            if (store.setPassword) {
+              store.setPassword(e.target.value);
+            }
+          } else {
+            AppState.setPassword(e.target.value);
+          }
+        });
+        // Forgot password link
+        forgotPasswordLink.addEventListener("click", function (e) {
+          e.preventDefault();
+          showToast("Neural recovery protocol initializing...", "info");
+        });
+
+        // Enhanced form submission with logging
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          console.log("Form submission initiated");
+
+          try {
+            // Log form data for debugging
+            const formData = new FormData(this);
+            console.log("Form data:", {
+              email: formData.get("email"),
+              password: formData.get("password") ? "***hidden***" : "empty",
+              hasCSRFToken: formData.get("csrf_token") ? "yes" : "no",
+            });
+
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+
+            console.log("Validation results:", {
+              isEmailValid,
+              isPasswordValid,
+            });
+
+            if (!isEmailValid || !isPasswordValid) {
+              console.log("Form validation failed");
+              return;
+            }
+
+            setLoading(loginBtn, true);
+
+            // Check if we should use API or regular form submission
+            if (window.useApi) {
+              console.log("Using API login");
+              handleApiLogin();
+            } else {
+              console.log("Using regular form submission");
+              // Add a small delay to show loading state
+              setTimeout(() => {
+                this.submit();
+              }, 500);
+            }
+          } catch (error) {
+            console.error("Error in form submission:", error);
+            setLoading(loginBtn, false);
+            showToast("System error detected. Please try again.", "error");
+          }
+        });
+
+        async function handleApiLogin() {
+          try {
+            const formData = {
+              email: emailInput.value.trim(),
+              password: passwordInput.value,
+            };
+
+            const response = await fetch("/auth/login", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formData),
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+              if (result.token) {
+                window.authToken = result.token;
+              }
+
+              showToast(
+                "Neural link established! Accessing mainframe...",
+                "success"
+              );
+
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 1500);
+            } else {
+              showToast(result.message || "Access denied", "error");
+              setLoading(loginBtn, false);
+            }
+          } catch (error) {
+            console.error("Login error:", error);
+            showToast(
+              "System error detected. Retry sequence initiated.",
+              "error"
+            );
+            setLoading(loginBtn, false);
+          }
+        }
+
+        function validateEmail() {
+          const email = emailInput.value.trim();
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+          if (!email) {
+            showValidationError("emailError", "Neural ID required");
+            return false;
+          }
+
+          if (!emailRegex.test(email)) {
+            showValidationError("emailError", "Invalid neural ID format");
+            return false;
+          }
+
+          clearValidation("emailError");
+          return true;
+        }
+
+        function validatePassword() {
+          const password = passwordInput.value;
+
+          if (!password) {
+            showValidationError("passwordError", "Neural key required");
+            return false;
+          }
+
+          if (password.length < 6) {
+            showValidationError("passwordError", "Neural key too weak");
+            return false;
+          }
+
+          clearValidation("passwordError");
+          return true;
+        }
+
+        function showValidationError(elementId, message) {
+          const errorElement = document.getElementById(elementId);
+          errorElement.textContent = "> " + message;
+          errorElement.classList.remove("opacity-0");
+          errorElement.classList.add("opacity-100");
+        }
+
+        function clearValidation(elementId) {
+          const errorElement = document.getElementById(elementId);
+          errorElement.classList.remove("opacity-100");
+          errorElement.classList.add("opacity-0");
+        }
+
+        // Add enter key support
+        form.addEventListener("keypress", function (e) {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            form.dispatchEvent(new Event("submit"));
+          }
+        });
+
+        // Focus first input
+        emailInput.focus();
+
+        // Window resize handler for D3 effects
+        window.addEventListener("resize", () => {
+          d3.select("#particle-system").select("svg").remove();
+          d3.select("#matrix-background").select("svg").remove();
+          initParticleSystem();
+          initMatrixBackground();
+        });
+      });
+    </script>
+  </body>
+</html>

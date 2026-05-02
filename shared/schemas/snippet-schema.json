@@ -1,0 +1,339 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "snippet-schema.json",
+  "title": "Code Snippet Schema",
+  "description": "Schema for validating code snippet data structure",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique identifier for the snippet",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "description": "Title of the code snippet",
+      "minLength": 1,
+      "maxLength": 200,
+      "pattern": "^\\S.*\\S$|^\\S$"
+    },
+    "content": {
+      "type": "string",
+      "description": "The actual code content",
+      "minLength": 1,
+      "maxLength": 50000
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Optional description of the snippet",
+      "maxLength": 1000
+    },
+    "language": {
+      "type": ["string", "null"],
+      "description": "Programming language of the snippet",
+      "enum": [
+        null,
+        "javascript",
+        "python",
+        "java",
+        "cpp",
+        "c",
+        "csharp",
+        "php",
+        "ruby",
+        "go",
+        "rust",
+        "swift",
+        "kotlin",
+        "typescript",
+        "html",
+        "css",
+        "sql",
+        "bash",
+        "powershell",
+        "json",
+        "xml",
+        "yaml",
+        "markdown",
+        "plaintext"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "description": "Array of tags for categorization",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9_-]+$",
+        "maxLength": 50
+      },
+      "maxItems": 20,
+      "uniqueItems": true
+    },
+    "is_public": {
+      "type": "boolean",
+      "description": "Whether the snippet is publicly accessible",
+      "default": false
+    },
+    "is_favorite": {
+      "type": "boolean",
+      "description": "Whether the snippet is marked as favorite",
+      "default": false
+    },
+    "collection_id": {
+      "type": ["integer", "null"],
+      "description": "ID of the collection this snippet belongs to",
+      "minimum": 1
+    },
+    "user_id": {
+      "type": "integer",
+      "description": "ID of the user who owns this snippet",
+      "minimum": 1
+    },
+    "source_url": {
+      "type": ["string", "null"],
+      "description": "Original URL where the snippet was captured from",
+      "format": "uri",
+      "maxLength": 2000
+    },
+    "source_type": {
+      "type": ["string", "null"],
+      "description": "Type of source where snippet was captured",
+      "enum": [
+        null,
+        "extension",
+        "manual",
+        "import",
+        "api",
+        "github",
+        "stackoverflow",
+        "other"
+      ]
+    },
+    "version": {
+      "type": "integer",
+      "description": "Version number for snippet versioning",
+      "minimum": 1,
+      "default": 1
+    },
+    "parent_version_id": {
+      "type": ["integer", "null"],
+      "description": "ID of the parent version (for versioning)",
+      "minimum": 1
+    },
+    "share_token": {
+      "type": ["string", "null"],
+      "description": "Unique token for public sharing",
+      "pattern": "^[a-zA-Z0-9_-]{32,64}$"
+    },
+    "expires_at": {
+      "type": ["string", "null"],
+      "description": "Expiration date for shared snippets",
+      "format": "date-time"
+    },
+    "view_count": {
+      "type": "integer",
+      "description": "Number of times snippet has been viewed",
+      "minimum": 0,
+      "default": 0
+    },
+    "copy_count": {
+      "type": "integer",
+      "description": "Number of times snippet has been copied",
+      "minimum": 0,
+      "default": 0
+    },
+    "last_accessed_at": {
+      "type": ["string", "null"],
+      "description": "Last time the snippet was accessed",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Creation timestamp",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "Last update timestamp",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata for the snippet",
+      "properties": {
+        "file_extension": {
+          "type": ["string", "null"],
+          "description": "File extension associated with the snippet",
+          "maxLength": 10
+        },
+        "estimated_lines": {
+          "type": ["integer", "null"],
+          "description": "Estimated number of lines in the snippet",
+          "minimum": 1
+        },
+        "complexity_score": {
+          "type": ["number", "null"],
+          "description": "Calculated complexity score (0-10)",
+          "minimum": 0,
+          "maximum": 10
+        },
+        "auto_detected_language": {
+          "type": ["string", "null"],
+          "description": "Language detected automatically by analyzer"
+        },
+        "auto_suggested_tags": {
+          "type": "array",
+          "description": "Tags suggested automatically",
+          "items": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "maxItems": 10
+        },
+        "similarity_hash": {
+          "type": ["string", "null"],
+          "description": "Hash for duplicate detection",
+          "pattern": "^[a-f0-9]{32,64}$"
+        },
+        "execution_context": {
+          "type": ["object", "null"],
+          "description": "Context information for code execution",
+          "properties": {
+            "requires_input": {
+              "type": "boolean",
+              "default": false
+            },
+            "expected_output": {
+              "type": ["string", "null"]
+            },
+            "execution_time_limit": {
+              "type": ["integer", "null"],
+              "minimum": 1,
+              "maximum": 30
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "required": ["title", "content", "user_id", "created_at", "updated_at"],
+  "additionalProperties": false,
+  "definitions": {
+    "snippet_create": {
+      "type": "object",
+      "properties": {
+        "title": { "$ref": "#/properties/title" },
+        "content": { "$ref": "#/properties/content" },
+        "description": { "$ref": "#/properties/description" },
+        "language": { "$ref": "#/properties/language" },
+        "tags": { "$ref": "#/properties/tags" },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "collection_id": { "$ref": "#/properties/collection_id" },
+        "source_url": { "$ref": "#/properties/source_url" },
+        "source_type": { "$ref": "#/properties/source_type" }
+      },
+      "required": ["title", "content"],
+      "additionalProperties": false
+    },
+    "snippet_update": {
+      "type": "object",
+      "properties": {
+        "title": { "$ref": "#/properties/title" },
+        "content": { "$ref": "#/properties/content" },
+        "description": { "$ref": "#/properties/description" },
+        "language": { "$ref": "#/properties/language" },
+        "tags": { "$ref": "#/properties/tags" },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "is_favorite": { "$ref": "#/properties/is_favorite" },
+        "collection_id": { "$ref": "#/properties/collection_id" }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "snippet_search": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": ["string", "null"],
+          "maxLength": 200
+        },
+        "language": { "$ref": "#/properties/language" },
+        "tags": { "$ref": "#/properties/tags" },
+        "collection_id": { "$ref": "#/properties/collection_id" },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "is_favorite": { "$ref": "#/properties/is_favorite" },
+        "source_type": { "$ref": "#/properties/source_type" },
+        "date_from": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "date_to": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "sort_by": {
+          "type": "string",
+          "enum": [
+            "created_at",
+            "updated_at",
+            "title",
+            "language",
+            "view_count",
+            "copy_count"
+          ],
+          "default": "created_at"
+        },
+        "sort_order": {
+          "type": "string",
+          "enum": ["asc", "desc"],
+          "default": "desc"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "additionalProperties": false
+    },
+    "snippet_bulk_operation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": ["delete", "update", "move", "copy", "export"]
+        },
+        "snippet_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 100,
+          "uniqueItems": true
+        },
+        "update_data": {
+          "$ref": "#/definitions/snippet_update"
+        },
+        "target_collection_id": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "export_format": {
+          "type": "string",
+          "enum": ["json", "markdown", "zip", "csv"]
+        }
+      },
+      "required": ["operation", "snippet_ids"],
+      "additionalProperties": false
+    }
+  }
+}

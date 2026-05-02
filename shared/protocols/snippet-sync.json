@@ -1,0 +1,153 @@
+{
+  "protocol_version": "1.0",
+  "description": "Snippet synchronization protocol between Chrome extension and Flask server",
+  
+  "message_types": {
+    "SNIPPET_SAVE": {
+      "description": "Save a new snippet",
+      "direction": "extension_to_server",
+      "payload": {
+        "title": "string (required)",
+        "code": "string (required)", 
+        "language": "string (optional)",
+        "source_url": "string (optional)",
+        "tags": "array of strings (optional)",
+        "collection_id": "integer (optional)",
+        "metadata": {
+          "captured_at": "ISO timestamp",
+          "user_agent": "string",
+          "page_title": "string"
+        }
+      },
+      "response": {
+        "success": "boolean",
+        "snippet_id": "integer",
+        "message": "string"
+      }
+    },
+
+    "SNIPPET_UPDATE": {
+      "description": "Update an existing snippet",
+      "direction": "bidirectional",
+      "payload": {
+        "snippet_id": "integer (required)",
+        "title": "string (optional)",
+        "code": "string (optional)",
+        "language": "string (optional)", 
+        "tags": "array of strings (optional)",
+        "collection_id": "integer (optional)"
+      },
+      "response": {
+        "success": "boolean",
+        "message": "string",
+        "updated_at": "ISO timestamp"
+      }
+    },
+
+    "SNIPPET_DELETE": {
+      "description": "Delete a snippet",
+      "direction": "bidirectional",
+      "payload": {
+        "snippet_id": "integer (required)"
+      },
+      "response": {
+        "success": "boolean",
+        "message": "string"
+      }
+    },
+
+    "SNIPPET_SEARCH": {
+      "description": "Search snippets",
+      "direction": "extension_to_server",
+      "payload": {
+        "query": "string (required)",
+        "language": "string (optional)",
+        "tags": "array of strings (optional)",
+        "collection_id": "integer (optional)",
+        "limit": "integer (default: 20)",
+        "offset": "integer (default: 0)"
+      },
+      "response": {
+        "success": "boolean",
+        "snippets": "array of snippet objects",
+        "total_count": "integer",
+        "message": "string"
+      }
+    },
+
+    "SNIPPET_SYNC_REQUEST": {
+      "description": "Request recent snippets for sync",
+      "direction": "extension_to_server", 
+      "payload": {
+        "last_sync": "ISO timestamp (optional)",
+        "limit": "integer (default: 50)"
+      },
+      "response": {
+        "success": "boolean",
+        "snippets": "array of snippet objects",
+        "sync_timestamp": "ISO timestamp",
+        "message": "string"
+      }
+    },
+
+    "COLLECTION_LIST": {
+      "description": "Get user collections",
+      "direction": "extension_to_server",
+      "payload": {},
+      "response": {
+        "success": "boolean",
+        "collections": "array of collection objects",
+        "message": "string"
+      }
+    },
+
+    "OFFLINE_QUEUE": {
+      "description": "Sync queued offline snippets",
+      "direction": "extension_to_server",
+      "payload": {
+        "queued_snippets": "array of snippet objects with temp_id"
+      },
+      "response": {
+        "success": "boolean", 
+        "synced_snippets": "array with temp_id mapping to real snippet_id",
+        "failed_snippets": "array of temp_ids",
+        "message": "string"
+      }
+    }
+  },
+
+  "data_structures": {
+    "snippet_object": {
+      "id": "integer",
+      "title": "string",
+      "code": "string", 
+      "language": "string",
+      "source_url": "string",
+      "tags": "array of strings",
+      "collection_id": "integer",
+      "created_at": "ISO timestamp",
+      "updated_at": "ISO timestamp",
+      "user_id": "integer"
+    },
+
+    "collection_object": {
+      "id": "integer", 
+      "name": "string",
+      "description": "string",
+      "snippet_count": "integer",
+      "created_at": "ISO timestamp",
+      "user_id": "integer"
+    }
+  },
+
+  "error_codes": {
+    "AUTH_REQUIRED": "User authentication required",
+    "INVALID_TOKEN": "Authentication token is invalid or expired", 
+    "SNIPPET_NOT_FOUND": "Requested snippet does not exist",
+    "COLLECTION_NOT_FOUND": "Requested collection does not exist",
+    "VALIDATION_ERROR": "Request payload validation failed",
+    "RATE_LIMIT_EXCEEDED": "Too many requests, rate limit exceeded",
+    "SERVER_ERROR": "Internal server error occurred",
+    "SYNC_CONFLICT": "Synchronization conflict detected"
+  }
+}

@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Register - CodeVault{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://unpkg.com/zustand@4.4.1/esm/vanilla.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap"
+      rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              cyber: {
+                primary: "#00ffff",
+                secondary: "#ff00ff",
+                accent: "#ffff00",
+                dark: "#0a0a0a",
+                darker: "#050505",
+                purple: "#8b5cf6",
+                pink: "#ec4899",
+                blue: "#06b6d4",
+              },
+              neon: {
+                cyan: "#00ffff",
+                purple: "#a855f7",
+                pink: "#ec4899",
+                green: "#10b981",
+                yellow: "#f59e0b",
+              },
+            },
+            fontFamily: {
+              cyber: ["Orbitron", "monospace"],
+              inter: ["Inter", "sans-serif"],
+            },
+            animation: {
+              "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              glow: "glow 2s ease-in-out infinite alternate",
+              scan: "scan 2s linear infinite",
+              float: "float 6s ease-in-out infinite",
+              matrix: "matrix 20s linear infinite",
+            },
+            boxShadow: {
+              "neon-cyan":
+                "0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 60px #00ffff",
+              "neon-purple":
+                "0 0 20px #a855f7, 0 0 40px #a855f7, 0 0 60px #a855f7",
+              "neon-pink":
+                "0 0 20px #ec4899, 0 0 40px #ec4899, 0 0 60px #ec4899",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      @keyframes glow {
+        from {
+          box-shadow: 0 0 20px #00ffff;
+        }
+        to {
+          box-shadow: 0 0 30px #00ffff, 0 0 40px #00ffff;
+        }
+      }
+
+      @keyframes scan {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100vw);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+      }
+      .password-toggle {
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .password-toggle:hover {
+        color: #00ffff !important;
+        transform: scale(1.1);
+      }
+      .cyber-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .cyber-button:disabled:hover {
+        transform: none !important;
+        box-shadow: none !important;
+      }
+      .password-visible {
+        color: #00ffff !important;
+      }
+
+      .password-hidden {
+        color: rgba(0, 255, 255, 0.6) !important;
+      }
+
+      @keyframes matrix {
+        0% {
+          transform: translateY(-100%);
+        }
+        100% {
+          transform: translateY(100vh);
+        }
+      }
+
+      .cyber-grid {
+        background-image: linear-gradient(
+            rgba(0, 255, 255, 0.1) 1px,
+            transparent 1px
+          ),
+          linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 50px 50px;
+      }
+
+      .scan-line {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 2px;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, #00ffff, transparent);
+        animation: scan 3s linear infinite;
+      }
+
+      .matrix-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .form-input:focus {
+        box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        border-color: #00ffff;
+      }
+
+      .cyber-button:hover {
+        box-shadow: 0 0 30px rgba(0, 255, 255, 0.8);
+        transform: translateY(-2px);
+      }
+
+      .glitch {
+        position: relative;
+      }
+
+      .glitch::before,
+      .glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .glitch::before {
+        animation: glitch-1 0.5s infinite;
+        color: #ff00ff;
+        z-index: -1;
+      }
+
+      .glitch::after {
+        animation: glitch-2 0.5s infinite;
+        color: #00ffff;
+        z-index: -2;
+      }
+
+      @keyframes glitch-1 {
+        0%,
+        14%,
+        15%,
+        49%,
+        50%,
+        99%,
+        100% {
+          transform: translate(0);
+        }
+        15%,
+        49% {
+          transform: translate(-2px, -2px);
+        }
+      }
+
+      @keyframes glitch-2 {
+        0%,
+        20%,
+        21%,
+        62%,
+        63%,
+        99%,
+        100% {
+          transform: translate(0);
+        }
+        21%,
+        62% {
+          transform: translate(2px, 2px);
+        }
+      }
+
+      .holographic {
+        background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+        background-size: 400% 400%;
+        animation: holographic 4s ease infinite;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      @keyframes holographic {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-cyber-darker min-h-screen cyber-grid overflow-x-hidden">
+    <!-- Matrix Background -->
+    <div class="matrix-bg" id="matrixBg"></div>
+
+    <!-- Scanning Line Effect -->
+    <div class="scan-line"></div>
+
+    <!-- Main Container -->
+    <div
+      class="relative z-10 min-h-screen flex items-center justify-center p-4">
+      <!-- Cyberpunk Container -->
+      <div
+        class="w-full max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-8 lg:gap-16">
+        <!-- Left Side - Branding -->
+        <div class="flex-1 text-center lg:text-left space-y-8">
+          <!-- Logo with D3 Animation -->
+          <div class="space-y-6">
+            <div
+              class="flex items-center justify-center lg:justify-start gap-4">
+              <div class="relative">
+                <i
+                  class="fas fa-code-branch text-6xl text-neon-cyan animate-glow"></i>
+                <div class="absolute inset-0 animate-pulse-slow">
+                  <i
+                    class="fas fa-code-branch text-6xl text-neon-purple opacity-50"></i>
+                </div>
+              </div>
+              <div>
+                <h1
+                  class="font-cyber text-4xl lg:text-6xl font-black holographic glitch"
+                  data-text="CodeVault">
+                  CodeVault
+                </h1>
+              </div>
+            </div>
+
+            <p
+              class="text-neon-cyan text-xl lg:text-2xl font-inter font-light tracking-wide">
+              Your Ultimate Code Snippet Manager
+            </p>
+          </div>
+
+          <!-- Features with Cyber Styling -->
+          <div class="space-y-4">
+            <div
+              class="flex items-center justify-center lg:justify-start gap-4 group">
+              <div
+                class="w-12 h-12 bg-cyber-dark border border-neon-cyan rounded-lg flex items-center justify-center group-hover:shadow-neon-cyan transition-all duration-300">
+                <i class="fas fa-rocket text-neon-cyan text-xl"></i>
+              </div>
+              <span class="text-white text-lg font-inter tracking-wide"
+                >Lightning Fast Search</span
+              >
+            </div>
+
+            <div
+              class="flex items-center justify-center lg:justify-start gap-4 group">
+              <div
+                class="w-12 h-12 bg-cyber-dark border border-neon-purple rounded-lg flex items-center justify-center group-hover:shadow-neon-purple transition-all duration-300">
+                <i class="fas fa-shield-alt text-neon-purple text-xl"></i>
+              </div>
+              <span class="text-white text-lg font-inter tracking-wide"
+                >Secure & Private</span
+              >
+            </div>
+
+            <div
+              class="flex items-center justify-center lg:justify-start gap-4 group">
+              <div
+                class="w-12 h-12 bg-cyber-dark border border-neon-pink rounded-lg flex items-center justify-center group-hover:shadow-neon-pink transition-all duration-300">
+                <i class="fas fa-users text-neon-pink text-xl"></i>
+              </div>
+              <span class="text-white text-lg font-inter tracking-wide"
+                >Team Collaboration</span
+              >
+            </div>
+          </div>
+
+          <!-- D3 Visualization Container -->
+          <div id="cyberViz" class="w-full h-64 opacity-30"></div>
+        </div>
+
+        <!-- Right Side - Registration Form -->
+        <div class="flex-1 w-full max-w-md">
+          <div
+            class="bg-cyber-dark/80 backdrop-blur-sm border border-neon-cyan/30 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+            <!-- Holographic Border Effect -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-neon-cyan via-neon-purple to-neon-pink opacity-20 blur-sm"></div>
+            <div class="absolute inset-[1px] bg-cyber-dark rounded-2xl"></div>
+
+            <!-- Form Content -->
+            <div class="relative z-10 space-y-6">
+              <!-- Header -->
+              <div class="text-center space-y-2">
+                <h2 class="font-cyber text-3xl font-bold text-neon-cyan">
+                  Create Account
+                </h2>
+                <p class="text-gray-400 font-inter">
+                  Join thousands of developers managing their code snippets
+                </p>
+              </div>
+
+              <!-- Flash Messages -->
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+              <div class="space-y-2">
+                {% for category, message in messages %}
+                <div
+                  class="flex items-center gap-3 p-3 rounded-lg border {% if category == 'success' %}bg-green-900/20 border-green-500 text-green-400{% elif category == 'warning' %}bg-yellow-900/20 border-yellow-500 text-yellow-400{% else %}bg-red-900/20 border-red-500 text-red-400{% endif %}">
+                  <i
+                    class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'times-circle' }}"></i>
+                  <span class="font-inter">{{ message }}</span>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %} {% endwith %}
+
+              <!-- Registration Form -->
+              <form
+                class="space-y-6"
+                method="POST"
+                action="{{ url_for('auth.register') }}"
+                id="registerForm">
+                {{ form.hidden_tag() }}
+
+                <!-- Username Field -->
+                <div class="space-y-2">
+                  <label
+                    for="username"
+                    class="block text-neon-cyan font-inter font-medium"
+                    >Username</label
+                  >
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-user text-neon-cyan/60"></i>
+                    </div>
+                    <input
+                      type="text"
+                      name="username"
+                      class="form-input w-full pl-10 pr-4 py-3 bg-cyber-darker border border-neon-cyan/30 rounded-lg text-white placeholder-gray-500 font-inter focus:outline-none focus:border-neon-cyan transition-all duration-300"
+                      placeholder="Choose a unique username"
+                      id="username"
+                      required />
+                  </div>
+                  <div
+                    class="username-availability text-sm"
+                    id="usernameStatus"></div>
+                </div>
+
+                <!-- Email Field -->
+                <div class="space-y-2">
+                  <label
+                    for="email"
+                    class="block text-neon-cyan font-inter font-medium"
+                    >Email Address</label
+                  >
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-envelope text-neon-cyan/60"></i>
+                    </div>
+                    {{ form.email(class="form-input w-full pl-10 pr-4 py-3
+                    bg-cyber-darker border border-neon-cyan/30 rounded-lg
+                    text-white placeholder-gray-500 font-inter
+                    focus:outline-none focus:border-neon-cyan transition-all
+                    duration-300", placeholder="Enter your email address",
+                    id="email") }}
+                  </div>
+                  {% if form.email.errors %}
+                  <div class="space-y-1">
+                    {% for error in form.email.errors %}
+                    <div class="flex items-center gap-2 text-red-400 text-sm">
+                      <i class="fas fa-exclamation-circle"></i>
+                      <span class="font-inter">{{ error }}</span>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+
+                <!-- Role Selection -->
+                <div class="space-y-2">
+                  <label
+                    for="role"
+                    class="block text-neon-cyan font-inter font-medium"
+                    >Role</label
+                  >
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-briefcase text-neon-cyan/60"></i>
+                    </div>
+                    <select
+                      name="role"
+                      class="form-input w-full pl-10 pr-4 py-3 bg-cyber-darker border border-neon-cyan/30 rounded-lg text-white font-inter focus:outline-none focus:border-neon-cyan transition-all duration-300"
+                      id="role"
+                      required>
+                      <option value="" class="bg-cyber-darker">
+                        Select your role
+                      </option>
+                      <option value="developer" class="bg-cyber-darker">
+                        Developer
+                      </option>
+                      <option value="designer" class="bg-cyber-darker">
+                        Designer
+                      </option>
+                      <option value="manager" class="bg-cyber-darker">
+                        Manager
+                      </option>
+                      <option value="student" class="bg-cyber-darker">
+                        Student
+                      </option>
+                      <option value="freelancer" class="bg-cyber-darker">
+                        Freelancer
+                      </option>
+                      <option value="entrepreneur" class="bg-cyber-darker">
+                        Entrepreneur
+                      </option>
+                      <option value="other" class="bg-cyber-darker">
+                        Other
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Password Field -->
+                <!-- Password Field -->
+                <div class="space-y-2">
+                  <label
+                    for="password"
+                    class="block text-neon-cyan font-inter font-medium"
+                    >Password</label
+                  >
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-lock text-neon-cyan/60"></i>
+                    </div>
+                    <input
+                      type="password"
+                      name="password"
+                      class="form-input w-full pl-10 pr-12 py-3 bg-cyber-darker border border-neon-cyan/30 rounded-lg text-white placeholder-gray-500 font-inter focus:outline-none focus:border-neon-cyan transition-all duration-300"
+                      placeholder="Create a strong password"
+                      id="password"
+                      required />
+                    <button
+                      type="button"
+                      class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onclick="togglePassword('password')"
+                      title="Show password">
+                      <i
+                        class="fas fa-eye password-hidden transition-all duration-300"
+                        id="password-eye"></i>
+                    </button>
+                  </div>
+                  <!-- Password Strength Indicator (keep your existing code here) -->
+                  <!-- Password Strength Indicator -->
+                  <div class="space-y-2">
+                    <div class="flex justify-between items-center">
+                      <span class="text-xs text-gray-400 font-inter"
+                        >Password Strength</span
+                      >
+                      <span class="text-xs font-inter" id="strengthText"
+                        >Weak</span
+                      >
+                    </div>
+                    <div
+                      class="w-full bg-cyber-darker rounded-full h-2 border border-neon-cyan/20">
+                      <div
+                        class="h-2 rounded-full transition-all duration-300"
+                        id="strengthFill"
+                        style="width: 0%; background-color: #ff4757"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <!-- Confirm Password Field -->
+                <div class="space-y-2">
+                  <label
+                    for="confirm_password"
+                    class="block text-neon-cyan font-inter font-medium"
+                    >Confirm Password</label
+                  >
+                  <div class="relative">
+                    <div
+                      class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <i class="fas fa-lock text-neon-cyan/60"></i>
+                    </div>
+                    <input
+                      type="password"
+                      name="confirm_password"
+                      class="form-input w-full pl-10 pr-12 py-3 bg-cyber-darker border border-neon-cyan/30 rounded-lg text-white placeholder-gray-500 font-inter focus:outline-none focus:border-neon-cyan transition-all duration-300"
+                      placeholder="Confirm your password"
+                      id="confirm_password"
+                      required />
+                    <button
+                      type="button"
+                      class="password-toggle absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onclick="togglePassword('confirm_password')"
+                      title="Show password">
+                      <i
+                        class="fas fa-eye password-hidden transition-all duration-300"
+                        id="confirm_password-eye"></i>
+                    </button>
+                  </div>
+                </div>
+                <!-- Terms and Conditions -->
+                <div class="space-y-3">
+                  <div class="flex items-start gap-3">
+                    <div class="flex items-center h-5">
+                      <input
+                        type="checkbox"
+                        name="accept_terms"
+                        id="accept_terms"
+                        class="w-4 h-4 text-neon-cyan bg-cyber-darker border-neon-cyan/30 rounded focus:ring-neon-cyan focus:ring-2"
+                        required />
+                    </div>
+                    <div class="text-sm">
+                      <label
+                        for="accept_terms"
+                        class="text-gray-300 font-inter">
+                        I agree to the
+                        <a
+                          href="#"
+                          class="text-neon-cyan hover:text-neon-purple transition-colors font-medium"
+                          >Terms of Service</a
+                        >
+                        and
+                        <a
+                          href="#"
+                          class="text-neon-cyan hover:text-neon-purple transition-colors font-medium"
+                          >Privacy Policy</a
+                        >
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  id="submitBtn"
+                  class="cyber-button w-full py-3 bg-gradient-to-r from-neon-cyan to-neon-purple text-cyber-dark font-cyber font-bold text-lg rounded-lg transition-all duration-300 hover:shadow-neon-cyan focus:outline-none focus:ring-2 focus:ring-neon-cyan/50">
+                  <span class="flex items-center justify-center gap-2">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                  </span>
+                </button>
+              </form>
+
+              <!-- Login Link -->
+              <div class="text-center pt-4 border-t border-neon-cyan/20">
+                <p class="text-gray-400 font-inter">
+                  Already have an account?
+                  <a
+                    href="{{ url_for('auth.login') }}"
+                    class="text-neon-cyan hover:text-neon-purple transition-colors font-medium">
+                    Sign in here
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Enhanced error logging
+      window.addEventListener("error", function (e) {
+        console.error("Global Error:", {
+          message: e.message,
+          filename: e.filename,
+          lineno: e.lineno,
+          colno: e.colno,
+          error: e.error,
+        });
+      });
+
+      // Simple state management without Zustand to avoid conflicts
+      const AppState = {
+        formData: {
+          username: "",
+          email: "",
+          role: "",
+          password: "",
+          confirm_password: "",
+        },
+        passwordStrength: 0,
+
+        updateFormData(field, value) {
+          this.formData[field] = value;
+          console.log("Form data updated:", field, value);
+        },
+
+        setPasswordStrength(strength) {
+          this.passwordStrength = strength;
+          console.log("Password strength updated:", strength);
+        },
+      };
+
+      // Password toggle function - moved to global scope
+      function togglePassword(fieldId) {
+        try {
+          const field = document.getElementById(fieldId);
+          const icon = document.getElementById(fieldId + "-eye");
+
+          if (!field || !icon) {
+            console.error("Password toggle elements not found:", fieldId);
+            return;
+          }
+
+          if (field.type === "password") {
+            field.type = "text";
+            icon.classList.remove("fa-eye", "password-hidden");
+            icon.classList.add("fa-eye-slash", "password-visible");
+            icon.title = "Hide password";
+          } else {
+            field.type = "password";
+            icon.classList.remove("fa-eye-slash", "password-visible");
+            icon.classList.add("fa-eye", "password-hidden");
+            icon.title = "Show password";
+          }
+          console.log("Password visibility toggled for:", fieldId);
+        } catch (error) {
+          console.error("Error in togglePassword:", error);
+        }
+      }
+
+      // D3.js Cyber Visualization
+      function initCyberVisualization() {
+        try {
+          const container = d3.select("#cyberViz");
+          if (container.empty()) {
+            console.warn("Cyber visualization container not found");
+            return;
+          }
+
+          const width = 400;
+          const height = 250;
+
+          const svg = container
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height);
+
+          // Create nodes for network visualization
+          const nodes = Array.from({ length: 20 }, (_, i) => ({
+            id: i,
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 2,
+            vy: (Math.random() - 0.5) * 2,
+          }));
+
+          // Create links
+          const links = [];
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              if (Math.random() < 0.1) {
+                links.push({ source: i, target: j });
+              }
+            }
+          }
+
+          // Draw links
+          const link = svg
+            .selectAll(".link")
+            .data(links)
+            .enter()
+            .append("line")
+            .attr("class", "link")
+            .style("stroke", "#00ffff")
+            .style("stroke-opacity", 0.3)
+            .style("stroke-width", 1);
+
+          // Draw nodes
+          const node = svg
+            .selectAll(".node")
+            .data(nodes)
+            .enter()
+            .append("circle")
+            .attr("class", "node")
+            .attr("r", 3)
+            .style("fill", "#00ffff")
+            .style("opacity", 0.8);
+
+          // Animation loop
+          function animate() {
+            nodes.forEach((node) => {
+              node.x += node.vx;
+              node.y += node.vy;
+
+              if (node.x < 0 || node.x > width) node.vx *= -1;
+              if (node.y < 0 || node.y > height) node.vy *= -1;
+
+              node.x = Math.max(0, Math.min(width, node.x));
+              node.y = Math.max(0, Math.min(height, node.y));
+            });
+
+            node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+
+            link
+              .attr("x1", (d) => nodes[d.source].x)
+              .attr("y1", (d) => nodes[d.source].y)
+              .attr("x2", (d) => nodes[d.target].x)
+              .attr("y2", (d) => nodes[d.target].y);
+
+            requestAnimationFrame(animate);
+          }
+
+          animate();
+          console.log("Cyber visualization initialized successfully");
+        } catch (error) {
+          console.error("Error initializing cyber visualization:", error);
+        }
+      }
+
+      // Matrix Rain Effect
+      function initMatrixEffect() {
+        try {
+          const canvas = d3
+            .select("#matrixBg")
+            .append("canvas")
+            .attr("width", window.innerWidth)
+            .attr("height", window.innerHeight)
+            .style("position", "fixed")
+            .style("top", 0)
+            .style("left", 0)
+            .style("z-index", 1)
+            .style("pointer-events", "none");
+
+          const context = canvas.node().getContext("2d");
+          const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()";
+          const charArray = chars.split("");
+
+          const fontSize = 14;
+          const columns = Math.floor(window.innerWidth / fontSize);
+          const drops = Array(columns).fill(1);
+
+          function drawMatrix() {
+            context.fillStyle = "rgba(5, 5, 5, 0.05)";
+            context.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+            context.fillStyle = "#00ffff";
+            context.font = fontSize + "px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+              const text =
+                charArray[Math.floor(Math.random() * charArray.length)];
+              context.fillText(text, i * fontSize, drops[i] * fontSize);
+
+              if (
+                drops[i] * fontSize > window.innerHeight &&
+                Math.random() > 0.975
+              ) {
+                drops[i] = 0;
+              }
+              drops[i]++;
+            }
+          }
+
+          setInterval(drawMatrix, 50);
+          console.log("Matrix effect initialized successfully");
+        } catch (error) {
+          console.error("Error initializing matrix effect:", error);
+        }
+      }
+
+      // Password Strength Checker
+      function initPasswordStrength() {
+        const passwordField = document.getElementById("password");
+        if (!passwordField) {
+          console.warn("Password field not found");
+          return;
+        }
+
+        passwordField.addEventListener("input", function (e) {
+          try {
+            const password = e.target.value;
+            const strengthFill = document.getElementById("strengthFill");
+            const strengthText = document.getElementById("strengthText");
+
+            if (!strengthFill || !strengthText) {
+              console.warn("Password strength indicators not found");
+              return;
+            }
+
+            let strength = 0;
+            let text = "Weak";
+            let color = "#ff4757";
+
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            switch (strength) {
+              case 0:
+              case 1:
+                text = "Very Weak";
+                color = "#ff4757";
+                break;
+              case 2:
+                text = "Weak";
+                color = "#ff6b00";
+                break;
+              case 3:
+                text = "Fair";
+                color = "#ffa500";
+                break;
+              case 4:
+                text = "Good";
+                color = "#2ed573";
+                break;
+              case 5:
+                text = "Strong";
+                color = "#00d26a";
+                break;
+            }
+
+            strengthFill.style.width = strength * 20 + "%";
+            strengthFill.style.backgroundColor = color;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+
+            AppState.setPasswordStrength(strength);
+          } catch (error) {
+            console.error("Error in password strength checker:", error);
+          }
+        });
+      }
+
+      // Password Match Checker
+      function initPasswordMatch() {
+        const confirmField = document.getElementById("confirm_password");
+        if (!confirmField) {
+          console.warn("Confirm password field not found");
+          return;
+        }
+
+        confirmField.addEventListener("input", function (e) {
+          try {
+            const password = document.getElementById("password").value;
+            const confirmPassword = e.target.value;
+
+            if (confirmPassword && password !== confirmPassword) {
+              e.target.style.borderColor = "#ff4757";
+              e.target.style.boxShadow = "0 0 20px rgba(255, 71, 87, 0.5)";
+            } else if (confirmPassword && password === confirmPassword) {
+              e.target.style.borderColor = "#00d26a";
+              e.target.style.boxShadow = "0 0 20px rgba(0, 210, 106, 0.5)";
+            } else {
+              e.target.style.borderColor = "rgba(0, 255, 255, 0.3)";
+              e.target.style.boxShadow = "none";
+            }
+          } catch (error) {
+            console.error("Error in password match checker:", error);
+          }
+        });
+      }
+
+      // Terms Checkbox Validation
+      function initTermsValidation() {
+        const termsCheckbox = document.getElementById("accept_terms");
+        const submitBtn = document.getElementById("submitBtn");
+
+        if (!termsCheckbox || !submitBtn) {
+          console.warn("Terms checkbox or submit button not found");
+          return;
+        }
+
+        function updateSubmitButton() {
+          const allFieldsValid = validateAllFields();
+          submitBtn.disabled = !allFieldsValid;
+
+          if (allFieldsValid) {
+            submitBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          } else {
+            submitBtn.classList.add("opacity-50", "cursor-not-allowed");
+          }
+        }
+
+        function validateAllFields() {
+          const username = document.getElementById("username").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const role = document.getElementById("role").value;
+          const password = document.getElementById("password").value;
+          const confirmPassword =
+            document.getElementById("confirm_password").value;
+          const termsAccepted = termsCheckbox.checked;
+
+          return (
+            username &&
+            email &&
+            role &&
+            password &&
+            confirmPassword &&
+            password === confirmPassword &&
+            termsAccepted
+          );
+        }
+
+        // Add event listeners to all form fields
+        ["username", "email", "role", "password", "confirm_password"].forEach(
+          (fieldId) => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+              field.addEventListener("input", updateSubmitButton);
+              field.addEventListener("change", updateSubmitButton);
+            }
+          }
+        );
+
+        termsCheckbox.addEventListener("change", updateSubmitButton);
+
+        // Initial validation
+        updateSubmitButton();
+
+        console.log("Terms validation initialized");
+      }
+
+      // Form Submission Handler with Enhanced Validation
+      function initFormSubmission() {
+        const form = document.getElementById("registerForm");
+        const btn = document.getElementById("submitBtn");
+
+        if (!form || !btn) {
+          console.warn("Form or submit button not found");
+          return;
+        }
+
+        form.addEventListener("submit", function (e) {
+          try {
+            console.log("Form submission initiated");
+
+            // Validate all required fields
+            const formData = new FormData(form);
+            const validationErrors = [];
+
+            // Check required fields
+            const requiredFields = [
+              "username",
+              "email",
+              "role",
+              "password",
+              "confirm_password",
+              "accept_terms",
+            ];
+
+            requiredFields.forEach((field) => {
+              const value = formData.get(field);
+              if (!value || (field === "accept_terms" && value !== "on")) {
+                validationErrors.push(`${field} is required`);
+              }
+            });
+
+            // Check password match
+            const password = formData.get("password");
+            const confirmPassword = formData.get("confirm_password");
+            if (password !== confirmPassword) {
+              validationErrors.push("Passwords do not match");
+            }
+
+            // Log form data for debugging
+            console.log("Form Data:", {
+              username: formData.get("username"),
+              email: formData.get("email"),
+              role: formData.get("role"),
+              password: password ? "***hidden***" : "empty",
+              confirm_password: confirmPassword ? "***hidden***" : "empty",
+              accept_terms: formData.get("accept_terms"),
+              csrf_token: formData.get("csrf_token") ? "present" : "missing",
+            });
+
+            if (validationErrors.length > 0) {
+              console.error("Client-side validation errors:", validationErrors);
+              e.preventDefault();
+
+              // Show validation errors to user
+              showValidationErrors(validationErrors);
+              return;
+            }
+
+            // Add loading state
+            btn.classList.add("loading");
+            btn.disabled = true;
+            btn.innerHTML = `
+        <span class="flex items-center justify-center gap-2">
+          <i class="fas fa-spinner fa-spin"></i>
+          Creating Account...
+        </span>
+      `;
+
+            console.log("Form validation passed, submitting...");
+          } catch (error) {
+            console.error("Error in form submission:", error);
+            e.preventDefault();
+          }
+        });
+      }
+
+      // Function to show validation errors
+      function showValidationErrors(errors) {
+        // Remove existing error messages
+        const existingErrors = document.querySelectorAll(
+          ".client-validation-error"
+        );
+        existingErrors.forEach((error) => error.remove());
+
+        // Create error container
+        const errorContainer = document.createElement("div");
+        errorContainer.className = "client-validation-error space-y-2 mb-4";
+
+        errors.forEach((error) => {
+          const errorDiv = document.createElement("div");
+          errorDiv.className =
+            "flex items-center gap-3 p-3 rounded-lg border bg-red-900/20 border-red-500 text-red-400";
+          errorDiv.innerHTML = `
+      <i class="fas fa-times-circle"></i>
+      <span class="font-inter">${error}</span>
+    `;
+          errorContainer.appendChild(errorDiv);
+        });
+
+        // Insert error container before the form
+        const form = document.getElementById("registerForm");
+        form.parentNode.insertBefore(errorContainer, form);
+
+        // Scroll to errors
+        errorContainer.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      // Input Focus Animations
+      function initInputAnimations() {
+        document.querySelectorAll(".form-input").forEach((input) => {
+          try {
+            input.addEventListener("focus", function () {
+              this.parentElement.classList.add("focused");
+            });
+
+            input.addEventListener("blur", function () {
+              if (!this.value) {
+                this.parentElement.classList.remove("focused");
+              }
+            });
+
+            // Check if input has value on page load
+            if (input.value) {
+              input.parentElement.classList.add("focused");
+            }
+
+            // Update state on input change
+            input.addEventListener("input", function () {
+              AppState.updateFormData(this.name, this.value);
+            });
+          } catch (error) {
+            console.error(
+              "Error setting up input animations for:",
+              input.name,
+              error
+            );
+          }
+        });
+      }
+
+      // Initialize everything when DOM is loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("DOM loaded, initializing components...");
+
+        try {
+          initCyberVisualization();
+          initMatrixEffect();
+          initPasswordStrength();
+          initPasswordMatch();
+          initTermsValidation();
+          initFormSubmission();
+          initInputAnimations();
+
+          console.log("All components initialized successfully");
+        } catch (error) {
+          console.error("Error during initialization:", error);
+        }
+
+        // Add entrance animations
+        setTimeout(() => {
+          try {
+            const formCard = document.querySelector(".auth-form-card");
+            const brandContent = document.querySelector(".brand-content");
+
+            if (formCard) formCard.classList.add("animate-in");
+            if (brandContent) brandContent.classList.add("animate-in");
+          } catch (error) {
+            console.error("Error adding entrance animations:", error);
+          }
+        }, 100);
+      });
+
+      // Handle window resize for responsive matrix effect
+      window.addEventListener("resize", () => {
+        try {
+          const canvas = d3.select("#matrixBg canvas");
+          if (!canvas.empty()) {
+            canvas
+              .attr("width", window.innerWidth)
+              .attr("height", window.innerHeight);
+          }
+        } catch (error) {
+          console.error("Error handling window resize:", error);
+        }
+      });
+
+      // Make togglePassword globally accessible
+      window.togglePassword = togglePassword;
+    </script>
+  </body>
+</html>

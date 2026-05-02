@@ -1,0 +1,3727 @@
+//flask-server/app/models/user.py - User model with authentication fields
+
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
+import jwt
+from flask import current_app
+
+db = SQLAlchemy()
+
+class User(UserMixin, db.Model):
+    __tablename__ = 'users'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.String(128), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    plan_type = db.Column(db.String(20), default='free', nullable=False)  # 'free' or 'pro'
+    is_active = db.Column(db.Boolean, default=True, nullable=False)
+    
+    # Relationships
+    snippets = db.relationship('Snippet', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    collections = db.relationship('Collection', backref='owner', lazy='dynamic', cascade='all, delete-orphan')
+    
+    def __init__(self, email, password, plan_type='free'):
+        self.email = email.lower().strip()
+        self.set_password(password)
+        self.plan_type = plan_type
+    
+    def set_password(self, password):
+        """Hash and set password"""
+        self.password_hash = generate_password_hash(password)
+    
+    def check_password(self, password):
+        """Check if provided password matches hash"""
+        return check_password_hash(self.password_hash, password)
+    
+    def generate_token(self, expires_in=3600):
+        """Generate JWT token for API authentication"""
+        payload = {
+            'user_id': self.id,
+            'exp': datetime.utcnow().timestamp() + expires_in
+        }
+        return jwt.encode(payload, current_app.config['SECRET_KEY'], algorithm='HS256')
+    
+    @staticmethod
+    def verify_token(token):
+        """Verify JWT token and return user"""
+        try:
+            payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            user_id = payload['user_id']
+            return User.query.get(user_id)
+        except jwt.ExpiredSignatureError:
+            return None
+        except jwt.InvalidTokenError:
+            return None
+    
+    def can_create_snippet(self):
+        """Check if user can create more snippets based on plan"""
+        if self.plan_type == 'pro':
+            return True
+        # Free plan limit: 100 snippets
+        return self.snippets.count() < 100
+    
+    def get_snippet_count(self):
+        """Get total number of snippets for this user"""
+        return self.snippets.count()
+    
+    def get_collection_count(self):
+        """Get total number of collections for this user"""
+        return self.collections.count()
+    
+    def to_dict(self):
+        """Convert user to dictionary (excluding sensitive data)"""
+        return {
+            'id': self.id,
+            'email': self.email,
+            'created_at': self.created_at.isoformat(),
+            'plan_type': self.plan_type,
+            'snippet_count': self.get_snippet_count(),
+            'collection_count': self.get_collection_count(),
+            'is_active': self.is_active
+        }
+    
+    def __repr__(self):
+        return f'<User {self.email}>'
+
+
+
+
+
+
+        //flask-server/app/models/snippet.py - Snippet model with all required fields
+        from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+import re
+
+db = SQLAlchemy()
+
+# Association table for many-to-many relationship between snippets and collections
+snippet_collections = db.Table('snippet_collections',
+    db.Column('snippet_id', db.Integer, db.ForeignKey('snippets.id'), primary_key=True),
+    db.Column('collection_id', db.Integer, db.ForeignKey('collections.id'), primary_key=True)
+)
+
+class Snippet(db.Model):
+    __tablename__ = 'snippets'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    title = db.Column(db.String(200), nullable=False)
+    code = db.Column(db.Text, nullable=False)
+    language = db.Column(db.String(50), nullable=False, index=True)
+    source_url = db.Column(db.String(500), nullable=True)
+    tags = db.Column(db.String(500), nullable=True)  # Comma-separated tags
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    is_public = db.Column(db.Boolean, default=False, nullable=False)
+    view_count = db.Column(db.Integer, default=0, nullable=False)
+    
+    # Relationships
+    collections = db.relationship('Collection', secondary=snippet_collections, back_populates='snippets')
+    
+    def __init__(self, user_id, title, code, language, source_url=None, tags=None):
+        self.user_id = user_id
+        self.title = title.strip()
+        self.code = code
+        self.language = language.lower()
+        self.source_url = source_url
+        self.set_tags(tags)
+    
+    def set_tags(self, tags):
+        """Process and set tags (comma-separated string)"""
+        if tags:
+            if isinstance(tags, list):
+                # Convert list to comma-separated string
+                tag_list = [tag.strip().lower() for tag in tags if tag.strip()]
+            else:
+                # Process comma-separated string
+                tag_list = [tag.strip().lower() for tag in tags.split(',') if tag.strip()]
+            
+            # Remove duplicates and join
+            unique_tags = list(set(tag_list))
+            self.tags = ','.join(unique_tags)
+        else:
+            self.tags = ''
+    
+    def get_tags_list(self):
+        """Get tags as a list"""
+        if not self.tags:
+            return []
+        return [tag.strip() for tag in self.tags.split(',') if tag.strip()]
+    
+    def add_tag(self, tag):
+        """Add a single tag"""
+        current_tags = self.get_tags_list()
+        tag = tag.strip().lower()
+        if tag and tag not in current_tags:
+            current_tags.append(tag)
+            self.set_tags(current_tags)
+    
+    def remove_tag(self, tag):
+        """Remove a single tag"""
+        current_tags = self.get_tags_list()
+        tag = tag.strip().lower()
+        if tag in current_tags:
+            current_tags.remove(tag)
+            self.set_tags(current_tags)
+    
+    def get_code_preview(self, max_lines=5):
+        """Get a preview of the code (first few lines)"""
+        lines = self.code.split('\n')
+        preview_lines = lines[:max_lines]
+        preview = '\n'.join(preview_lines)
+        if len(lines) > max_lines:
+            preview += '\n...'
+        return preview
+    
+    def get_line_count(self):
+        """Get number of lines in the code"""
+        return len(self.code.split('\n'))
+    
+    def get_character_count(self):
+        """Get number of characters in the code"""
+        return len(self.code)
+    
+    def increment_view_count(self):
+        """Increment view count"""
+        self.view_count += 1
+        db.session.commit()
+    
+    def get_domain_from_url(self):
+        """Extract domain from source URL"""
+        if not self.source_url:
+            return None
+        
+        # Simple regex to extract domain
+        match = re.search(r'https?://([^/]+)', self.source_url)
+        return match.group(1) if match else None
+    
+    def is_owner(self, user_id):
+        """Check if user is the owner of this snippet"""
+        return self.user_id == user_id
+    
+    def to_dict(self, include_code=True):
+        """Convert snippet to dictionary"""
+        data = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'title': self.title,
+            'language': self.language,
+            'source_url': self.source_url,
+            'tags': self.get_tags_list(),
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'is_public': self.is_public,
+            'view_count': self.view_count,
+            'line_count': self.get_line_count(),
+            'character_count': self.get_character_count(),
+            'domain': self.get_domain_from_url()
+        }
+        
+        if include_code:
+            data['code'] = self.code
+        else:
+            data['code_preview'] = self.get_code_preview()
+        
+        return data
+    
+    @staticmethod
+    def search_by_content(query, user_id=None, language=None):
+        """Search snippets by content, title, or tags"""
+        search_query = Snippet.query
+        
+        # Filter by user if specified
+        if user_id:
+            search_query = search_query.filter_by(user_id=user_id)
+        
+        # Filter by language if specified
+        if language:
+            search_query = search_query.filter_by(language=language)
+        
+        # Search in title, code, and tags
+        search_term = f'%{query}%'
+        search_query = search_query.filter(
+            db.or_(
+                Snippet.title.ilike(search_term),
+                Snippet.code.ilike(search_term),
+                Snippet.tags.ilike(search_term)
+            )
+        )
+        
+        return search_query.order_by(Snippet.created_at.desc())
+    
+    def __repr__(self):
+        return f'<Snippet {self.title} ({self.language})>'
+
+
+        Key Features Included:
+User Model (user.py):
+
+Authentication: Password hashing, JWT token generation/verification
+Plan Management: Free (100 snippets limit) vs Pro (unlimited)
+Relationships: Connected to snippets and collections
+Helper Methods: Token management, snippet count, plan validation
+Security: Password hashing with Werkzeug, email normalization
+
+Snippet Model (snippet.py):
+
+Core Fields: All required fields from your roadmap
+Tag System: Flexible tag management (add/remove/list)
+Search Functionality: Content search across title, code, and tags
+Analytics: View count, line count, character count
+Collections: Many-to-many relationship ready
+Helper Methods: Code preview, domain extraction, ownership validation
+
+
+
+//flask-server/app/models/collection.py - Collection model and relationships
+
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+
+db = SQLAlchemy()
+
+# Import the association table from snippet model
+from .snippet import snippet_collections
+
+class Collection(db.Model):
+    __tablename__ = 'collections'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False, index=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    is_public = db.Column(db.Boolean, default=False, nullable=False)
+    color = db.Column(db.String(7), default='#3B82F6', nullable=False)  # Hex color for UI
+    
+    # Relationships
+    snippets = db.relationship('Snippet', secondary=snippet_collections, back_populates='collections')
+    
+    def __init__(self, user_id, name, description=None, color='#3B82F6'):
+        self.user_id = user_id
+        self.name = name.strip()
+        self.description = description.strip() if description else None
+        self.color = color
+    
+    def add_snippet(self, snippet):
+        """Add a snippet to this collection"""
+        if snippet not in self.snippets:
+            self.snippets.append(snippet)
+            self.updated_at = datetime.utcnow()
+            return True
+        return False
+    
+    def remove_snippet(self, snippet):
+        """Remove a snippet from this collection"""
+        if snippet in self.snippets:
+            self.snippets.remove(snippet)
+            self.updated_at = datetime.utcnow()
+            return True
+        return False
+    
+    def get_snippet_count(self):
+        """Get total number of snippets in this collection"""
+        return len(self.snippets)
+    
+    def get_languages(self):
+        """Get unique languages of snippets in this collection"""
+        languages = set()
+        for snippet in self.snippets:
+            languages.add(snippet.language)
+        return list(languages)
+    
+    def get_recent_snippets(self, limit=5):
+        """Get most recently added snippets in this collection"""
+        return sorted(self.snippets, key=lambda x: x.created_at, reverse=True)[:limit]
+    
+    def is_owner(self, user_id):
+        """Check if user is the owner of this collection"""
+        return self.user_id == user_id
+    
+    def has_snippet(self, snippet_id):
+        """Check if collection contains a specific snippet"""
+        return any(snippet.id == snippet_id for snippet in self.snippets)
+    
+    def get_total_lines(self):
+        """Get total lines of code in all snippets"""
+        return sum(snippet.get_line_count() for snippet in self.snippets)
+    
+    def get_total_characters(self):
+        """Get total characters in all snippets"""
+        return sum(snippet.get_character_count() for snippet in self.snippets)
+    
+    def to_dict(self, include_snippets=False):
+        """Convert collection to dictionary"""
+        data = {
+            'id': self.id,
+            'user_id': self.user_id,
+            'name': self.name,
+            'description': self.description,
+            'created_at': self.created_at.isoformat(),
+            'updated_at': self.updated_at.isoformat(),
+            'is_public': self.is_public,
+            'color': self.color,
+            'snippet_count': self.get_snippet_count(),
+            'languages': self.get_languages(),
+            'total_lines': self.get_total_lines(),
+            'total_characters': self.get_total_characters()
+        }
+        
+        if include_snippets:
+            data['snippets'] = [snippet.to_dict(include_code=False) for snippet in self.snippets]
+        else:
+            data['recent_snippets'] = [snippet.to_dict(include_code=False) for snippet in self.get_recent_snippets(3)]
+        
+        return data
+    
+    @staticmethod
+    def get_user_collections(user_id):
+        """Get all collections for a specific user"""
+        return Collection.query.filter_by(user_id=user_id).order_by(Collection.updated_at.desc()).all()
+    
+    @staticmethod
+    def search_by_name(query, user_id=None):
+        """Search collections by name or description"""
+        search_query = Collection.query
+        
+        # Filter by user if specified
+        if user_id:
+            search_query = search_query.filter_by(user_id=user_id)
+        
+        # Search in name and description
+        search_term = f'%{query}%'
+        search_query = search_query.filter(
+            db.or_(
+                Collection.name.ilike(search_term),
+                Collection.description.ilike(search_term)
+            )
+        )
+        
+        return search_query.order_by(Collection.updated_at.desc())
+    
+    def __repr__(self):
+        return f'<Collection {self.name} ({self.get_snippet_count()} snippets)>'
+
+
+
+
+
+//flask-server/app/__init__.py - Flask app initialization with database setup
+
+
+
+
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from flask_login import LoginManager
+from flask_cors import CORS
+import os
+
+# Initialize extensions
+db = SQLAlchemy()
+migrate = Migrate()
+login_manager = LoginManager()
+
+def create_app(config_name=None):
+    """Application factory pattern"""
+    app = Flask(__name__)
+    
+    # Load configuration
+    if config_name is None:
+        config_name = os.environ.get('FLASK_ENV', 'development')
+    
+    if config_name == 'production':
+        app.config.from_object('config.ProductionConfig')
+    elif config_name == 'testing':
+        app.config.from_object('config.TestingConfig')
+    else:
+        app.config.from_object('config.DevelopmentConfig')
+    
+    # Initialize extensions with app
+    db.init_app(app)
+    migrate.init_app(app, db)
+    login_manager.init_app(app)
+    
+    # Enable CORS for Chrome extension
+    CORS(app, origins=["chrome-extension://*", "http://localhost:*"])
+    
+    # Configure Flask-Login
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'Please log in to access this page.'
+    login_manager.login_message_category = 'info'
+    
+    @login_manager.user_loader
+    def load_user(user_id):
+        from app.models.user import User
+        return User.query.get(int(user_id))
+    
+    # Import and register models
+    from app.models import user, snippet, collection
+    
+    # Register blueprints
+    from app.routes.auth import auth_bp
+    from app.routes.snippets import snippets_bp
+    from app.routes.collections import collections_bp
+    
+    app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(snippets_bp, url_prefix='/api/snippets')
+    app.register_blueprint(collections_bp, url_prefix='/api/collections')
+    
+    # Create database tables
+    with app.app_context():
+        db.create_all()
+        
+        # Create default admin user if it doesn't exist
+        from app.models.user import User
+        admin_user = User.query.filter_by(email='admin@example.com').first()
+        if not admin_user:
+            admin_user = User(
+                email='admin@example.com',
+                password='admin123',
+                plan_type='pro'
+            )
+            db.session.add(admin_user)
+            db.session.commit()
+            print("Default admin user created: admin@example.com / admin123")
+    
+    # Error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return {'error': 'Resource not found'}, 404
+    
+    @app.errorhandler(500)
+    def internal_error(error):
+        db.session.rollback()
+        return {'error': 'Internal server error'}, 500
+    
+    @app.errorhandler(400)
+    def bad_request_error(error):
+        return {'error': 'Bad request'}, 400
+    
+    @app.errorhandler(401)
+    def unauthorized_error(error):
+        return {'error': 'Unauthorized'}, 401
+    
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        return {'error': 'Forbidden'}, 403
+    
+    # Health check endpoint
+    @app.route('/health')
+    def health_check():
+        return {
+            'status': 'healthy',
+            'message': 'Code Snippet Manager API is running',
+            'version': '1.0.0'
+        }
+    
+    # API info endpoint
+    @app.route('/api/info')
+    def api_info():
+        return {
+            'name': 'Code Snippet Manager API',
+            'version': '1.0.0',
+            'description': 'RESTful API for managing code snippets',
+            'endpoints': {
+                'authentication': '/auth',
+                'snippets': '/api/snippets',
+                'collections': '/api/collections'
+            }
+        }
+    
+    return app
+
+
+  //  flask-server/config.py   Database configuration and settings
+
+  import os
+from datetime import timedelta
+
+class Config:
+    """Base configuration class"""
+    
+    # Flask settings
+    SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
+    
+    # Database settings
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_RECORD_QUERIES = True
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_recycle': 300,
+        'pool_pre_ping': True
+    }
+    
+    # JWT settings
+    JWT_SECRET_KEY = os.environ.get('JWT_SECRET_KEY') or SECRET_KEY
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=24)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30)
+    
+    # File upload settings
+    MAX_CONTENT_LENGTH = 16 * 1024 * 1024  # 16MB max file size
+    
+    # CORS settings
+    CORS_ORIGINS = [
+        'chrome-extension://*',
+        'http://localhost:3000',
+        'http://localhost:5000',
+        'http://127.0.0.1:5000'
+    ]
+    
+    # Rate limiting
+    RATELIMIT_STORAGE_URL = os.environ.get('REDIS_URL') or 'memory://'
+    
+    # Email settings (for future features)
+    MAIL_SERVER = os.environ.get('MAIL_SERVER')
+    MAIL_PORT = int(os.environ.get('MAIL_PORT') or 587)
+    MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', 'true').lower() in ['true', 'on', '1']
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    
+    # Pagination
+    SNIPPETS_PER_PAGE = 20
+    COLLECTIONS_PER_PAGE = 12
+    
+    # Search settings
+    SEARCH_RESULTS_LIMIT = 50
+    
+    # Plan limits
+    FREE_PLAN_SNIPPET_LIMIT = 100
+    FREE_PLAN_COLLECTION_LIMIT = 10
+    PRO_PLAN_SNIPPET_LIMIT = -1  # Unlimited
+    PRO_PLAN_COLLECTION_LIMIT = -1  # Unlimited
+
+class DevelopmentConfig(Config):
+    """Development configuration"""
+    
+    DEBUG = True
+    TESTING = False
+    
+    # Database
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(os.path.dirname(__file__), 'data', 'dev_snippets.db')
+    
+    # Create data directory if it doesn't exist
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    
+    # Logging
+    LOG_LEVEL = 'DEBUG'
+    
+    # Development-specific settings
+    TEMPLATES_AUTO_RELOAD = True
+    EXPLAIN_TEMPLATE_LOADING = False
+
+class ProductionConfig(Config):
+    """Production configuration"""
+    
+    DEBUG = False
+    TESTING = False
+    
+    # Database - Use PostgreSQL in production
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'postgresql://user:password@localhost/snippet_manager'
+    
+    # Security
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    
+    # Logging
+    LOG_LEVEL = 'INFO'
+    
+    # Performance
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 10,
+        'pool_recycle': 120,
+        'pool_pre_ping': True,
+        'max_overflow': 20
+    }
+
+class TestingConfig(Config):
+    """Testing configuration"""
+    
+    DEBUG = True
+    TESTING = True
+    
+    # Use in-memory database for testing
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    
+    # Disable CSRF for testing
+    WTF_CSRF_ENABLED = False
+    
+    # Faster password hashing for tests
+    BCRYPT_LOG_ROUNDS = 4
+    
+    # Logging
+    LOG_LEVEL = 'ERROR'
+
+# Configuration mapping
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestingConfig,
+    'default': DevelopmentConfig
+}
+
+
+//flask-server/requirements.txt   Python dependencies
+
+# Flask Core
+Flask==2.3.3
+Werkzeug==2.3.7
+
+# Database & ORM
+Flask-SQLAlchemy==3.0.5
+Flask-Migrate==4.0.5
+SQLAlchemy==2.0.21
+psycopg2-binary==2.9.7  # PostgreSQL adapter for production
+sqlite3  # Built-in for development
+
+# Authentication & Security
+Flask-Login==0.6.3
+Flask-JWT-Extended==4.5.3
+PyJWT==2.8.0
+bcrypt==4.0.1
+Werkzeug==2.3.7
+
+# CORS for Chrome Extension
+Flask-CORS==4.0.0
+
+# Input Validation
+WTForms==3.0.1
+Flask-WTF==1.1.1
+
+# HTTP Requests
+requests==2.31.0
+
+# JSON & Data Processing
+marshmallow==3.20.1
+python-dotenv==1.0.0
+
+# Date & Time
+python-dateutil==2.8.2
+
+# Rate Limiting
+Flask-Limiter==3.5.0
+
+# Syntax Highlighting (for future features)
+Pygments==2.16.1
+
+# Email Support (for future features)
+Flask-Mail==0.9.1
+
+# Caching (optional, for performance)
+Flask-Caching==2.1.0
+redis==5.0.1
+
+# Testing
+pytest==7.4.2
+pytest-flask==1.2.0
+pytest-cov==4.1.0
+coverage==7.3.2
+
+# Development Tools
+black==23.9.1
+flake8==6.1.0
+isort==5.12.0
+
+# Production Server
+gunicorn==21.2.0
+eventlet==0.33.3
+
+# Monitoring & Logging
+sentry-sdk[flask]==1.32.0
+
+# File Processing
+python-magic==0.4.27
+
+# Environment Management
+python-decouple==3.8
+
+
+//flask-server/.env.example  Environment variables template complete these as same as you complete others
+
+# Flask Configuration
+FLASK_ENV=development
+FLASK_DEBUG=1
+SECRET_KEY=your-super-secret-key-here-change-in-production
+
+# Database Configuration
+DATABASE_URL=sqlite:///data/dev_snippets.db
+# For PostgreSQL production: postgresql://username:password@localhost:5432/snippet_manager
+
+# JWT Configuration
+JWT_SECRET_KEY=your-jwt-secret-key-here
+
+# Redis Configuration (optional, for caching and rate limiting)
+REDIS_URL=redis://localhost:6379/0
+
+# Email Configuration (for future features)
+MAIL_SERVER=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USE_TLS=1
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+
+# External API Keys (for future integrations)
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+
+# Monitoring (optional)
+SENTRY_DSN=your-sentry-dsn-here
+
+# Application Settings
+MAX_SNIPPETS_FREE=100
+MAX_COLLECTIONS_FREE=10
+SNIPPETS_PER_PAGE=20
+
+# Chrome Extension Settings
+EXTENSION_ID=your-chrome-extension-id
+
+# Server Configuration
+HOST=127.0.0.1
+PORT=5000
+
+# Production Settings (use only in production)
+# SESSION_COOKIE_SECURE=1
+# SESSION_COOKIE_HTTPONLY=1
+# PREFERRED_URL_SCHEME=https
+
+# Development Settings (use only in development)
+TEMPLATES_AUTO_RELOAD=1
+EXPLAIN_TEMPLATE_LOADING=0
+
+# Logging Level
+LOG_LEVEL=DEBUG
+
+# File Upload Settings
+MAX_CONTENT_LENGTH=16777216  # 16MB in bytes
+
+# Rate Limiting
+RATE_LIMIT_PER_MINUTE=60
+RATE_LIMIT_PER_HOUR=1000
+
+# Search Configuration
+SEARCH_RESULTS_LIMIT=50
+ENABLE_FULL_TEXT_SEARCH=1
+
+# Feature Flags
+ENABLE_USER_REGISTRATION=1
+ENABLE_PUBLIC_SNIPPETS=1
+ENABLE_SNIPPET_SHARING=1
+ENABLE_COLLECTIONS=1
+
+# Third-party Integrations (for future features)
+STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_key
+STRIPE_SECRET_KEY=sk_test_your_stripe_secret
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# Analytics (optional)
+GOOGLE_ANALYTICS_ID=UA-your-analytics-id
+
+
+
+
+
+
+Authentication System (Days 5-7)
+1. flask-server/app/routes/auth.py - Registration/login routes
+
+
+from flask import Blueprint, render_template, request, jsonify, session, redirect, url_for
+from werkzeug.security import check_password_hash, generate_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
+import jwt
+from datetime import datetime, timedelta
+import re
+from app.models.user import User
+from app import db
+
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
+
+def validate_email(email):
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def validate_password(password):
+    # At least 8 chars, 1 uppercase, 1 lowercase, 1 number
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long"
+    if not re.search(r'[A-Z]', password):
+        return False, "Password must contain at least one uppercase letter"
+    if not re.search(r'[a-z]', password):
+        return False, "Password must contain at least one lowercase letter"
+    if not re.search(r'\d', password):
+        return False, "Password must contain at least one number"
+    return True, "Valid password"
+
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard.index'))
+        return render_template('auth/login.html')
+    
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+        
+        # Validation
+        if not email or not password:
+            return jsonify({
+                'success': False,
+                'message': 'Email and password are required'
+            }), 400
+            
+        if not validate_email(email):
+            return jsonify({
+                'success': False,
+                'message': 'Please enter a valid email address'
+            }), 400
+        
+        # Find user
+        user = User.query.filter_by(email=email).first()
+        
+        if not user or not check_password_hash(user.password_hash, password):
+            return jsonify({
+                'success': False,
+                'message': 'Invalid email or password'
+            }), 401
+        
+        # Login user
+        login_user(user, remember=True)
+        
+        # Generate JWT token
+        token = jwt.encode({
+            'user_id': user.id,
+            'email': user.email,
+            'exp': datetime.utcnow() + timedelta(days=30)
+        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+        
+        return jsonify({
+            'success': True,
+            'message': 'Login successful',
+            'token': token,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'plan_type': user.plan_type,
+                'created_at': user.created_at.isoformat()
+            }
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred during login'
+        }), 500
+
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'GET':
+        if current_user.is_authenticated:
+            return redirect(url_for('dashboard.index'))
+        return render_template('auth/register.html')
+    
+    try:
+        data = request.get_json()
+        email = data.get('email', '').strip().lower()
+        password = data.get('password', '')
+        confirm_password = data.get('confirm_password', '')
+        
+        # Validation
+        if not email or not password or not confirm_password:
+            return jsonify({
+                'success': False,
+                'message': 'All fields are required'
+            }), 400
+            
+        if not validate_email(email):
+            return jsonify({
+                'success': False,
+                'message': 'Please enter a valid email address'
+            }), 400
+            
+        is_valid, message = validate_password(password)
+        if not is_valid:
+            return jsonify({
+                'success': False,
+                'message': message
+            }), 400
+            
+        if password != confirm_password:
+            return jsonify({
+                'success': False,
+                'message': 'Passwords do not match'
+            }), 400
+        
+        # Check if user exists
+        if User.query.filter_by(email=email).first():
+            return jsonify({
+                'success': False,
+                'message': 'An account with this email already exists'
+            }), 409
+        
+        # Create new user
+        user = User(
+            email=email,
+            password_hash=generate_password_hash(password),
+            plan_type='free'
+        )
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        # Auto-login after registration
+        login_user(user, remember=True)
+        
+        # Generate JWT token
+        token = jwt.encode({
+            'user_id': user.id,
+            'email': user.email,
+            'exp': datetime.utcnow() + timedelta(days=30)
+        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+        
+        return jsonify({
+            'success': True,
+            'message': 'Account created successfully',
+            'token': token,
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'plan_type': user.plan_type,
+                'created_at': user.created_at.isoformat()
+            }
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred during registration'
+        }), 500
+
+@auth_bp.route('/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({
+        'success': True,
+        'message': 'Logged out successfully'
+    })
+
+@auth_bp.route('/profile')
+@login_required
+def profile():
+    return jsonify({
+        'success': True,
+        'user': {
+            'id': current_user.id,
+            'email': current_user.email,
+            'plan_type': current_user.plan_type,
+            'created_at': current_user.created_at.isoformat()
+        }
+    })
+
+# JWT Token verification for API requests
+def verify_token(token):
+    try:
+        payload = jwt.decode(token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        return payload
+    except jwt.ExpiredSignatureError:
+        return None
+    except jwt.InvalidTokenError:
+        return None
+
+
+
+
+
+        2. flask-server/templates/base.html - Base template
+
+
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Code Snippet Manager{% endblock %}</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Base Styles -->
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --primary-light: #a78bfa;
+            --secondary: #06b6d4;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            
+            --bg-primary: #0f0f23;
+            --bg-secondary: #1a1a3e;
+            --bg-card: #252550;
+            --bg-input: #2d2d5f;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #a1a1aa;
+            --text-muted: #71717a;
+            
+            --border: #3f3f46;
+            --border-light: #52525b;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+            --shadow-glow: 0 0 20px rgb(139 92 246 / 0.3);
+            
+            --gradient-primary: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            --gradient-secondary: linear-gradient(135deg, #f59e0b, #ef4444);
+            --gradient-bg: linear-gradient(135deg, #0f0f23, #1a1a3e);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(6, 182, 212, 0.1) 0%, transparent 50%);
+            background-attachment: fixed;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid transparent;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover:before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl), var(--shadow-glow);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-input);
+            border-color: var(--border-light);
+            transform: translateY(-1px);
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: currentColor;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .glass-card {
+            background: rgba(37, 37, 80, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .navbar {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .btn {
+                padding: 0.625rem 1.25rem;
+                font-size: 0.8125rem;
+            }
+            
+            .form-input {
+                padding: 0.75rem 0.875rem;
+            }
+        }
+    </style>
+    
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <div id="app">
+        {% if current_user.is_authenticated %}
+            <nav class="navbar">
+                <div class="container">
+                    <div class="navbar-content">
+                        <div class="logo">
+                            <i class="fas fa-code"></i> SnippetVault
+                        </div>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span class="text-secondary">{{ current_user.email }}</span>
+                            <button class="btn btn-secondary" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        {% endif %}
+        
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 1000;"></div>
+    
+    <!-- Base Scripts -->
+    <script>
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const icons = {
+                success: 'fas fa-check-circle',
+                error: 'fas fa-exclamation-circle',
+                warning: 'fas fa-exclamation-triangle',
+                info: 'fas fa-info-circle'
+            };
+            
+            toast.className = `alert alert-${type}`;
+            toast.style.cssText = `
+                min-width: 300px;
+                margin-bottom: 0.5rem;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            toast.innerHTML = `
+                <i class="${icons[type]}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="margin-left: auto; background: none; border: none; color: currentColor; cursor: pointer;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        
+        // Loading state management
+        function setLoading(element, loading = true) {
+            if (loading) {
+                element.dataset.originalText = element.innerHTML;
+                element.innerHTML = '<span class="loading"></span> Loading...';
+                element.disabled = true;
+            } else {
+                element.innerHTML = element.dataset.originalText || element.innerHTML;
+                element.disabled = false;
+            }
+        }
+        
+        // Logout function
+        async function logout() {
+            try {
+                const response = await fetch('/auth/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('Logged out successfully', 'success');
+                    setTimeout(() => {
+                        window.location.href = '/auth/login';
+                    }, 1000);
+                }
+            } catch (error) {
+                showToast('Error logging out', 'error');
+            }
+        }
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            
+            .fade-in {
+                animation: fadeIn 0.5s ease;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+
+
+flask-server/templates/auth/login.html - Login form
+
+
+{% extends "base.html" %}
+
+{% block title %}Login - Code Snippet Manager{% endblock %}
+
+{% block styles %}
+<style>
+    .auth-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: 
+            radial-gradient(circle at 25% 25%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 75% 75%, rgba(6, 182, 212, 0.15) 0%, transparent 50%);
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: var(--gradient-primary);
+        border-radius: 1rem;
+        z-index: -2;
+        opacity: 0.8;
+    }
+
+    .auth-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: var(--bg-primary);
+        border-radius: 1rem;
+        z-index: -1;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-logo {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+        from { filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3)); }
+        to { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6)); }
+    }
+
+    .auth-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .auth-subtitle {
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-input {
+        padding-left: 3rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        background: var(--bg-input);
+    }
+
+    .form-input:focus {
+        border-color: var(--primary);
+        background: var(--bg-secondary);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(139, 92, 246, 0.15);
+    }
+
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .form-group:focus-within .form-icon {
+        color: var(--primary);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: color 0.3s ease;
+        z-index: 10;
+    }
+
+    .password-toggle:hover {
+        color: var(--primary);
+    }
+
+    .forgot-password {
+        text-align: right;
+        margin-bottom: 2rem;
+    }
+
+    .forgot-password a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.3s ease;
+    }
+
+    .forgot-password a:hover {
+        color: var(--primary);
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        font-weight: 600;
+        position: relative;
+        overflow: hidden;
+        background: var(--gradient-primary);
+        border: none;
+        color: white;
+        border-radius: 0.75rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(139, 92, 246, 0.4);
+    }
+
+    .btn-login:active {
+        transform: translateY(-1px);
+    }
+
+    .btn-login:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        margin: 2rem 0;
+        color: var(--text-muted);
+        font-size: 0.875rem;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .divider span {
+        padding: 0 1rem;
+    }
+
+    .auth-footer {
+        text-align: center;
+        color: var(--text-secondary);
+        font-size: 0.875rem;
+    }
+
+    .auth-footer a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .auth-footer a:hover {
+        color: var(--primary-light);
+    }
+
+    .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: -10;
+    }
+
+    .shape {
+        position: absolute;
+        background: var(--gradient-primary);
+        border-radius: 50%;
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .shape:nth-child(1) {
+        width: 80px;
+        height: 80px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .shape:nth-child(2) {
+        width: 60px;
+        height: 60px;
+        top: 70%;
+        right: 10%;
+        animation-delay: 2s;
+    }
+
+    .shape:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        bottom: 20%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        33% { transform: translateY(-20px) rotate(120deg); }
+        66% { transform: translateY(10px) rotate(240deg); }
+    }
+
+    .form-validation {
+        margin-top: 0.5rem;
+        font-size: 0.75rem;
+        color: var(--danger);
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+
+    .form-validation.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+        .auth-card {
+            padding: 2rem 1.5rem;
+            margin: 1rem;
+        }
+        
+        .auth-logo {
+            font-size: 2.5rem;
+        }
+        
+        .auth-title {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+    
+    <div class="auth-card glass-card fade-in">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <i class="fas fa-code"></i>
+            </div>
+            <h1 class="auth-title">Welcome Back</h1>
+            <p class="auth-subtitle">Sign in to your account to continue</p>
+        </div>
+        
+        <form id="loginForm" novalidate>
+            <div class="form-group">
+                <i class="fas fa-envelope form-icon"></i>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email"
+                    class="form-input" 
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                >
+                <div class="form-validation" id="emailError"></div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock form-icon"></i>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password"
+                    class="form-input" 
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+                <button type="button" class="password-toggle" id="passwordToggle">
+                    <i class="fas fa-eye"></i>
+                </button>
+                <div class="form-validation" id="passwordError"></div>
+            </div>
+            
+            <div class="forgot-password">
+                <a href="#" onclick="showToast('Password reset coming soon!', 'info')">
+                    Forgot your password?
+                </a>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i>
+                Sign In
+            </button>
+        </form>
+        
+        <div class="divider">
+            <span>New to SnippetVault?</span>
+        </div>
+        
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="/auth/register">Create one here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('passwordToggle');
+        const loginBtn = document.getElementById('loginBtn');
+        
+        // Password visibility toggle
+        passwordToggle.addEventListener('click', function() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.className = type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+        });
+        
+        // Real-time validation
+        emailInput.addEventListener('blur', validateEmail);
+        passwordInput.addEventListener('blur', validatePassword);
+        
+        // Clear validation on input
+        emailInput.addEventListener('input', () => clearValidation('emailError'));
+        passwordInput.addEventListener('input', () => clearValidation('passwordError'));
+        
+        // Form submission
+        form.addEventListener('submit', handleLogin);
+        
+        function validateEmail() {
+            const email = emailInput.value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!email) {
+                showValidationError('emailError', 'Email is required');
+                return false;
+            }
+            
+            if (!emailRegex.test(email)) {
+                showValidationError('emailError', 'Please enter a valid email address');
+                return false;
+            }
+            
+            clearValidation('emailError');
+            return true;
+        }
+        
+        function validatePassword() {
+            const password = passwordInput.value;
+            
+            if (!password) {
+                showValidationError('passwordError', 'Password is required');
+                return false;
+            }
+            
+            if (password.length < 6) {
+                showValidationError('passwordError', 'Password is too short');
+                return false;
+            }
+            
+            clearValidation('passwordError');
+            return true;
+        }
+        
+        function showValidationError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.classList.add('show');
+        }
+        
+        function clearValidation(elementId) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.classList.remove('show');
+        }
+        
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            // Validate form
+            const isEmailValid = validateEmail();
+            const isPasswordValid = validatePassword();
+            
+            if (!isEmailValid || !isPasswordValid) {
+                return;
+            }
+            
+            // Show loading state
+            setLoading(loginBtn, true);
+            
+            try {
+                const formData = {
+                    email: emailInput.value.trim(),
+                    password: passwordInput.value
+                };
+                
+                const response = await fetch('/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Store token if provided
+                    if (result.token) {
+                        localStorage.setItem('auth_token', result.token);
+                    }
+                    
+                    showToast('Welcome back! Redirecting...', 'success');
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1500);
+                } else {
+                    showToast(result.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showToast('An error occurred. Please try again.', 'error');
+            } finally {
+                setLoading(loginBtn, false);
+            }
+        }
+        
+        // Add enter key support
+        form.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleLogin(e);
+            }
+        });
+        
+        // Focus first input
+        emailInput.focus();
+    });
+</script>
+{% endblock %}
+
+
+
+flask-server/templates/auth/register.html - Registration form
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Register - CodeVault{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Animated Background -->
+        <div class="bg-animation">
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+                <div class="shape shape-5"></div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="auth-content">
+            <!-- Left Side - Branding -->
+            <div class="auth-brand">
+                <div class="brand-content">
+                    <div class="logo-container">
+                        <i class="fas fa-code-branch logo-icon"></i>
+                        <h1 class="brand-title">CodeVault</h1>
+                    </div>
+                    <p class="brand-subtitle">Your Ultimate Code Snippet Manager</p>
+                    <div class="feature-list">
+                        <div class="feature-item">
+                            <i class="fas fa-rocket"></i>
+                            <span>Lightning Fast Search</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Secure & Private</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-users"></i>
+                            <span>Team Collaboration</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side - Registration Form -->
+            <div class="auth-form-container">
+                <div class="auth-form-card">
+                    <div class="form-header">
+                        <h2 class="form-title">Create Account</h2>
+                        <p class="form-subtitle">Join thousands of developers managing their code snippets</p>
+                    </div>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            <div class="flash-messages">
+                                {% for category, message in messages %}
+                                    <div class="flash-message flash-{{ category }}">
+                                        <i class="fas fa-{{ 'check-circle' if category == 'success' else 'exclamation-triangle' if category == 'warning' else 'times-circle' }}"></i>
+                                        <span>{{ message }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endwith %}
+
+                    <form class="auth-form" method="POST" action="{{ url_for('auth.register') }}" id="registerForm">
+                        {{ form.hidden_tag() }}
+                        
+                        <!-- Email Field -->
+                        <div class="form-group">
+                            <div class="input-container">
+                                <i class="fas fa-envelope input-icon"></i>
+                                {{ form.email(class="form-input", placeholder="Enter your email address", id="email") }}
+                                <label for="email" class="form-label">Email Address</label>
+                                <div class="input-border"></div>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="field-errors">
+                                    {% for error in form.email.errors %}
+                                        <span class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group">
+                            <div class="input-container">
+                                <i class="fas fa-lock input-icon"></i>
+                                {{ form.password(class="form-input", placeholder="Create a strong password", id="password") }}
+                                <label for="password" class="form-label">Password</label>
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="password-eye"></i>
+                                </button>
+                                <div class="input-border"></div>
+                            </div>
+                            <!-- Password Strength Indicator -->
+                            <div class="password-strength" id="passwordStrength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill" id="strengthFill"></div>
+                                </div>
+                                <span class="strength-text" id="strengthText">Enter password</span>
+                            </div>
+                            {% if form.password.errors %}
+                                <div class="field-errors">
+                                    {% for error in form.password.errors %}
+                                        <span class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Confirm Password Field -->
+                        <div class="form-group">
+                            <div class="input-container">
+                                <i class="fas fa-lock input-icon"></i>
+                                {{ form.confirm_password(class="form-input", placeholder="Confirm your password", id="confirmPassword") }}
+                                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">
+                                    <i class="fas fa-eye" id="confirmPassword-eye"></i>
+                                </button>
+                                <div class="input-border"></div>
+                            </div>
+                            {% if form.confirm_password.errors %}
+                                <div class="field-errors">
+                                    {% for error in form.confirm_password.errors %}
+                                        <span class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Terms Checkbox -->
+                        <div class="form-group">
+                            <div class="checkbox-container">
+                                {{ form.accept_terms(class="custom-checkbox", id="terms") }}
+                                <label for="terms" class="checkbox-label">
+                                    <span class="checkbox-custom">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+                                </label>
+                            </div>
+                            {% if form.accept_terms.errors %}
+                                <div class="field-errors">
+                                    {% for error in form.accept_terms.errors %}
+                                        <span class="error-message">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            {{ error }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Button -->
+                        <button type="submit" class="submit-btn" id="submitBtn">
+                            <span class="btn-text">Create Account</span>
+                            <div class="btn-loader">
+                                <div class="loader-spinner"></div>
+                            </div>
+                            <i class="fas fa-arrow-right btn-icon"></i>
+                        </button>
+
+                        <!-- Social Registration -->
+                        <div class="social-divider">
+                            <span>or continue with</span>
+                        </div>
+
+                        <div class="social-buttons">
+                            <button type="button" class="social-btn github-btn">
+                                <i class="fab fa-github"></i>
+                                <span>GitHub</span>
+                            </button>
+                            <button type="button" class="social-btn google-btn">
+                                <i class="fab fa-google"></i>
+                                <span>Google</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Login Link -->
+                    <div class="form-footer">
+                        <p>Already have an account? 
+                            <a href="{{ url_for('auth.login') }}" class="auth-link">Sign in here</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for Enhanced UX -->
+    <script>
+        // Password Toggle Functionality
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId + '-eye');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Password Strength Checker
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthFill = document.getElementById('strengthFill');
+            const strengthText = document.getElementById('strengthText');
+            
+            let strength = 0;
+            let text = 'Weak';
+            let color = '#ff4757';
+
+            if (password.length >= 8) strength++;
+            if (password.match(/[a-z]/)) strength++;
+            if (password.match(/[A-Z]/)) strength++;
+            if (password.match(/[0-9]/)) strength++;
+            if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+            switch(strength) {
+                case 0:
+                case 1:
+                    text = 'Very Weak';
+                    color = '#ff4757';
+                    break;
+                case 2:
+                    text = 'Weak';
+                    color = '#ff6b00';
+                    break;
+                case 3:
+                    text = 'Fair';
+                    color = '#ffa500';
+                    break;
+                case 4:
+                    text = 'Good';
+                    color = '#2ed573';
+                    break;
+                case 5:
+                    text = 'Strong';
+                    color = '#00d26a';
+                    break;
+            }
+
+            strengthFill.style.width = (strength * 20) + '%';
+            strengthFill.style.backgroundColor = color;
+            strengthText.textContent = text;
+            strengthText.style.color = color;
+        });
+
+        // Form Submission with Loading State
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            const btn = document.getElementById('submitBtn');
+            btn.classList.add('loading');
+            
+            // Simulate API call delay for better UX
+            setTimeout(() => {
+                // Form will submit naturally
+            }, 500);
+        });
+
+        // Input Focus Animations
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.parentElement.classList.remove('focused');
+                }
+            });
+            
+            // Check if input has value on page load
+            if (input.value) {
+                input.parentElement.classList.add('focused');
+            }
+        });
+
+        // Animated Background
+        function createFloatingShape() {
+            const shapes = document.querySelectorAll('.shape');
+            shapes.forEach((shape, index) => {
+                const delay = index * 0.5;
+                shape.style.animationDelay = delay + 's';
+            });
+        }
+
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', function() {
+            createFloatingShape();
+            
+            // Add entrance animation
+            setTimeout(() => {
+                document.querySelector('.auth-form-card').classList.add('animate-in');
+                document.querySelector('.brand-content').classList.add('animate-in');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+flask-server/app.py - Main application entry point
+
+
+#!/usr/bin/env python3
+"""
+CodeVault - Code Snippet Manager
+Main Flask Application Entry Point
+
+This file initializes and runs the Flask application with all necessary
+configurations for development and production environments.
+"""
+
+import os
+import logging
+from datetime import datetime
+from flask import Flask, render_template, jsonify, request
+from flask_migrate import upgrade
+from app import create_app, db
+from app.models import User, Snippet, Collection
+
+# Create Flask application instance
+app = create_app(os.getenv('FLASK_CONFIG', 'development'))
+
+@app.cli.command()
+def deploy():
+    """Run deployment tasks."""
+    # Create database tables
+    db.create_all()
+    
+    # Migrate database to latest revision
+    upgrade()
+    
+    print("Database deployment completed successfully!")
+
+@app.cli.command()
+def create_admin():
+    """Create an admin user."""
+    from app.models.user import User
+    from werkzeug.security import generate_password_hash
+    
+    email = input("Enter admin email: ")
+    password = input("Enter admin password: ")
+    
+    if User.query.filter_by(email=email).first():
+        print(f"User with email {email} already exists!")
+        return
+    
+    admin = User(
+        email=email,
+        password_hash=generate_password_hash(password),
+        is_admin=True,
+        created_at=datetime.utcnow()
+    )
+    
+    db.session.add(admin)
+    db.session.commit()
+    print(f"Admin user {email} created successfully!")
+
+@app.cli.command()
+def init_db():
+    """Initialize the database with sample data."""
+    # Create tables
+    db.create_all()
+    
+    # Check if we already have data
+    if User.query.first():
+        print("Database already initialized!")
+        return
+    
+    # Create sample user
+    from werkzeug.security import generate_password_hash
+    
+    sample_user = User(
+        email="demo@codevault.com",
+        password_hash=generate_password_hash("demo123"),
+        created_at=datetime.utcnow()
+    )
+    
+    db.session.add(sample_user)
+    db.session.commit()
+    
+    # Create sample collection
+    sample_collection = Collection(
+        name="JavaScript Utilities",
+        description="Useful JavaScript helper functions",
+        user_id=sample_user.id,
+        created_at=datetime.utcnow()
+    )
+    
+    db.session.add(sample_collection)
+    db.session.commit()
+    
+    # Create sample snippets
+    sample_snippets = [
+        {
+            "title": "Debounce Function",
+            "code": """function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}""",
+            "language": "javascript",
+            "tags": "utility,performance,javascript",
+            "source_url": "https://example.com/debounce"
+        },
+        {
+            "title": "Python List Comprehension",
+            "code": """# Filter and transform data in one line
+squared_evens = [x**2 for x in range(10) if x % 2 == 0]
+print(squared_evens)  # [0, 4, 16, 36, 64]
+
+# Dictionary comprehension
+word_lengths = {word: len(word) for word in ['hello', 'world', 'python']}
+print(word_lengths)  # {'hello': 5, 'world': 5, 'python': 6}""",
+            "language": "python",
+            "tags": "python,comprehension,functional",
+            "source_url": "https://python.org/examples"
+        },
+        {
+            "title": "CSS Flexbox Center",
+            "code": """.center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.centered-content {
+    text-align: center;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}""",
+            "language": "css",
+            "tags": "css,flexbox,layout,centering",
+            "source_url": "https://css-tricks.com/centering"
+        }
+    ]
+    
+    for snippet_data in sample_snippets:
+        snippet = Snippet(
+            title=snippet_data["title"],
+            code=snippet_data["code"],
+            language=snippet_data["language"],
+            tags=snippet_data["tags"],
+            source_url=snippet_data["source_url"],
+            user_id=sample_user.id,
+            created_at=datetime.utcnow()
+        )
+        db.session.add(snippet)
+    
+    db.session.commit()
+    print("Database initialized with sample data!")
+
+# Error Handlers
+@app.errorhandler(404)
+def not_found_error(error):
+    """Handle 404 errors with custom page."""
+    if request.is_json:
+        return jsonify({
+            'error': 'Not Found',
+            'message': 'The requested resource was not found.',
+            'status_code': 404
+        }), 404
+    
+    return render_template('errors/404.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    """Handle 500 errors with custom page."""
+    db.session.rollback()
+    
+    if request.is_json:
+        return jsonify({
+            'error': 'Internal Server Error',
+            'message': 'An unexpected error occurred.',
+            'status_code': 500
+        }), 500
+    
+    return render_template('errors/500.html'), 500
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    """Handle 403 errors with custom page."""
+    if request.is_json:
+        return jsonify({
+            'error': 'Forbidden',
+            'message': 'You do not have permission to access this resource.',
+            'status_code': 403
+        }), 403
+    
+    return render_template('errors/403.html'), 403
+
+# Health Check Endpoint
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint for monitoring."""
+    try:
+        # Test database connection
+        db.session.execute('SELECT 1')
+        db.session.commit()
+        
+        return jsonify({
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'version': app.config.get('VERSION', '1.0.0'),
+            'database': 'connected'
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'unhealthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'error': str(e),
+            'database': 'disconnected'
+        }), 503
+
+# API Info Endpoint
+@app.route('/api/info')
+def api_info():
+    """Provide API information and available endpoints."""
+    return jsonify({
+        'name': 'CodeVault API',
+        'version': app.config.get('VERSION', '1.0.0'),
+        'description': 'Code Snippet Manager API',
+        'endpoints': {
+            'authentication': '/auth/',
+            'snippets': '/api/snippets/',
+            'collections': '/api/collections/',
+            'users': '/api/users/',
+            'health': '/health'
+        },
+        'documentation': '/api/docs',
+        'status': 'active'
+    })
+
+# Shell Context Processor
+@app.shell_context_processor
+def make_shell_context():
+    """Make database models available in Flask shell."""
+    return {
+        'db': db,
+        'User': User,
+        'Snippet': Snippet,
+        'Collection': Collection
+    }
+
+# Logging Configuration
+def setup_logging(app):
+    """Configure logging for the application."""
+    if not app.debug and not app.testing:
+        # File logging for production
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        
+        file_handler = logging.FileHandler('logs/codevault.log')
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s '
+            '[in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('CodeVault startup')
+
+# Development Server Configuration
+if __name__ == '__main__':
+    # Setup logging
+    setup_logging(app)
+    
+    # Get configuration from environment
+    host = os.getenv('FLASK_HOST', '127.0.0.1')
+    port = int(os.getenv('FLASK_PORT', 5000))
+    debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    
+    # Print startup information
+    print(f"""
+╔═══════════════════════════════════════════════════════════════╗
+║                         CodeVault                             ║
+║                   Code Snippet Manager                        ║
+╠═══════════════════════════════════════════════════════════════╣
+║  🚀 Server running on: http://{host}:{port}                    ║
+║  🔧 Environment: {os.getenv('FLASK_CONFIG', 'development')}    ║
+║  🔄 Debug mode: {'On' if debug else 'Off'}                    ║
+║  📊 Database: {app.config.get('SQLALCHEMY_DATABASE_URI', 'SQLite')} ║
+╚═══════════════════════════════════════════════════════════════╝
+    """)
+    
+    # Run the application
+    app.run(
+        host=host,
+        port=port,
+        debug=debug,
+        threaded=True
+    )
+
+
+     flask-server/static/css/auth.css - Authentication styling Chrome Extension Updates
+
+
+
+     /* Modern Authentication Styling - Futuristic UI */
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --dark-gradient: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  --glass-bg: rgba(255, 255, 255, 0.1);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.8);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --error-color: #ff6b6b;
+  --success-color: #51cf66;
+  --shadow-glow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  --shadow-hover: 0 12px 40px rgba(31, 38, 135, 0.5);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--primary-gradient);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Animated Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 40% 80%, rgba(120, 219, 255, 0.3) 0%, transparent 50%);
+  animation: backgroundShift 20s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.1) rotate(180deg); }
+}
+
+/* Main Container */
+.auth-container {
+  width: 100%;
+  max-width: 420px;
+  padding: 2rem;
+  position: relative;
+  animation: slideUp 0.8s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glass Card Effect */
+.auth-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  box-shadow: var(--shadow-glow);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Glowing Border Animation */
+.auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  animation: borderGlow 3s linear infinite;
+  opacity: 0;
+}
+
+.auth-card:hover::before {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Header */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.auth-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 400;
+}
+
+/* Logo */
+.auth-logo {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  background: var(--secondary-gradient);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  font-weight: bold;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Forms */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  position: relative;
+}
+
+.form-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  transition: color 0.3s ease;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.form-input:focus + .form-label {
+  color: var(--text-primary);
+}
+
+/* Password Toggle */
+.password-field {
+  position: relative;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+  color: var(--text-primary);
+}
+
+/* Buttons */
+.btn-primary {
+  background: var(--secondary-gradient);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 1rem 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Loading State */
+.btn-loading {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Messages */
+.error-message {
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  color: var(--error-color);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Success Messages */
+.success-message {
+  background: rgba(81, 207, 102, 0.1);
+  border: 1px solid rgba(81, 207, 102, 0.3);
+  border-radius: 8px;
+  color: var(--success-color);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  animation: successSlide 0.5s ease-out;
+}
+
+@keyframes successSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footer Links */
+.auth-footer {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.auth-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.auth-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--text-primary);
+  transition: width 0.3s ease;
+}
+
+.auth-link:hover {
+  color: var(--text-primary);
+}
+
+.auth-link:hover::after {
+  width: 100%;
+}
+
+/* Remember Me Checkbox */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.custom-checkbox {
+  position: relative;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}
+
+.custom-checkbox input {
+  opacity: 0;
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.checkbox-mark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 20px;
+  width: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.custom-checkbox input:checked ~ .checkbox-mark {
+  background: var(--secondary-gradient);
+  border-color: transparent;
+}
+
+.checkbox-mark::after {
+  content: '';
+  position: absolute;
+  display: none;
+  left: 6px;
+  top: 2px;
+  width: 6px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.custom-checkbox input:checked ~ .checkbox-mark::after {
+  display: block;
+}
+
+.checkbox-label {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Social Login (Future Enhancement) */
+.social-login {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-social {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: var(--text-primary);
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-social:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 1rem;
+  }
+  
+  .auth-card {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+  
+  .auth-title {
+    font-size: 1.75rem;
+  }
+  
+  .form-input, .btn-primary, .btn-secondary {
+    padding: 0.875rem 1rem;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-bg: rgba(0, 0, 0, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.1);
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .auth-card {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+  
+  .form-input {
+    border-width: 2px;
+  }
+}💾
+
+
+
+chrome-extension/manifest.json - Updated permissions for snippet capture 
+
+{
+  "manifest_version": 3,
+  "name": "Code Snippet Manager",
+  "version": "1.0.0",
+  "description": "Capture, organize, and sync code snippets across all your devices. The ultimate developer productivity tool.",
+  
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "contextMenus",
+    "notifications",
+    "webNavigation"
+  ],
+  
+  "host_permissions": [
+    "http://localhost:*/*",
+    "https://github.com/*",
+    "https://stackoverflow.com/*",
+    "https://codepen.io/*",
+    "https://jsfiddle.net/*",
+    "https://repl.it/*",
+    "https://codesandbox.io/*",
+    "https://glitch.com/*",
+    "https://jsbin.com/*",
+    "https://plnkr.co/*",
+    "<all_urls>"
+  ],
+  
+  "background": {
+    "service_worker": "scripts/background.js",
+    "type": "module"
+  },
+  
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "scripts/utils.js",
+        "scripts/content-script.js"
+      ],
+      "css": [
+        "assets/css/content.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Code Snippet Manager",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  
+  "commands": {
+    "save-snippet": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+S",
+        "mac": "Command+Shift+S"
+      },
+      "description": "Save selected code as snippet"
+    },
+    "quick-search": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "Quick search snippets"
+    },
+    "toggle-popup": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+Space",
+        "mac": "Command+Shift+Space"
+      },
+      "description": "Toggle extension popup"
+    }
+  },
+  
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/icons/*",
+        "assets/css/*",
+        "scripts/utils.js"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  
+  "externally_connectable": {
+    "matches": [
+      "http://localhost:*/*",
+      "https://your-domain.com/*"
+    ]
+  },
+  
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' ws://localhost:* wss://localhost:* https://your-domain.com wss://your-domain.com;"
+  },
+  
+  "minimum_chrome_version": "88",
+  
+  "options_page": "popup/popup.html#settings",
+  
+  "storage": {
+    "managed_schema": "schemas/preferences.json"
+  },
+  
+  "author": "Code Snippet Manager Team",
+  
+  "homepage_url": "https://your-website.com",
+  
+  "short_name": "SnipManager"
+}
+
+
+
+chrome-extension/config.js - Extension configuration 
+
+
+// Chrome Extension Configuration
+// Global configuration for the Code Snippet Manager extension
+
+const CONFIG = {
+  // API Configuration
+  API: {
+    // Development endpoints
+    DEV: {
+      BASE_URL: 'http://localhost:5000',
+      WS_URL: 'ws://localhost:5000',
+      API_VERSION: 'v1'
+    },
+    
+    // Production endpoints (update when deployed)
+    PROD: {
+      BASE_URL: 'https://your-domain.com',
+      WS_URL: 'wss://your-domain.com',
+      API_VERSION: 'v1'
+    },
+    
+    // Current environment (will be set based on build)
+    get CURRENT() {
+      return this.isDevelopment() ? this.DEV : this.PROD;
+    },
+    
+    // Environment detection
+    isDevelopment() {
+      return chrome.runtime.getManifest().version.includes('dev') || 
+             !('update_url' in chrome.runtime.getManifest());
+    }
+  },
+
+  // Extension Settings
+  EXTENSION: {
+    NAME: 'Code Snippet Manager',
+    SHORT_NAME: 'SnipManager',
+    VERSION: chrome.runtime.getManifest().version,
+    
+    // Storage keys
+    STORAGE_KEYS: {
+      USER_TOKEN: 'user_token',
+      USER_DATA: 'user_data',
+      SETTINGS: 'extension_settings',
+      CACHED_SNIPPETS: 'cached_snippets',
+      SYNC_QUEUE: 'sync_queue',
+      LAST_SYNC: 'last_sync_timestamp'
+    },
+    
+    // Default settings
+    DEFAULT_SETTINGS: {
+      autoSave: true,
+      showNotifications: true,
+      keyboardShortcuts: true,
+      syncOnStartup: true,
+      maxCachedSnippets: 100,
+      theme: 'auto', // 'light', 'dark', 'auto'
+      language: 'en',
+      defaultCollection: 'unsorted'
+    }
+  },
+
+  // Code Detection Configuration
+  CODE_DETECTION: {
+    // Selectors for code blocks on different websites
+    SELECTORS: {
+      // Generic code selectors
+      GENERIC: [
+        'pre code',
+        'pre',
+        'code[class*="language-"]',
+        '.highlight pre',
+        '.code-block',
+        '.codehilite pre'
+      ],
+      
+      // GitHub specific
+      GITHUB: [
+        '.blob-code-inner',
+        '.highlight pre',
+        'pre[lang]',
+        '.js-file-line-container'
+      ],
+      
+      // Stack Overflow specific
+      STACKOVERFLOW: [
+        'pre code',
+        '.s-code-block pre',
+        '.snippet-code pre'
+      ],
+      
+      // CodePen specific
+      CODEPEN: [
+        '.CodeMirror-code',
+        'pre[class*="language-"]'
+      ],
+      
+      // JSFiddle specific
+      JSFIDDLE: [
+        '.CodeMirror-code',
+        '#code pre'
+      ]
+    },
+    
+    // Language detection patterns
+    LANGUAGE_PATTERNS: {
+      javascript: /\b(function|const|let|var|=>|async|await)\b/,
+      python: /\b(def|import|from|class|if __name__|print)\b/,
+      java: /\b(public class|private|protected|static void)\b/,
+      cpp: /\b(#include|using namespace|std::)\b/,
+      csharp: /\b(using System|namespace|public class)\b/,
+      php: /<\?php|\b(function|class|\$\w+)\b/,
+      ruby: /\b(def|class|require|puts)\b/,
+      go: /\b(package|import|func|var)\b/,
+      rust: /\b(fn|let|mut|impl|struct)\b/,
+      swift: /\b(import|func|var|let|class)\b/,
+      kotlin: /\b(fun|val|var|class|import)\b/,
+      typescript: /\b(interface|type|enum|namespace)\b/,
+      sql: /\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER)\b/i,
+      css: /\{[^}]*\}|@media|@import/,
+      html: /<[^>]+>/,
+      json: /^\s*[\{\[]/,
+      yaml: /^\s*\w+:\s*$/m,
+      xml: /<\?xml|<\/\w+>/
+    },
+    
+    // Minimum code length to consider as snippet
+    MIN_CODE_LENGTH: 10,
+    
+    // Maximum code length for auto-detection
+    MAX_CODE_LENGTH: 10000
+  },
+
+  // UI Configuration
+  UI: {
+    // Animation durations (in ms)
+    ANIMATIONS: {
+      FAST: 150,
+      NORMAL: 300,
+      SLOW: 500
+    },
+    
+    // Colors and themes
+    THEMES: {
+      LIGHT: {
+        primary: '#667eea',
+        secondary: '#764ba2',
+        background: '#ffffff',
+        surface: '#f8fafc',
+        text: '#1a202c'
+      },
+      DARK: {
+        primary: '#667eea',
+        secondary: '#764ba2',
+        background: '#1a202c',
+        surface: '#2d3748',
+        text: '#f7fafc'
+      }
+    },
+    
+    // Popup dimensions
+    POPUP: {
+      WIDTH: 380,
+      HEIGHT: 600,
+      MIN_HEIGHT: 400
+    },
+    
+    // Content script overlay
+    OVERLAY: {
+      Z_INDEX: 999999,
+      FADE_DURATION: 200
+    }
+  },
+
+  // Sync Configuration
+  SYNC: {
+    // Retry configuration
+    RETRY: {
+      MAX_ATTEMPTS: 3,
+      DELAY_MS: 1000,
+      BACKOFF_MULTIPLIER: 2
+    },
+    
+    // Batch sync settings
+    BATCH: {
+      SIZE: 10,
+      INTERVAL_MS: 30000 // 30 seconds
+    },
+    
+    // WebSocket configuration
+    WEBSOCKET: {
+      RECONNECT_INTERVAL: 5000,
+      MAX_RECONNECT_ATTEMPTS: 5,
+      HEARTBEAT_INTERVAL: 30000
+    }
+  },
+
+  // Analytics and Tracking (for future use)
+  ANALYTICS: {
+    EVENTS: {
+      SNIPPET_SAVED: 'snippet_saved',
+      SNIPPET_ACCESSED: 'snippet_accessed',
+      SEARCH_PERFORMED: 'search_performed',
+      COLLECTION_CREATED: 'collection_created',
+      SYNC_COMPLETED: 'sync_completed'
+    }
+  },
+
+  // Feature Flags
+  FEATURES: {
+    // Phase 2 features
+    REAL_TIME_SYNC: true,
+    CONTEXT_MENU: true,
+    KEYBOARD_SHORTCUTS: true,
+    
+    // Phase 3+ features (to be enabled later)
+    TEAM_COLLABORATION: false,
+    AI_SUGGESTIONS: false,
+    CODE_EXECUTION: false,
+    GITHUB_INTEGRATION: false
+  },
+
+  // Error Messages
+  ERRORS: {
+    NETWORK_ERROR: 'Unable to connect to server. Please check your internet connection.',
+    AUTH_ERROR: 'Authentication failed. Please log in again.',
+    SYNC_ERROR: 'Failed to sync snippets. Will retry automatically.',
+    SAVE_ERROR: 'Failed to save snippet. Please try again.',
+    INVALID_CODE: 'Selected text doesn\'t appear to be code.',
+    QUOTA_EXCEEDED: 'You\'ve reached your snippet limit. Upgrade to Pro for unlimited snippets.'
+  },
+
+  // Success Messages
+  SUCCESS: {
+    SNIPPET_SAVED: 'Code snippet saved successfully!',
+    SYNC_COMPLETED: 'Snippets synced successfully!',
+    LOGIN_SUCCESS: 'Logged in successfully!',
+    LOGOUT_SUCCESS: 'Logged out successfully!'
+  }
+};
+
+// Utility functions
+CONFIG.UTILS = {
+  // Get current API base URL
+  getApiUrl(endpoint = '') {
+    const base = CONFIG.API.CURRENT.BASE_URL;
+    const version = CONFIG.API.CURRENT.API_VERSION;
+    return `${base}/api/${version}/${endpoint}`.replace(/\/+$/, '');
+  },
+  
+  // Get WebSocket URL
+  getWsUrl() {
+    return CONFIG.API.CURRENT.WS_URL;
+  },
+  
+  // Check if feature is enabled
+  isFeatureEnabled(feature) {
+    return CONFIG.FEATURES[feature] === true;
+  },
+  
+  // Get storage key
+  getStorageKey(key) {
+    return CONFIG.EXTENSION.STORAGE_KEYS[key];
+  },
+  
+  // Get default settings
+  getDefaultSettings() {
+    return { ...CONFIG.EXTENSION.DEFAULT_SETTINGS };
+  },
+  
+  // Detect code language from content
+  detectLanguage(code) {
+    const patterns = CONFIG.CODE_DETECTION.LANGUAGE_PATTERNS;
+    
+    for (const [language, pattern] of Object.entries(patterns)) {
+      if (pattern.test(code)) {
+        return language;
+      }
+    }
+    
+    return 'text'; // fallback
+  },
+  
+  // Validate code snippet
+  isValidCode(text) {
+    if (!text || typeof text !== 'string') return false;
+    
+    const cleanText = text.trim();
+    const minLength = CONFIG.CODE_DETECTION.MIN_CODE_LENGTH;
+    const maxLength = CONFIG.CODE_DETECTION.MAX_CODE_LENGTH;
+    
+    // Check length constraints
+    if (cleanText.length < minLength || cleanText.length > maxLength) {
+      return false;
+    }
+    
+    // Check if it looks like code (has programming language patterns)
+    const patterns = CONFIG.CODE_DETECTION.LANGUAGE_PATTERNS;
+    const hasCodePattern = Object.values(patterns).some(pattern => 
+      pattern.test(cleanText)
+    );
+    
+    // Additional heuristics for code detection
+    const hasSpecialChars = /[{}();[\]=><]/.test(cleanText);
+    const hasIndentation = /^\s{2,}/m.test(cleanText);
+    const hasComments = /\/\/|\/\*|\*\/|#|<!--/.test(cleanText);
+    
+    return hasCodePattern || hasSpecialChars || hasIndentation || hasComments;
+  },
+  
+  // Format error message
+  formatError(error, context = '') {
+    console.error(`[${CONFIG.EXTENSION.NAME}] Error in ${context}:`, error);
+    return CONFIG.ERRORS.NETWORK_ERROR; // Default fallback
+  },
+  
+  // Generate unique ID
+  generateId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  },
+  
+  // Sanitize HTML
+  sanitizeHtml(html) {
+    const div = document.createElement('div');
+    div.textContent = html;
+    return div.innerHTML;
+  },
+  
+  // Debounce function
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
+  
+  // Throttle function
+  throttle(func, limit) {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    };
+  },
+  
+  // Format file size
+  formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  },
+  
+  // Format date
+  formatDate(date) {
+    return new Intl.DateTimeFormat('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(date));
+  },
+  
+  // Get domain from URL
+  getDomain(url) {
+    try {
+      return new URL(url).hostname;
+    } catch (e) {
+      return 'unknown';
+    }
+  },
+  
+  // Check if URL is supported for code detection
+  isSupportedSite(url) {
+    const supportedDomains = [
+      'github.com',
+      'stackoverflow.com',
+      'codepen.io',
+      'jsfiddle.net',
+      'repl.it',
+      'codesandbox.io',
+      'glitch.com',
+      'jsbin.com',
+      'plnkr.co'
+    ];
+    
+    const domain = this.getDomain(url);
+    return supportedDomains.some(supported => domain.includes(supported));
+  }
+};
+
+// Development helpers (only available in dev mode)
+if (CONFIG.API.isDevelopment()) {
+  CONFIG.DEV = {
+    // Enable debug logging
+    DEBUG: true,
+    
+    // Mock data for testing
+    MOCK_SNIPPETS: [
+      {
+        id: 'mock-1',
+        title: 'React Hook Example',
+        code: 'const [count, setCount] = useState(0);',
+        language: 'javascript',
+        tags: ['react', 'hooks'],
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'mock-2',
+        title: 'Python List Comprehension',
+        code: 'squares = [x**2 for x in range(10)]',
+        language: 'python',
+        tags: ['python', 'list-comprehension'],
+        createdAt: new Date().toISOString()
+      }
+    ],
+    
+    // Debug logging function
+    log(...args) {
+      if (this.DEBUG) {
+        console.log(`[${CONFIG.EXTENSION.NAME} DEBUG]`, ...args);
+      }
+    },
+    
+    // Performance timing
+    time(label) {
+      if (this.DEBUG) {
+        console.time(`[${CONFIG.EXTENSION.NAME}] ${label}`);
+      }
+    },
+    
+    timeEnd(label) {
+      if (this.DEBUG) {
+        console.timeEnd(`[${CONFIG.EXTENSION.NAME}] ${label}`);
+      }
+    }
+  };
+}
+
+// Export configuration
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = CONFIG;
+} else if (typeof window !== 'undefined') {
+  window.CONFIG = CONFIG;
+}
+
+// Make config available to content scripts and popup
+try {
+  chrome.storage.local.set({ extension_config: CONFIG });
+} catch (e) {
+  // Silently fail if chrome APIs not available
+}💾
+
+
+
+
+
+
+
+
+
+

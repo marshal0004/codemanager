@@ -1,0 +1,488 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "collection-schema.json",
+  "title": "Code Snippet Collection Schema",
+  "description": "Schema for validating collection data structure",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique identifier for the collection",
+      "minimum": 1
+    },
+    "name": {
+      "type": "string",
+      "description": "Name of the collection",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^\\S.*\\S$|^\\S$"
+    },
+    "description": {
+      "type": ["string", "null"],
+      "description": "Optional description of the collection",
+      "maxLength": 1000
+    },
+    "color": {
+      "type": ["string", "null"],
+      "description": "Color theme for the collection",
+      "pattern": "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+    },
+    "icon": {
+      "type": ["string", "null"],
+      "description": "Icon identifier for the collection",
+      "maxLength": 50,
+      "pattern": "^[a-zA-Z0-9_-]+$"
+    },
+    "is_public": {
+      "type": "boolean",
+      "description": "Whether the collection is publicly accessible",
+      "default": false
+    },
+    "is_system": {
+      "type": "boolean",
+      "description": "Whether this is a system-generated collection",
+      "default": false
+    },
+    "parent_id": {
+      "type": ["integer", "null"],
+      "description": "ID of parent collection for nested structure",
+      "minimum": 1
+    },
+    "user_id": {
+      "type": "integer",
+      "description": "ID of the user who owns this collection",
+      "minimum": 1
+    },
+    "sort_order": {
+      "type": "integer",
+      "description": "Order for displaying collections",
+      "minimum": 0,
+      "default": 0
+    },
+    "snippet_count": {
+      "type": "integer",
+      "description": "Number of snippets in this collection",
+      "minimum": 0,
+      "default": 0
+    },
+    "child_count": {
+      "type": "integer",
+      "description": "Number of child collections",
+      "minimum": 0,
+      "default": 0
+    },
+    "share_token": {
+      "type": ["string", "null"],
+      "description": "Unique token for public sharing",
+      "pattern": "^[a-zA-Z0-9_-]{32,64}$"
+    },
+    "share_permissions": {
+      "type": "object",
+      "description": "Permissions for shared collections",
+      "properties": {
+        "can_view": {
+          "type": "boolean",
+          "default": true
+        },
+        "can_download": {
+          "type": "boolean",
+          "default": false
+        },
+        "can_fork": {
+          "type": "boolean",
+          "default": false
+        },
+        "expires_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "max_downloads": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "team_permissions": {
+      "type": "array",
+      "description": "Team member permissions for this collection",
+      "items": {
+        "type": "object",
+        "properties": {
+          "user_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "username": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "permission": {
+            "type": "string",
+            "enum": ["view", "edit", "admin"]
+          },
+          "granted_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "granted_by": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        "required": ["user_id", "permission"],
+        "additionalProperties": false
+      }
+    },
+    "view_count": {
+      "type": "integer",
+      "description": "Number of times collection has been viewed",
+      "minimum": 0,
+      "default": 0
+    },
+    "download_count": {
+      "type": "integer",
+      "description": "Number of times collection has been downloaded",
+      "minimum": 0,
+      "default": 0
+    },
+    "fork_count": {
+      "type": "integer",
+      "description": "Number of times collection has been forked",
+      "minimum": 0,
+      "default": 0
+    },
+    "last_accessed_at": {
+      "type": ["string", "null"],
+      "description": "Last time the collection was accessed",
+      "format": "date-time"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "Creation timestamp",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "Last update timestamp",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata for the collection",
+      "properties": {
+        "template_type": {
+          "type": ["string", "null"],
+          "description": "Type of collection template",
+          "enum": [
+            null,
+            "web_development",
+            "data_science",
+            "algorithms",
+            "mobile_development",
+            "devops",
+            "machine_learning",
+            "database",
+            "api_examples",
+            "custom"
+          ]
+        },
+        "auto_organize": {
+          "type": "boolean",
+          "description": "Whether to automatically organize snippets by language/tags",
+          "default": false
+        },
+        "auto_organize_criteria": {
+          "type": ["string", "null"],
+          "description": "Criteria for auto-organization",
+          "enum": [null, "language", "tags", "date", "usage"]
+        },
+        "suggested_tags": {
+          "type": "array",
+          "description": "Tags suggested for snippets in this collection",
+          "items": {
+            "type": "string",
+            "maxLength": 50
+          },
+          "maxItems": 20
+        },
+        "readme": {
+          "type": ["string", "null"],
+          "description": "Markdown readme content for the collection",
+          "maxLength": 5000
+        },
+        "export_settings": {
+          "type": "object",
+          "description": "Default export settings for this collection",
+          "properties": {
+            "include_metadata": {
+              "type": "boolean",
+              "default": true
+            },
+            "include_subfolder": {
+              "type": "boolean",
+              "default": true
+            },
+            "default_format": {
+              "type": "string",
+              "enum": ["json", "markdown", "zip"],
+              "default": "json"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "children": {
+      "type": "array",
+      "description": "Child collections (for nested structure)",
+      "items": {
+        "$ref": "#"
+      }
+    },
+    "snippets": {
+      "type": "array",
+      "description": "Snippets contained in this collection",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "language": {
+            "type": ["string", "null"]
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          }
+        },
+        "required": ["id", "title"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["name", "user_id", "created_at", "updated_at"],
+  "additionalProperties": false,
+  "definitions": {
+    "collection_create": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/properties/name" },
+        "description": { "$ref": "#/properties/description" },
+        "color": { "$ref": "#/properties/color" },
+        "icon": { "$ref": "#/properties/icon" },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "parent_id": { "$ref": "#/properties/parent_id" },
+        "template_type": {
+          "$ref": "#/properties/metadata/properties/template_type"
+        },
+        "auto_organize": {
+          "$ref": "#/properties/metadata/properties/auto_organize"
+        },
+        "auto_organize_criteria": {
+          "$ref": "#/properties/metadata/properties/auto_organize_criteria"
+        }
+      },
+      "required": ["name"],
+      "additionalProperties": false
+    },
+    "collection_update": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/properties/name" },
+        "description": { "$ref": "#/properties/description" },
+        "color": { "$ref": "#/properties/color" },
+        "icon": { "$ref": "#/properties/icon" },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "parent_id": { "$ref": "#/properties/parent_id" },
+        "sort_order": { "$ref": "#/properties/sort_order" },
+        "auto_organize": {
+          "$ref": "#/properties/metadata/properties/auto_organize"
+        },
+        "auto_organize_criteria": {
+          "$ref": "#/properties/metadata/properties/auto_organize_criteria"
+        },
+        "readme": { "$ref": "#/properties/metadata/properties/readme" }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "collection_search": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": ["string", "null"],
+          "maxLength": 200
+        },
+        "is_public": { "$ref": "#/properties/is_public" },
+        "parent_id": { "$ref": "#/properties/parent_id" },
+        "template_type": {
+          "$ref": "#/properties/metadata/properties/template_type"
+        },
+        "has_children": {
+          "type": ["boolean", "null"]
+        },
+        "min_snippet_count": {
+          "type": ["integer", "null"],
+          "minimum": 0
+        },
+        "date_from": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "date_to": {
+          "type": ["string", "null"],
+          "format": "date"
+        },
+        "sort_by": {
+          "type": "string",
+          "enum": [
+            "created_at",
+            "updated_at",
+            "name",
+            "snippet_count",
+            "view_count"
+          ],
+          "default": "created_at"
+        },
+        "sort_order": {
+          "type": "string",
+          "enum": ["asc", "desc"],
+          "default": "desc"
+        },
+        "page": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1
+        },
+        "per_page": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 20
+        }
+      },
+      "additionalProperties": false
+    },
+    "collection_share": {
+      "type": "object",
+      "properties": {
+        "can_view": {
+          "$ref": "#/properties/share_permissions/properties/can_view"
+        },
+        "can_download": {
+          "$ref": "#/properties/share_permissions/properties/can_download"
+        },
+        "can_fork": {
+          "$ref": "#/properties/share_permissions/properties/can_fork"
+        },
+        "expires_at": {
+          "$ref": "#/properties/share_permissions/properties/expires_at"
+        },
+        "max_downloads": {
+          "$ref": "#/properties/share_permissions/properties/max_downloads"
+        }
+      },
+      "additionalProperties": false
+    },
+    "collection_bulk_operation": {
+      "type": "object",
+      "properties": {
+        "operation": {
+          "type": "string",
+          "enum": ["delete", "update", "move", "copy", "export"]
+        },
+        "collection_ids": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "minItems": 1,
+          "maxItems": 50,
+          "uniqueItems": true
+        },
+        "update_data": {
+          "$ref": "#/definitions/collection_update"
+        },
+        "target_parent_id": {
+          "type": ["integer", "null"],
+          "minimum": 1
+        },
+        "export_format": {
+          "type": "string",
+          "enum": ["json", "markdown", "zip"]
+        },
+        "include_snippets": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "required": ["operation", "collection_ids"],
+      "additionalProperties": false
+    },
+    "collection_organization": {
+      "type": "object",
+      "properties": {
+        "snippet_orders": {
+          "type": "array",
+          "description": "New order for snippets in collection",
+          "items": {
+            "type": "object",
+            "properties": {
+              "snippet_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["snippet_id", "order"],
+            "additionalProperties": false
+          }
+        },
+        "collection_orders": {
+          "type": "array",
+          "description": "New order for child collections",
+          "items": {
+            "type": "object",
+            "properties": {
+              "collection_id": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": ["collection_id", "order"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
+    }
+  }
+}

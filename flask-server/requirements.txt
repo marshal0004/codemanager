@@ -1,0 +1,188 @@
+# Flask Core & Web Framework
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+Flask-CORS
+Flask-Caching
+Flask-Limiter
+Flask-Mail
+Werkzeug
+
+# WebSocket & Real-time Communication
+Flask-SocketIO
+python-socketio
+eventlet
+
+# Database & ORM
+SQLAlchemy
+psycopg2-binary
+alembic
+
+# Authentication & Security
+Flask-JWT-Extended
+bcrypt
+PyJWT
+cryptography
+itsdangerous
+argon2-cffi
+passlib
+
+# GitHub Integration & Git Operations
+PyGithub
+GitPython
+
+# Slack SDK & Bot Integration
+slack-sdk
+slack-bolt
+
+# HTTP Clients & Requests
+requests
+httpx
+aiohttp
+urllib3
+websocket-client
+
+# Code Processing & Syntax Highlighting
+Pygments
+black
+autopep8
+flake8
+mypy
+
+# Language Detection & Analysis
+langdetect
+textstat
+textdistance
+
+# Search & Full-text Search
+Whoosh
+elasticsearch
+redis
+
+# Export & File Processing
+openpyxl
+python-docx
+PyPDF2
+markdown
+reportlab
+Pillow
+
+# Code Execution & Sandboxing
+docker
+RestrictedPython
+
+# Data Processing & Analytics
+pandas
+numpy
+scipy
+
+# Task Queue & Background Jobs
+celery
+flower
+
+# Monitoring & Logging
+structlog
+sentry-sdk
+prometheus-client
+loguru
+
+# Validation & Serialization
+marshmallow
+marshmallow-sqlalchemy
+cerberus
+WTForms
+
+# Testing & Development
+pytest
+pytest-flask
+pytest-cov
+factory-boy
+faker
+coverage
+
+# Environment & Configuration
+python-decouple
+python-dotenv
+dynaconf
+pyyaml
+
+# AI/ML for Advanced Features
+openai
+transformers
+scikit-learn
+nltk
+spacy
+
+# Date/Time Handling
+python-dateutil
+pytz
+
+# JSON/Data Handling
+orjson
+ujson
+jsonschema
+
+# CLI Tools Support
+click
+rich
+typer
+
+# File Handling & Magic
+python-magic
+python-magic-bin
+chardet
+mimetypes
+
+# Advanced Features
+diff-match-patch
+operational-transform
+channels
+channels-redis
+websockets
+
+# Development Tools
+watchdog
+pre-commit
+isort
+
+# Production Server
+gunicorn
+gevent
+
+# Health Checks & Utilities
+healthcheck
+psutil
+netifaces
+
+# API Documentation
+flask-restx
+flasgger
+apispec
+apispec-webframeworks
+
+# Advanced Caching
+diskcache
+hiredis
+
+# Performance & Profiling
+py-spy
+line-profiler
+
+# Async Support
+aiofiles
+
+# Advanced Serialization
+msgpack
+
+# HTML Processing & Sanitization
+bleach
+html5lib
+
+# Utilities
+python-slugify
+Jinja2
+MarkupSafe
+email-validator>=1.1.0
+Pillow>=10.0.0

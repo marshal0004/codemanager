@@ -1,0 +1,2350 @@
+{% block content %}
+<div class="recent-page">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <h1 class="page-title">Recent Activity</h1>
+    <p class="page-subtitle">Your recently accessed snippets and collections</p>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card purple">
+        <div class="stat-icon">
+          <i class="fas fa-eye"></i>
+        </div>
+        <div class="stat-number">
+          {{ activity_summary.snippets_viewed_today }}
+        </div>
+        <div class="stat-label">Snippets Viewed Today</div>
+      </div>
+
+      <div class="stat-card blue">
+        <div class="stat-icon">
+          <i class="fas fa-folder-open"></i>
+        </div>
+        <div class="stat-number">
+          {{ activity_summary.collections_accessed_today }}
+        </div>
+        <div class="stat-label">Collections Accessed</div>
+      </div>
+
+      <div class="stat-card green">
+        <div class="stat-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="stat-number">
+          {{ snippets|length + collections|length }}
+        </div>
+        <div class="stat-label">Total Recent Items</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="filter-tabs">
+    <button class="tab-btn active" data-filter="all">
+      <i class="fas fa-th-large"></i>
+      All Activity
+    </button>
+    <button class="tab-btn" data-filter="snippets">
+      <i class="fas fa-code"></i>
+      Snippets
+    </button>
+    <button class="tab-btn" data-filter="collections">
+      <i class="fas fa-folder"></i>
+      Collections
+    </button>
+  </div>
+
+  <!-- Recent Collections -->
+  {% if collections %}
+  <div class="section" data-category="collections">
+    <div class="section-header">
+      <h2><i class="fas fa-folder-open"></i> Recent Collections</h2>
+      <div class="section-actions">
+        <button class="btn-small active" data-view="grid">
+          <i class="fas fa-th"></i>
+          <span class="view-text">Grid</span>
+        </button>
+        <button class="btn-small" data-view="list">
+          <i class="fas fa-list"></i>
+          <span class="view-text">List</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="collections-grid">
+      {% for collection in collections %}
+      <div class="collection-card" data-collection-id="{{ collection.id }}">
+        <div class="card-header">
+          <div class="collection-icon">
+            <i class="fas fa-{{ collection.icon or 'folder' }}"></i>
+          </div>
+          <div class="card-info">
+            <h3>{{ collection.name }}</h3>
+            <p>{{ collection.description or 'No description' }}</p>
+          </div>
+        </div>
+
+        <div class="card-stats">
+          <span
+            ><i class="fas fa-code"></i> {{ collection.get_snippet_count() }}
+            snippets</span
+          >
+          <span
+            ><i class="fas fa-eye"></i> {{ collection.view_count }} views</span
+          >
+        </div>
+
+        <div class="card-footer">
+          <span class="date">
+            {% if collection.last_accessed %} {{
+            collection.last_accessed.strftime('%b %d, %Y') }} {% else %} {{
+            collection.created_at.strftime('%b %d, %Y') }} {% endif %}
+          </span>
+          <div class="card-actions">
+            <button
+              class="action-btn collection-view-btn"
+              data-collection-id="{{ collection.id }}">
+              <i class="fas fa-eye"></i>
+              <span class="btn-text">View</span>
+            </button>
+            <button
+              class="action-btn collection-edit-btn"
+              data-collection-id="{{ collection.id }}">
+              <i class="fas fa-edit"></i>
+              <span class="btn-text">Edit</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Recent Snippets -->
+  {% if snippets %}
+  <div class="section" data-category="snippets">
+    <div class="section-header">
+      <h2><i class="fas fa-code"></i> Recent Snippets</h2>
+      <div class="section-actions">
+        <button class="btn-small active" data-view="grid">
+          <i class="fas fa-th"></i>
+          <span class="view-text">Grid</span>
+        </button>
+        <button class="btn-small" data-view="list">
+          <i class="fas fa-list"></i>
+          <span class="view-text">List</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="snippets-grid">
+      {% for snippet in snippets %}
+      <div class="snippet-card" data-snippet-id="{{ snippet.id }}">
+        <div class="card-header">
+          <div class="language-badge {{ snippet.language }}">
+            {{ snippet.language.upper() }}
+          </div>
+          <div class="card-actions">
+            <button
+              class="action-btn favorite {{ 'active' if snippet.is_favorite else '' }}"
+              title="Add to Favorites">
+              <i class="fas fa-star"></i>
+              <span class="btn-text">Favorite</span>
+            </button>
+            <button class="action-btn copy-btn" title="Copy Code">
+              <i class="fas fa-copy"></i>
+              <span class="btn-text">Copy</span>
+            </button>
+            <button class="action-btn view-btn" title="View Snippet">
+              <i class="fas fa-eye"></i>
+              <span class="btn-text">View</span>
+            </button>
+          </div>
+        </div>
+
+        <h3 class="snippet-title">{{ snippet.title }}</h3>
+
+        {% if snippet.description %}
+        <p class="snippet-description">
+          {{ snippet.description[:100] }}{% if snippet.description|length > 100
+          %}...{% endif %}
+        </p>
+        {% endif %}
+
+        <div class="code-preview">
+          <pre><code>{{ snippet.get_code_preview(4) }}</code></pre>
+        </div>
+
+        <div class="card-footer">
+          <div class="card-stats">
+            <span><i class="fas fa-eye"></i> {{ snippet.view_count }}</span>
+            <span
+              ><i class="fas fa-code"></i> {{ snippet.get_line_count() }}
+              lines</span
+            >
+          </div>
+          <span class="date">
+            {% if snippet.last_viewed_at %} {{
+            snippet.last_viewed_at.strftime('%b %d, %Y') }} {% else %} {{
+            snippet.updated_at.strftime('%b %d, %Y') }} {% endif %}
+          </span>
+        </div>
+
+        {% if snippet.get_tags_list() %}
+        <div class="tags">
+          {% for tag in snippet.get_tags_list()[:3] %}
+          <span class="tag">{{ tag }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Empty State -->
+  {% if not snippets and not collections %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <i class="fas fa-clock"></i>
+    </div>
+    <h3>No Recent Activity</h3>
+    <p>Start viewing snippets and collections to see them here</p>
+    <div class="empty-actions">
+      <a href="{{ url_for('dashboard.snippets') }}" class="btn-primary">
+        <i class="fas fa-code"></i> Browse Snippets
+      </a>
+      <a href="{{ url_for('dashboard.collections') }}" class="btn-secondary">
+        <i class="fas fa-folder"></i> View Collections
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  /* CLEAN AND SIMPLE DARK THEME */
+  .recent-page {
+    background: #0f0f23;
+    min-height: 100vh;
+    color: #ffffff;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    padding: 3rem 2rem;
+    text-align: center;
+  }
+
+  .page-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-subtitle {
+    font-size: 1.2rem;
+    color: #a0a0a0;
+    margin-bottom: 3rem;
+  }
+
+  /* Stats Grid */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .stat-card {
+    background: #1e1e3f;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: transform 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+  }
+
+  .stat-card.purple {
+    border-color: #667eea;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+  }
+
+  .stat-card.blue {
+    border-color: #00bfff;
+    box-shadow: 0 10px 30px rgba(0, 191, 255, 0.2);
+  }
+
+  .stat-card.green {
+    border-color: #32cd32;
+    box-shadow: 0 10px 30px rgba(50, 205, 50, 0.2);
+  }
+  .btn-small.active {
+    background: #667eea !important;
+    border-color: #667eea !important;
+    color: white !important;
+  }
+
+  .stat-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* Filter Tabs */
+  .filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    background: #0f0f23;
+  }
+
+  .tab-btn {
+    background: #1e1e3f;
+    border: 2px solid #333;
+    color: #a0a0a0;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tab-btn:hover,
+  .tab-btn.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+  }
+
+  /* Sections */
+  .section {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .action-btn:active {
+    transform: scale(0.95);
+  }
+
+  .snippet-card {
+    cursor: default; /* Remove pointer cursor since we removed onclick */
+  }
+
+  .snippet-title {
+    cursor: pointer; /* Make title clickable for viewing */
+  }
+
+  .snippet-title:hover {
+    color: #667eea;
+    text-decoration: underline;
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .section-header i {
+    color: #667eea;
+  }
+
+  .section-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .btn-small {
+    background: #1e1e3f;
+    border: 1px solid #333;
+    color: #a0a0a0;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn-small:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+  }
+
+  /* Collections Grid */
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .collection-card {
+    background: #1e1e3f;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: default; /* CHANGED FROM pointer TO default */
+    transition: all 0.3s ease;
+  }
+
+  .collection-card:hover {
+    border-color: #667eea;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .collection-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+  }
+
+  .card-info h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-info p {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+    color: #a0a0a0;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #333;
+  }
+
+  .date {
+    color: #a0a0a0;
+    font-size: 0.8rem;
+  }
+
+  .card-actions {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* Responsive button text */
+  @media (max-width: 768px) {
+    .action-btn .btn-text {
+      display: none;
+    }
+
+    .action-btn {
+      min-width: 35px;
+      width: 35px;
+    }
+  }
+
+  .action-btn {
+    background: #333;
+    border: none;
+    color: #a0a0a0;
+    min-width: 80px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    padding: 0.5rem;
+  }
+
+  .action-btn .btn-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .action-btn:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+  }
+
+  .action-btn.favorite.active {
+    background: #ffd700 !important;
+    color: #333 !important;
+  }
+
+  .action-btn.favorite.active:hover {
+    background: #ffed4e;
+  }
+
+  .copy-btn:hover {
+    background: #32cd32 !important;
+  }
+
+  .view-btn:hover {
+    background: #00bfff !important;
+  }
+
+  /* Snippets Grid */
+  .snippets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 2rem;
+  }
+
+  .snippet-card {
+    background: #1e1e3f;
+    border: 2px solid #333;
+    border-radius: 15px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 480px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .snippet-card:hover {
+    border-color: #667eea;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+  }
+
+  .snippet-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 1rem 0 0.5rem 0;
+  }
+
+  .snippet-description {
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+
+  .language-badge {
+    background: #333;
+    color: #a0a0a0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+  }
+
+  .language-badge.javascript {
+    background: rgba(247, 223, 30, 0.2);
+    color: #f7df1e;
+  }
+
+  .language-badge.python {
+    background: rgba(55, 118, 171, 0.2);
+    color: #3776ab;
+  }
+
+  .language-badge.css {
+    background: rgba(21, 114, 182, 0.2);
+    color: #1572b6;
+  }
+
+  .language-badge.java {
+    background: rgba(237, 117, 36, 0.2);
+    color: #ed7524;
+  }
+
+  .language-badge.cpp {
+    background: rgba(0, 89, 156, 0.2);
+    color: #00599c;
+  }
+
+  .code-preview {
+    background: #0f0f1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 1rem;
+    margin: 1rem 0;
+    overflow: hidden;
+    height: 150px;
+    max-height: 150px;
+    overflow-y: auto;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  .code-preview pre {
+    margin: 0;
+    font-family: "Fira Code", "Monaco", monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #e0e0e0;
+    white-space: pre;
+    word-wrap: normal;
+    min-width: max-content;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .tag {
+    background: #333;
+    color: #a0a0a0;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #1e1e3f;
+    border-radius: 20px;
+    margin: 2rem;
+  }
+
+  .empty-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 2rem;
+    font-size: 2rem;
+    color: white;
+  }
+
+  .empty-state h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state p {
+    color: #a0a0a0;
+    font-size: 1.1rem;
+    margin-bottom: 2rem;
+  }
+
+  .empty-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 1rem 2rem;
+    border-radius: 10px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+  }
+
+  .btn-secondary {
+    background: #1e1e3f;
+    color: white;
+    border: 2px solid #333;
+  }
+  .btn-small {
+    background: #1e1e3f;
+    border: 1px solid #333;
+    color: #a0a0a0;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 80px;
+  }
+
+  .btn-small .view-text {
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  .btn-small:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+  }
+
+  .btn-small.active {
+    background: #667eea !important;
+    border-color: #667eea !important;
+    color: white !important;
+  }
+
+  /* Responsive: Hide text on small screens */
+  @media (max-width: 768px) {
+    .btn-small .view-text {
+      display: none;
+    }
+
+    .btn-small {
+      min-width: 40px;
+    }
+  }
+
+  .btn-primary:hover,
+  .btn-secondary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
+
+    .stats-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .filter-tabs {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .collections-grid,
+    .snippets-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .card-footer {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+      margin-top: auto;
+      flex-shrink: 0;
+    }
+    .code-preview::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .code-preview::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .code-preview::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 4px;
+    }
+
+    .hero-section {
+      padding: 2rem 1rem;
+    }
+
+    .section {
+      padding: 1rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page-title {
+      font-size: 1.8rem;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+    }
+
+    .tab-btn {
+      padding: 0.8rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .card-header {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+  /* Enhanced Card Layout for Variable Tag Counts */
+.snippet-card {
+  transition: height 0.3s ease;
+  position: relative;
+}
+
+.snippet-meta,
+.tags,
+.snippet-tags {
+  max-height: none; /* Allow tags to expand */
+  overflow: visible;
+}
+
+/* Ensure action buttons are always accessible */
+.snippet-actions,
+.card-actions {
+  position: relative;
+  z-index: 10;
+  margin-top: auto;
+}
+
+/* Tag wrapping improvements */
+.meta-chip,
+.tag {
+  margin-bottom: 0.25rem;
+  flex-shrink: 0;
+}
+
+/* Smooth scrolling for cards with many tags */
+.card-with-scrollbar {
+  scroll-behavior: smooth;
+}
+</style>
+<script src="{{ url_for('static', filename='js/collection-modal-service.js') }}"></script>
+<script>
+  // Dynamic Card Height Adjustment Based on Tags
+function adjustCardHeightsForTags() {
+  console.log("🏷️ TAG HEIGHT ADJUSTER - Starting dynamic height adjustment");
+  
+  const cards = document.querySelectorAll('.snippet-card');
+  let adjustmentsMade = 0;
+  
+  cards.forEach((card, index) => {
+    try {
+      // Find tags container (different selectors for different pages)
+      const tagsContainer = card.querySelector('.snippet-meta, .tags, .snippet-tags');
+      const actionButtons = card.querySelector('.snippet-actions, .card-actions, .action-buttons');
+      
+      if (!tagsContainer) {
+        console.log(`⚠️ Card ${index + 1}: No tags container found`);
+        return;
+      }
+      
+      // Count tags (handle different tag structures)
+      let tagCount = 0;
+      const metaChips = tagsContainer.querySelectorAll('.meta-chip');
+      const tagSpans = tagsContainer.querySelectorAll('.tag');
+      
+      if (metaChips.length > 0) {
+        // Count meta-chips but exclude language chip (usually first one)
+        tagCount = Math.max(0, metaChips.length - 1);
+      } else if (tagSpans.length > 0) {
+        tagCount = tagSpans.length;
+      }
+      
+      console.log(`🏷️ Card ${index + 1}: Found ${tagCount} tags`);
+      
+      // Calculate new height based on tag count
+      let newHeight = 420; // Base height
+      let needsScroll = false;
+      
+      if (tagCount <= 5) {
+        // No adjustment needed
+        newHeight = 420;
+      } else if (tagCount <= 9) {
+        // Slight increase
+        newHeight = 460;
+        console.log(`📏 Card ${index + 1}: Slight height increase to ${newHeight}px`);
+      } else {
+        // Many tags - add scrollbar to card
+        newHeight = 420;
+        needsScroll = true;
+        console.log(`📜 Card ${index + 1}: Adding scrollbar for ${tagCount} tags`);
+      }
+      
+      // Apply height adjustment
+      card.style.height = `${newHeight}px`;
+      
+      // Add scrollbar if needed
+      if (needsScroll) {
+        card.style.overflowY = 'auto';
+        card.style.paddingRight = '8px'; // Account for scrollbar
+        
+        // Add custom scrollbar styles
+        card.style.scrollbarWidth = 'thin';
+        card.classList.add('card-with-scrollbar');
+      } else {
+        card.style.overflowY = 'visible';
+        card.style.paddingRight = '1.5rem'; // Reset to original
+        card.classList.remove('card-with-scrollbar');
+      }
+      
+      // Ensure action buttons are always visible
+      if (actionButtons) {
+        actionButtons.style.position = 'sticky';
+        actionButtons.style.bottom = '0';
+        actionButtons.style.backgroundColor = 'inherit';
+        actionButtons.style.zIndex = '10';
+      }
+      
+      adjustmentsMade++;
+      
+    } catch (error) {
+      console.error(`❌ Error adjusting card ${index + 1}:`, error);
+    }
+  });
+  
+  console.log(`✅ TAG HEIGHT ADJUSTER - Completed ${adjustmentsMade} adjustments`);
+  
+  // Add scrollbar styles if not already present
+  addScrollbarStyles();
+}
+
+// Add custom scrollbar styles for cards
+function addScrollbarStyles() {
+  const existingStyle = document.getElementById('cardScrollbarStyles');
+  if (existingStyle) return; // Already added
+  
+  const style = document.createElement('style');
+  style.id = 'cardScrollbarStyles';
+  style.textContent = `
+    /* Enhanced Custom scrollbar for snippet cards */
+    .snippet-card::-webkit-scrollbar,
+    .card-with-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-track,
+    .card-with-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb,
+    .card-with-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--accent-primary, #00d4ff);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb:hover,
+    .card-with-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-secondary, #7c3aed);
+    }
+    
+    /* Enhanced Firefox support */
+    .snippet-card,
+    .card-with-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary, #00d4ff) rgba(255, 255, 255, 0.1);
+    }
+  `;
+  
+  document.head.appendChild(style);
+  console.log("🎨 Added custom scrollbar styles for cards");
+}
+
+// Enhanced logging for tag detection
+function logTagAnalysis() {
+  console.log("🔍 TAG ANALYSIS - Analyzing tag distribution");
+  
+  const cards = document.querySelectorAll('.snippet-card');
+  const tagStats = {
+    noTags: 0,
+    fewTags: 0,    // 1-5 tags
+    mediumTags: 0, // 6-9 tags
+    manyTags: 0    // 10+ tags
+  };
+  
+  cards.forEach((card, index) => {
+    const tagsContainer = card.querySelector('.snippet-meta, .tags, .snippet-tags');
+    if (!tagsContainer) {
+      tagStats.noTags++;
+      return;
+    }
+    
+    const metaChips = tagsContainer.querySelectorAll('.meta-chip');
+    const tagSpans = tagsContainer.querySelectorAll('.tag');
+    
+    let tagCount = 0;
+    if (metaChips.length > 0) {
+      tagCount = Math.max(0, metaChips.length - 1); // Exclude language chip
+    } else if (tagSpans.length > 0) {
+      tagCount = tagSpans.length;
+    }
+    
+    if (tagCount === 0) tagStats.noTags++;
+    else if (tagCount <= 5) tagStats.fewTags++;
+    else if (tagCount <= 9) tagStats.mediumTags++;
+    else tagStats.manyTags++;
+    
+    console.log(`🏷️ Card ${index + 1}: ${tagCount} tags`);
+  });
+  
+  console.log("📊 TAG DISTRIBUTION:", tagStats);
+  return tagStats;
+}
+
+// Initialize tag-based height adjustment
+function initializeTagHeightAdjustment() {
+  console.log("🚀 Initializing tag-based height adjustment system");
+  
+  // Wait for DOM to be fully loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        logTagAnalysis();
+        adjustCardHeightsForTags();
+      }, 500);
+    });
+  } else {
+    setTimeout(() => {
+      logTagAnalysis();
+      adjustCardHeightsForTags();
+    }, 500);
+  }
+  
+  // Re-adjust when new content is loaded
+  const observer = new MutationObserver((mutations) => {
+    let shouldReadjust = false;
+    
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'childList') {
+        const addedNodes = Array.from(mutation.addedNodes);
+        if (addedNodes.some(node => 
+          node.nodeType === 1 && 
+          (node.classList?.contains('snippet-card') || 
+           node.querySelector?.('.snippet-card'))
+        )) {
+          shouldReadjust = true;
+        }
+      }
+    });
+    
+    if (shouldReadjust) {
+      console.log("🔄 New snippet cards detected, re-adjusting heights");
+      setTimeout(adjustCardHeightsForTags, 100);
+    }
+  });
+  
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+  
+  console.log("✅ Tag height adjustment system initialized");
+}
+
+// Manual adjustment function for testing
+window.adjustCardHeights = adjustCardHeightsForTags;
+window.analyzeTagDistribution = logTagAnalysis;
+
+// Auto-initialize
+initializeTagHeightAdjustment();
+  // Enhanced Card Height Logging
+  function logCardHeights() {
+    console.log("🔍 CARD HEIGHT DEBUG - Checking snippet card dimensions");
+
+    const cards = document.querySelectorAll(".snippet-card");
+    const codeBlocks = document.querySelectorAll(
+      ".snippet-code, .code-preview"
+    );
+
+    console.log(
+      `📊 Found ${cards.length} snippet cards and ${codeBlocks.length} code blocks`
+    );
+
+    cards.forEach((card, index) => {
+      const rect = card.getBoundingClientRect();
+      const codeBlock = card.querySelector(".snippet-code, .code-preview");
+      const codeRect = codeBlock ? codeBlock.getBoundingClientRect() : null;
+
+      console.log(`📏 Card ${index + 1}:`, {
+        height: rect.height,
+        codeHeight: codeRect ? codeRect.height : "N/A",
+        hasScrollY: codeBlock
+          ? codeBlock.scrollHeight > codeBlock.clientHeight
+          : false,
+        hasScrollX: codeBlock
+          ? codeBlock.scrollWidth > codeBlock.clientWidth
+          : false,
+      });
+    });
+  }
+
+  // Call after DOM loads
+  document.addEventListener("DOMContentLoaded", function () {
+    setTimeout(logCardHeights, 1000);
+  });
+  // ENHANCED RECENT PAGE JAVASCRIPT WITH PERFECT LOGGING
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("🚀 Recent page loaded successfully");
+    console.log("🔍 DOM Content Loaded - Starting initialization");
+    initializeRecentPage();
+  });
+
+  function initializeRecentPage() {
+    try {
+      console.log("🎯 Starting recent page initialization...");
+      setupFilterTabs();
+      setupViewToggle();
+      setupActionButtons();
+      setupToastSystem();
+      setupSnippetTitleClick();
+      setupCollectionCardClicks();
+
+      // Debug button detection
+      setTimeout(() => {
+        debugButtonDetection();
+        debugNavigation(); // Add this line
+      }, 1000);
+
+      console.log("✅ All recent page features initialized successfully");
+    } catch (error) {
+      console.error("❌ Error initializing recent page:", error);
+      console.error("❌ Error stack:", error.stack);
+    }
+  }
+
+  function debugNavigation() {
+    console.log("🔍 === NAVIGATION DEBUG ===");
+
+    const collectionCards = document.querySelectorAll(".collection-card");
+    const snippetCards = document.querySelectorAll(".snippet-card");
+    const collectionViewBtns = document.querySelectorAll(
+      ".collection-view-btn"
+    );
+    const collectionEditBtns = document.querySelectorAll(
+      ".collection-edit-btn"
+    );
+
+    console.log(`📊 Found elements:`);
+    console.log(`   - ${collectionCards.length} collection cards`);
+    console.log(`   - ${snippetCards.length} snippet cards`);
+    console.log(`   - ${collectionViewBtns.length} collection view buttons`);
+    console.log(`   - ${collectionEditBtns.length} collection edit buttons`);
+    console.log(`   - isNavigating flag: ${isNavigating}`);
+
+    if (collectionViewBtns.length > 0) {
+      const firstViewBtn = collectionViewBtns[0];
+      console.log("👁️ First view button:", firstViewBtn);
+      console.log(
+        "👁️ View button collection ID:",
+        firstViewBtn.dataset.collectionId
+      );
+    }
+
+    if (collectionEditBtns.length > 0) {
+      const firstEditBtn = collectionEditBtns[0];
+      console.log("✏️ First edit button:", firstEditBtn);
+      console.log(
+        "✏️ Edit button collection ID:",
+        firstEditBtn.dataset.collectionId
+      );
+    }
+
+    console.log("🔍 === END NAVIGATION DEBUG ===");
+  }
+
+  // DEBUG FUNCTION TO CHECK BUTTON DETECTION
+  function debugButtonDetection() {
+    console.log("🔍 === BUTTON DETECTION DEBUG ===");
+
+    const favoriteButtons = document.querySelectorAll(".action-btn.favorite");
+    const copyButtons = document.querySelectorAll(".action-btn.copy-btn");
+    const viewButtons = document.querySelectorAll(".action-btn.view-btn");
+    const allActionButtons = document.querySelectorAll(".action-btn");
+
+    console.log(`📊 Found buttons:`);
+    console.log(`   - ${favoriteButtons.length} favorite buttons`);
+    console.log(`   - ${copyButtons.length} copy buttons`);
+    console.log(`   - ${viewButtons.length} view buttons`);
+    console.log(`   - ${allActionButtons.length} total action buttons`);
+
+    if (favoriteButtons.length > 0) {
+      console.log("🌟 First favorite button:", favoriteButtons[0]);
+      console.log("🌟 Favorite button classes:", favoriteButtons[0].className);
+    }
+
+    if (copyButtons.length > 0) {
+      console.log("📋 First copy button:", copyButtons[0]);
+      console.log("📋 Copy button classes:", copyButtons[0].className);
+    }
+
+    console.log("🔍 === END DEBUG ===");
+  }
+
+  // 1. FILTER TABS FUNCTIONALITY
+  function setupFilterTabs() {
+    const filterTabs = document.querySelectorAll(".tab-btn");
+    const sections = document.querySelectorAll(".section");
+
+    console.log(`📋 Setting up ${filterTabs.length} filter tabs`);
+
+    filterTabs.forEach((tab) => {
+      tab.addEventListener("click", function () {
+        const filter = this.dataset.filter;
+        console.log(`🔍 Filter changed to: ${filter}`);
+
+        try {
+          filterTabs.forEach((t) => t.classList.remove("active"));
+          this.classList.add("active");
+
+          sections.forEach((section) => {
+            const category = section.dataset.category;
+            if (filter === "all" || filter === category) {
+              section.style.display = "block";
+            } else {
+              section.style.display = "none";
+            }
+          });
+
+          console.log(`✅ Filter applied successfully: ${filter}`);
+        } catch (error) {
+          console.error(`❌ Error applying filter ${filter}:`, error);
+        }
+      });
+    });
+  }
+
+  // 2. ENHANCED VIEW TOGGLE FUNCTIONALITY
+  function setupViewToggle() {
+    const sections = document.querySelectorAll(".section");
+
+    sections.forEach((section) => {
+      const viewToggleBtns = section.querySelectorAll(
+        ".section-actions .btn-small"
+      );
+
+      if (viewToggleBtns.length === 2) {
+        console.log(
+          `🔄 Setting up view toggle for section: ${section.dataset.category}`
+        );
+
+        viewToggleBtns.forEach((btn, index) => {
+          btn.addEventListener("click", function () {
+            const viewType =
+              this.dataset.view || (index === 0 ? "grid" : "list");
+            const isGridView = viewType === "grid";
+
+            console.log(
+              `🎛️ Switching ${section.dataset.category} to ${viewType} view`
+            );
+
+            try {
+              // Update button states
+              viewToggleBtns.forEach((b) => b.classList.remove("active"));
+              this.classList.add("active");
+
+              // Update grid/list classes
+              const grid = section.querySelector(
+                ".collections-grid, .snippets-grid"
+              );
+              if (grid) {
+                if (isGridView) {
+                  grid.classList.remove("list-view");
+                  grid.classList.add("grid-view");
+                } else {
+                  grid.classList.remove("grid-view");
+                  grid.classList.add("list-view");
+                }
+              }
+
+              console.log(
+                `✅ ${section.dataset.category} view changed to ${viewType} successfully`
+              );
+              showToast(
+                `${section.dataset.category} switched to ${viewType} view`,
+                "success"
+              );
+            } catch (error) {
+              console.error(
+                `❌ Error changing ${section.dataset.category} view to ${viewType}:`,
+                error
+              );
+            }
+          });
+        });
+      }
+    });
+  }
+
+  let actionButtonsSetup = false; // Prevent duplicate setup
+  // 3. ACTION BUTTONS SETUP - ENHANCED
+  function setupActionButtons() {
+    if (actionButtonsSetup) {
+      console.log("🚫 Action buttons already set up, skipping duplicate setup");
+      return;
+    }
+
+    console.log("🎯 Setting up action buttons with enhanced logging");
+
+    // Add the main event listener with a unique identifier
+    document.addEventListener("click", handleActionButtonClick, {
+      capture: true,
+      once: false, // Allow multiple uses but prevent duplicate listeners
+    });
+
+    actionButtonsSetup = true;
+    console.log("✅ Action button event listener attached (single instance)");
+  }
+
+  // 4. ENHANCED ACTION BUTTON CLICK HANDLER - PREVENT DUPLICATES
+  let isProcessingClick = false; // Prevent rapid duplicate clicks
+
+  function handleActionButtonClick(e) {
+    if (isProcessingClick) {
+      console.log("🚫 Click already being processed, ignoring duplicate");
+      return;
+    }
+
+    // ADD THIS NEW CHECK:
+    // Check if this is a collection button click - handle it differently
+    if (
+      e.target.closest(".collection-view-btn") ||
+      e.target.closest(".collection-edit-btn")
+    ) {
+      console.log(
+        "🔍 Collection button detected, letting collection handler manage it"
+      );
+      return; // Let the collection handler manage this
+    }
+
+    console.log("🔍 Click detected on:", e.target);
+
+    const actionBtn = e.target.closest(".action-btn");
+    if (!actionBtn) {
+      return; // Not an action button, allow other handlers
+    }
+
+    console.log("🎯 Action button found:", actionBtn);
+    console.log("🎯 Button classes:", actionBtn.className);
+
+    // Prevent duplicate processing
+    isProcessingClick = true;
+
+    // Stop propagation to prevent card click
+    e.stopPropagation();
+    e.preventDefault();
+
+    try {
+      if (actionBtn.classList.contains("favorite")) {
+        console.log(
+          "⭐ FAVORITE BUTTON DETECTED - Calling handleFavoriteToggle"
+        );
+        handleFavoriteToggle(actionBtn);
+      } else if (actionBtn.classList.contains("copy-btn")) {
+        console.log("📋 COPY BUTTON DETECTED - Calling handleCopyCode");
+        handleCopyCode(actionBtn);
+      } else if (actionBtn.classList.contains("view-btn")) {
+        console.log("👁️ VIEW BUTTON DETECTED - Calling viewSnippet");
+        const snippetCard = actionBtn.closest("[data-snippet-id]");
+        if (snippetCard) {
+          const snippetId = snippetCard.dataset.snippetId;
+          console.log("👁️ Viewing snippet:", snippetId);
+          viewSnippet(snippetId);
+        }
+      } else {
+        console.log("🔍 No specific class found, checking icon fallback");
+        const icon = actionBtn.querySelector("i");
+        if (icon) {
+          const iconClass = icon.className;
+          console.log("🔍 Icon class:", iconClass);
+
+          if (iconClass.includes("fa-star")) {
+            console.log("⭐ Star icon detected - calling handleFavoriteToggle");
+            handleFavoriteToggle(actionBtn);
+          } else if (iconClass.includes("fa-copy")) {
+            console.log("📋 Copy icon detected - calling handleCopyCode");
+            handleCopyCode(actionBtn);
+          } else if (iconClass.includes("fa-eye")) {
+            console.log("👁️ Eye icon detected - calling viewSnippet");
+            const snippetCard = actionBtn.closest("[data-snippet-id]");
+            if (snippetCard) {
+              const snippetId = snippetCard.dataset.snippetId;
+              viewSnippet(snippetId);
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error("❌ Error in handleActionButtonClick:", error);
+      console.error("❌ Error stack:", error.stack);
+    } finally {
+      // Reset the processing flag after a short delay
+      setTimeout(() => {
+        isProcessingClick = false;
+      }, 500);
+    }
+  }
+
+  // 5. FAVORITE FUNCTIONALITY - ENHANCED
+  function handleFavoriteToggle(btn) {
+    console.log("⭐ === FAVORITE TOGGLE START ===");
+    console.log("⭐ Button received:", btn);
+
+    const snippetCard = btn.closest("[data-snippet-id]");
+    if (!snippetCard) {
+      console.error("❌ No snippet card found for favorite button");
+      return;
+    }
+
+    const snippetId = snippetCard.dataset.snippetId;
+    const isCurrentlyFavorite = btn.classList.contains("active");
+    const newFavoriteState = !isCurrentlyFavorite;
+
+    console.log(`⭐ Snippet ID: ${snippetId}`);
+    console.log(`⭐ Current favorite state: ${isCurrentlyFavorite}`);
+    console.log(`⭐ New favorite state: ${newFavoriteState}`);
+
+    // Optimistic UI update
+    if (newFavoriteState) {
+      btn.classList.add("active");
+      btn.style.transform = "scale(1.2)";
+      btn.style.background = "#ffd700";
+      btn.style.color = "#333";
+      console.log(`💛 UI updated: Added to favorites`);
+    } else {
+      btn.classList.remove("active");
+      btn.style.background = "";
+      btn.style.color = "";
+      console.log(`🤍 UI updated: Removed from favorites`);
+    }
+
+    // Reset transform
+    setTimeout(() => {
+      btn.style.transform = "";
+    }, 200);
+
+    // API call
+    console.log(`📡 Making API call to: /api/snippets/${snippetId}/favorite`);
+
+    fetch(`/api/snippets/${snippetId}/favorite`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({
+        is_favorite: newFavoriteState,
+      }),
+    })
+      .then((response) => {
+        console.log(`📡 API Response status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(`📡 API Response data:`, data);
+
+        if (data.success) {
+          console.log(`✅ Favorite status updated successfully`);
+          showToast(
+            `Snippet ${
+              newFavoriteState ? "added to" : "removed from"
+            } favorites!`,
+            "success"
+          );
+
+          // Sync UI with server response
+          if (data.is_favorite !== newFavoriteState) {
+            console.log(`🔄 Syncing UI with server response`);
+            if (data.is_favorite) {
+              btn.classList.add("active");
+              btn.style.background = "#ffd700";
+              btn.style.color = "#333";
+            } else {
+              btn.classList.remove("active");
+              btn.style.background = "";
+              btn.style.color = "";
+            }
+          }
+        } else {
+          throw new Error(data.message || "Failed to update favorite status");
+        }
+      })
+      .catch((error) => {
+        console.error(`❌ API Error:`, error);
+
+        // Revert UI changes on error
+        if (newFavoriteState) {
+          btn.classList.remove("active");
+          btn.style.background = "";
+          btn.style.color = "";
+        } else {
+          btn.classList.add("active");
+          btn.style.background = "#ffd700";
+          btn.style.color = "#333";
+        }
+
+        showToast(
+          "Failed to update favorite status. Please try again.",
+          "error"
+        );
+      });
+
+    console.log("⭐ === FAVORITE TOGGLE END ===");
+  }
+
+  // 6. COPY CODE FUNCTIONALITY - ENHANCED
+  function handleCopyCode(btn) {
+    console.log("📋 === COPY CODE START ===");
+    console.log("📋 Button received:", btn);
+
+    const snippetCard = btn.closest("[data-snippet-id]");
+    if (!snippetCard) {
+      console.error("❌ No snippet card found for copy button");
+      return;
+    }
+
+    const codeElement = snippetCard.querySelector("code");
+    if (!codeElement) {
+      console.error("❌ No code element found in snippet card");
+      showToast("No code found to copy", "error");
+      return;
+    }
+
+    const code = codeElement.textContent;
+    const snippetId = snippetCard.dataset.snippetId;
+
+    console.log(`📋 Snippet ID: ${snippetId}`);
+    console.log(`📋 Code length: ${code.length} characters`);
+    console.log(`📋 Code preview: ${code.substring(0, 50)}...`);
+
+    navigator.clipboard
+      .writeText(code)
+      .then(() => {
+        console.log(`✅ Code copied to clipboard successfully`);
+
+        // Visual feedback
+        const originalContent = btn.innerHTML;
+        btn.innerHTML =
+          '<i class="fas fa-check"></i><span class="btn-text">Copied!</span>';
+        btn.style.background = "#32cd32";
+        btn.style.color = "white";
+
+        setTimeout(() => {
+          btn.innerHTML = originalContent;
+          btn.style.background = "";
+          btn.style.color = "";
+        }, 2000);
+
+        showToast("Code copied to clipboard!", "success");
+
+        // Track copy event
+        trackSnippetAction(snippetId, "copy");
+      })
+      .catch((error) => {
+        console.error(`❌ Failed to copy code:`, error);
+        showToast("Failed to copy code. Please try again.", "error");
+      });
+
+    console.log("📋 === COPY CODE END ===");
+  }
+
+  // 15. COLLECTION CARD CLICK HANDLER - ENHANCED
+  function setupCollectionCardClicks() {
+    console.log("🔗 Setting up collection card click handlers");
+
+    // Use a more specific event delegation approach
+    document.addEventListener(
+      "click",
+      function (e) {
+        console.log("🔍 Collection click detected on:", e.target);
+        console.log("🔍 Target tagName:", e.target.tagName);
+        console.log("🔍 Target classes:", e.target.className);
+
+        // Check if click is on collection view button or its children
+        const viewBtn = e.target.closest(".collection-view-btn");
+        if (viewBtn) {
+          e.stopImmediatePropagation(); // Use stopImmediatePropagation instead
+          e.preventDefault();
+
+          const collectionId = viewBtn.dataset.collectionId;
+          console.log(`👁️ Collection VIEW button clicked: ${collectionId}`);
+
+          if (collectionId && !isNavigating) {
+            console.log(`🚀 Processing view collection: ${collectionId}`);
+            viewCollection(collectionId);
+          } else if (isNavigating) {
+            console.log(
+              "🚫 Navigation already in progress, ignoring view click"
+            );
+          } else {
+            console.error("❌ No collection ID found on view button");
+          }
+          return false; // Prevent any further event handling
+        }
+
+        // Check if click is on collection edit button or its children
+        const editBtn = e.target.closest(".collection-edit-btn");
+        if (editBtn) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+
+          const collectionId = editBtn.dataset.collectionId;
+          console.log(`✏️ Collection EDIT button clicked: ${collectionId}`);
+
+          if (collectionId) {
+            console.log(
+              `🔧 Opening edit modal for collection: ${collectionId}`
+            );
+            openEditModalWithService(collectionId);
+          } else {
+            console.error("❌ No collection ID found on edit button");
+            showToast("Error: Collection ID not found", "error");
+          }
+          return false;
+        }
+
+        console.log("🔍 Click was not on a collection action button");
+      },
+      true
+    ); // Use capture phase for better control
+
+    console.log(
+      "✅ Collection card click handlers set up (VIEW and EDIT buttons only)"
+    );
+  }
+
+  // COLLECTION EDIT MODAL USING EXISTING SERVICE
+  function openEditModalWithService(collectionId) {
+    console.log(`🔧 === OPENING EDIT MODAL WITH SERVICE ===`);
+    console.log(`🔧 Collection ID: ${collectionId}`);
+
+    // Check if CollectionModal service is available
+    if (typeof CollectionModal === "undefined") {
+      console.error("❌ CollectionModal service not available");
+      showToast(
+        "Collection modal service not loaded. Please refresh the page.",
+        "error"
+      );
+      return;
+    }
+
+    // First, get the collection data from the card
+    const collectionCard = document.querySelector(
+      `[data-collection-id="${collectionId}"]`
+    );
+    if (!collectionCard) {
+      console.error("❌ Collection card not found");
+      showToast("Collection not found", "error");
+      return;
+    }
+
+    // Extract collection data from the card
+    const collectionName = collectionCard
+      .querySelector(".card-info h3")
+      .textContent.trim();
+    const collectionDescription = collectionCard
+      .querySelector(".card-info p")
+      .textContent.trim();
+
+    // Get tags from the collection card if they exist
+    const tagElements = collectionCard.querySelectorAll(".tags .tag");
+    const tags = Array.from(tagElements)
+      .map((tag) => tag.textContent.trim())
+      .join(", ");
+
+    const collectionData = {
+      id: collectionId,
+      name: collectionName,
+      description:
+        collectionDescription === "No description" ? "" : collectionDescription,
+      tags: tags,
+      is_public: false, // Default value, you can enhance this later
+    };
+
+    console.log(`📝 Collection data extracted:`, collectionData);
+
+    // Open the modal using the existing service
+    CollectionModal.openForEdit(collectionData, {
+      onSuccess: function (updatedCollection) {
+        console.log("✅ Collection updated successfully:", updatedCollection);
+        showToast(
+          `Collection "${updatedCollection.name}" updated successfully!`,
+          "success"
+        );
+
+        // Update the collection card in the UI
+        updateCollectionCardInPlace(collectionId, updatedCollection);
+      },
+      onClose: function () {
+        console.log("🔧 Edit modal closed");
+      },
+    });
+  }
+
+  // UPDATE COLLECTION CARD IN PLACE
+  function updateCollectionCardInPlace(collectionId, updatedCollection) {
+    console.log(`🔄 Updating collection card in place: ${collectionId}`);
+
+    const collectionCard = document.querySelector(
+      `[data-collection-id="${collectionId}"]`
+    );
+    if (!collectionCard) {
+      console.error("❌ Collection card not found for update");
+      return;
+    }
+
+    // Update collection name
+    const nameElement = collectionCard.querySelector(".card-info h3");
+    if (nameElement) {
+      nameElement.textContent = updatedCollection.name;
+      console.log(`✅ Updated collection name to: ${updatedCollection.name}`);
+    }
+
+    // Update description
+    const descElement = collectionCard.querySelector(".card-info p");
+    if (descElement) {
+      descElement.textContent =
+        updatedCollection.description || "No description";
+      console.log(`✅ Updated collection description`);
+    }
+
+    // Update tags if they exist
+    const tagsContainer = collectionCard.querySelector(".tags");
+    if (tagsContainer && updatedCollection.tags) {
+      const tags = updatedCollection.tags
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag);
+      tagsContainer.innerHTML = tags
+        .map((tag) => `<span class="tag">${tag}</span>`)
+        .join("");
+      console.log(`✅ Updated collection tags`);
+    }
+
+    // Add a subtle animation to show the update
+    collectionCard.style.transform = "scale(1.02)";
+    collectionCard.style.transition = "transform 0.3s ease";
+
+    setTimeout(() => {
+      collectionCard.style.transform = "scale(1)";
+    }, 300);
+
+    console.log(`✅ Collection card updated successfully`);
+  }
+
+  // 7. COLLECTION QUICK PREVIEW FUNCTIONALITY
+  function handleQuickPreview(btn) {
+    const collectionCard = btn.closest("[data-collection-id]");
+    if (!collectionCard) {
+      console.error("❌ No collection card found for preview button");
+      return;
+    }
+
+    const collectionId = collectionCard.dataset.collectionId;
+    console.log(`👁️ Opening quick preview for collection ${collectionId}`);
+
+    window.location.href = `/dashboard/collections/${collectionId}`;
+  }
+
+  // 8. COLLECTION EDIT FUNCTIONALITY
+  function handleEditAction(btn) {
+    const collectionCard = btn.closest("[data-collection-id]");
+    if (!collectionCard) {
+      console.error("❌ No collection card found for edit button");
+      return;
+    }
+
+    const collectionId = collectionCard.dataset.collectionId;
+    console.log(`✏️ Opening edit for collection ${collectionId}`);
+
+    window.location.href = `/dashboard/collections/${collectionId}/edit`;
+  }
+
+  // 9. VIEW TRACKING FUNCTIONS - FIXED TO PREVENT DUPLICATES
+  let isNavigating = false; // Prevent duplicate navigation calls
+
+  function viewCollection(collectionId) {
+    console.log(`👀 === VIEW COLLECTION START ===`);
+    console.log(`👀 Collection ID: ${collectionId}`);
+    console.log(`👀 Current isNavigating state: ${isNavigating}`);
+
+    if (isNavigating) {
+      console.log("🚫 Navigation already in progress, ignoring duplicate call");
+      return;
+    }
+
+    if (!collectionId) {
+      console.error("❌ No collection ID provided to viewCollection");
+      showToast("Error: No collection ID found", "error");
+      return;
+    }
+
+    // Set navigation flag immediately
+    isNavigating = true;
+    console.log(`🔄 Setting isNavigating to true`);
+
+    // Store current page state for return
+    sessionStorage.setItem("returnToRecentPage", "true");
+    sessionStorage.setItem("lastViewedCollection", collectionId);
+
+    console.log(`🚀 Navigating to: /dashboard/collections/${collectionId}`);
+    window.location.href = `/dashboard/collections/${collectionId}`;
+  }
+
+  function viewSnippet(snippetId) {
+    console.log(`👀 === VIEW SNIPPET START ===`);
+    console.log(`👀 Snippet ID: ${snippetId}`);
+    console.log(`👀 Current isNavigating state: ${isNavigating}`);
+
+    if (isNavigating) {
+      console.log("🚫 Navigation already in progress, ignoring duplicate call");
+      return;
+    }
+
+    if (!snippetId) {
+      console.error("❌ No snippet ID provided to viewSnippet");
+      showToast("Error: No snippet ID found", "error");
+      return;
+    }
+
+    // Set navigation flag immediately
+    isNavigating = true;
+    console.log(`🔄 Setting isNavigating to true`);
+
+    // Store current page state for return
+    sessionStorage.setItem("returnToRecentPage", "true");
+    sessionStorage.setItem("lastViewedSnippet", snippetId);
+
+    console.log(`🚀 Navigating to: /dashboard/snippets?id=${snippetId}`);
+    window.location.href = `/dashboard/snippets?id=${snippetId}`;
+  }
+
+  // ENHANCED NAVIGATION FLAG RESET SYSTEM
+  function resetNavigationFlag() {
+    console.log("🔄 Resetting navigation flag...");
+    isNavigating = false;
+    console.log(`✅ Navigation flag reset to: ${isNavigating}`);
+  }
+
+  // Enhanced page visibility handling
+  document.addEventListener("visibilitychange", function () {
+    if (!document.hidden) {
+      console.log("📄 Page became visible, resetting navigation flag");
+      resetNavigationFlag();
+
+      // Check if we returned from viewing a collection/snippet
+      if (sessionStorage.getItem("returnToRecentPage") === "true") {
+        console.log("🔄 Returned from viewing item, updating view counts");
+        updateViewCountsAfterReturn();
+        sessionStorage.removeItem("returnToRecentPage");
+      }
+    }
+  });
+
+  // Enhanced window focus handling
+  window.addEventListener("focus", function () {
+    console.log("🎯 Window focused, resetting navigation flag");
+    resetNavigationFlag();
+  });
+
+  // Page load handling for back navigation
+  window.addEventListener("pageshow", function (event) {
+    console.log("📄 Page show event, persisted:", event.persisted);
+    resetNavigationFlag();
+
+    // Handle back/forward navigation
+    if (event.persisted || performance.navigation.type === 2) {
+      console.log("🔙 Back navigation detected, updating view counts");
+      if (sessionStorage.getItem("returnToRecentPage") === "true") {
+        updateViewCountsAfterReturn();
+        sessionStorage.removeItem("returnToRecentPage");
+      }
+    }
+  });
+
+  // Backup reset with shorter interval
+  setInterval(() => {
+    if (isNavigating) {
+      console.log("⏰ Auto-resetting navigation flag after timeout");
+      resetNavigationFlag();
+    }
+  }, 3000); // Reduced to 3 seconds
+
+  // NEW FUNCTION: Update view counts after returning
+  function updateViewCountsAfterReturn() {
+    console.log("🔄 === UPDATING VIEW COUNTS AFTER RETURN ===");
+
+    const lastViewedCollection = sessionStorage.getItem("lastViewedCollection");
+    const lastViewedSnippet = sessionStorage.getItem("lastViewedSnippet");
+
+    if (lastViewedCollection) {
+      console.log(
+        `📊 Updating view count for collection: ${lastViewedCollection}`
+      );
+      setTimeout(() => {
+        updateCollectionViewCount(lastViewedCollection);
+      }, 500); // Small delay to ensure DOM is ready
+      sessionStorage.removeItem("lastViewedCollection");
+    }
+
+    if (lastViewedSnippet) {
+      console.log(`📊 Updating view count for snippet: ${lastViewedSnippet}`);
+      setTimeout(() => {
+        updateSnippetViewCount(lastViewedSnippet);
+      }, 500); // Small delay to ensure DOM is ready
+      sessionStorage.removeItem("lastViewedSnippet");
+    }
+
+    console.log("🔄 === VIEW COUNT UPDATE COMPLETE ===");
+  }
+
+  // ENHANCED PAGE LOAD DETECTION FOR BETTER VIEW COUNT UPDATES
+  document.addEventListener("DOMContentLoaded", function () {
+    console.log("📄 DOM Content Loaded - Checking for return updates");
+
+    // Check immediately on page load
+    if (sessionStorage.getItem("returnToRecentPage") === "true") {
+      console.log("🔄 Detected return from viewed item on page load");
+      setTimeout(() => {
+        updateViewCountsAfterReturn();
+        sessionStorage.removeItem("returnToRecentPage");
+      }, 1000); // Wait for page to fully load
+    }
+  });
+
+  // Additional check when page becomes fully interactive
+  document.addEventListener("readystatechange", function () {
+    if (document.readyState === "complete") {
+      console.log("📄 Page fully loaded - Final check for view updates");
+
+      if (sessionStorage.getItem("returnToRecentPage") === "true") {
+        console.log("🔄 Final attempt to update view counts");
+        updateViewCountsAfterReturn();
+        sessionStorage.removeItem("returnToRecentPage");
+      }
+    }
+  });
+
+  // NEW FUNCTION: Update collection view count
+  function updateCollectionViewCount(collectionId) {
+    console.log(`📊 === UPDATING COLLECTION VIEW COUNT ===`);
+    console.log(`📊 Collection ID: ${collectionId}`);
+
+    // Instead of fetching from API, simulate view count increment
+    // This is a temporary solution - you can implement proper API later
+    const collectionCard = document.querySelector(
+      `[data-collection-id="${collectionId}"]`
+    );
+    if (collectionCard) {
+      const viewElement = collectionCard.querySelector(
+        ".card-stats span:last-child"
+      );
+      if (viewElement) {
+        const currentText = viewElement.textContent;
+        const currentCount = parseInt(currentText.match(/\d+/)[0]) || 0;
+        const newCount = currentCount + 1;
+
+        viewElement.innerHTML = `<i class="fas fa-eye"></i> ${newCount} views`;
+        console.log(
+          `✅ Collection view count updated from ${currentCount} to ${newCount}`
+        );
+
+        showToast(`Collection view count updated to ${newCount}`, "success");
+      }
+    } else {
+      console.error(`❌ Collection card not found for ID: ${collectionId}`);
+    }
+  }
+
+  // NEW FUNCTION: Update snippet view count
+  function updateSnippetViewCount(snippetId) {
+    console.log(`📊 === UPDATING SNIPPET VIEW COUNT ===`);
+    console.log(`📊 Snippet ID: ${snippetId}`);
+
+    // Instead of fetching from API, simulate view count increment
+    const snippetCard = document.querySelector(
+      `[data-snippet-id="${snippetId}"]`
+    );
+    if (snippetCard) {
+      const viewElement = snippetCard.querySelector(
+        ".card-stats span:first-child"
+      );
+      if (viewElement) {
+        const currentText = viewElement.textContent;
+        const currentCount = parseInt(currentText.match(/\d+/)[0]) || 0;
+        const newCount = currentCount + 1;
+
+        viewElement.innerHTML = `<i class="fas fa-eye"></i> ${newCount}`;
+        console.log(
+          `✅ Snippet view count updated from ${currentCount} to ${newCount}`
+        );
+
+        showToast(`Snippet view count updated to ${newCount}`, "success");
+      }
+    } else {
+      console.error(`❌ Snippet card not found for ID: ${snippetId}`);
+    }
+  }
+
+  //   function trackSnippetView(snippetId) {
+  //     return fetch(`/dashboard/api/snippets/${snippetId}/view`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "X-Requested-With": "XMLHttpRequest",
+  //       },
+  //     })
+  //       .then((response) => {
+  //         console.log(`📊 Snippet view tracking response: ${response.status}`);
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         if (data.success) {
+  //           console.log(`✅ Snippet view tracked successfully: ${snippetId}`);
+  //           updateViewCount(snippetId, data.view_count, "snippet");
+  //         }
+  //         return data;
+  //       })
+  //       .catch((error) => {
+  //         console.error(`❌ Error tracking snippet view ${snippetId}:`, error);
+  //       });
+  //   }
+
+  //   function trackCollectionView(collectionId) {
+  //     return fetch(`/dashboard/api/collections/${collectionId}/view`, {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         "X-Requested-With": "XMLHttpRequest",
+  //       },
+  //     })
+  //       .then((response) => {
+  //         console.log(`📊 Collection view tracking response: ${response.status}`);
+  //         return response.json();
+  //       })
+  //       .then((data) => {
+  //         if (data.success) {
+  //           console.log(
+  //             `✅ Collection view tracked successfully: ${collectionId}`
+  //           );
+  //           updateViewCount(collectionId, data.view_count, "collection");
+  //         }
+  //         return data;
+  //       })
+  //       .catch((error) => {
+  //         console.error(
+  //           `❌ Error tracking collection view ${collectionId}:`,
+  //           error
+  //         );
+  //       });
+  //   }
+
+  function trackSnippetAction(snippetId, action) {
+    console.log(`📈 Tracking action "${action}" for snippet ${snippetId}`);
+
+    fetch(`/dashboard/api/snippets/${snippetId}/action`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({ action: action }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          console.log(
+            `✅ Action "${action}" tracked successfully for snippet ${snippetId}`
+          );
+        }
+      })
+      .catch((error) => {
+        console.error(
+          `❌ Error tracking action "${action}" for snippet ${snippetId}:`,
+          error
+        );
+      });
+  }
+
+  // 10. UI UPDATE HELPERS
+  function updateViewCount(id, viewCount, type) {
+    const selector =
+      type === "snippet"
+        ? `[data-snippet-id="${id}"]`
+        : `[data-collection-id="${id}"]`;
+    const card = document.querySelector(selector);
+
+    if (card) {
+      const viewElement = card.querySelector(".card-stats span:first-child");
+      if (viewElement) {
+        viewElement.innerHTML = `<i class="fas fa-eye"></i> ${viewCount}${
+          type === "collection" ? " views" : ""
+        }`;
+        console.log(`🔄 Updated view count for ${type} ${id}: ${viewCount}`);
+      }
+    }
+  }
+
+  // 11. TOAST NOTIFICATION SYSTEM
+  function setupToastSystem() {
+    if (!document.getElementById("toast-container")) {
+      const container = document.createElement("div");
+      container.id = "toast-container";
+      container.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      pointer-events: none;
+    `;
+      document.body.appendChild(container);
+    }
+  }
+
+  function showToast(message, type = "info") {
+    console.log(`🍞 Toast: ${type.toUpperCase()} - ${message}`);
+
+    const container = document.getElementById("toast-container");
+    if (!container) {
+      setupToastSystem();
+      return showToast(message, type);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+    toast.style.cssText = `
+    background: ${getToastColor(type)};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    max-width: 350px;
+    word-wrap: break-word;
+  `;
+
+    const icon = getToastIcon(type);
+    toast.innerHTML = `<i class="${icon}"></i> ${message}`;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.style.transform = "translateX(0)";
+    }, 10);
+
+    setTimeout(() => {
+      toast.style.transform = "translateX(100%)";
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    }, 4000);
+
+    toast.addEventListener("click", () => {
+      toast.style.transform = "translateX(100%)";
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.parentNode.removeChild(toast);
+        }
+      }, 300);
+    });
+  }
+
+  function getToastColor(type) {
+    const colors = {
+      success: "#32cd32",
+      error: "#ff4757",
+      warning: "#ffa502",
+      info: "#667eea",
+    };
+    return colors[type] || colors.info;
+  }
+
+  function getToastIcon(type) {
+    const icons = {
+      success: "fas fa-check-circle",
+      error: "fas fa-exclamation-circle",
+      warning: "fas fa-exclamation-triangle",
+      info: "fas fa-info-circle",
+    };
+    return icons[type] || icons.info;
+  }
+
+  // 12. ADD CSS FOR LIST VIEW
+  function addListViewStyles() {
+    const style = document.createElement("style");
+    style.textContent = `
+    .collections-grid.list-view,
+    .snippets-grid.list-view {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+    
+    .collections-grid.list-view .collection-card,
+    .snippets-grid.list-view .snippet-card {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      padding: 1rem !important;
+      max-width: 100% !important;
+    }
+    
+    .collections-grid.list-view .card-header,
+    .snippets-grid.list-view .card-header {
+      flex: 1 !important;
+      margin-bottom: 0 !important;
+    }
+    
+    .collections-grid.list-view .card-footer,
+    .snippets-grid.list-view .card-footer {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+      border-top: none !important;
+      margin-left: 1rem !important;
+    }
+    
+    .snippets-grid.list-view .code-preview {
+      display: none !important;
+    }
+    
+    .snippets-grid.list-view .snippet-description {
+      max-width: 300px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+    }
+  `;
+    document.head.appendChild(style);
+  }
+
+  // 13. SNIPPET TITLE CLICK FUNCTIONALITY
+  function setupSnippetTitleClick() {
+    document.addEventListener("click", function (e) {
+      if (e.target.classList.contains("snippet-title")) {
+        const snippetCard = e.target.closest("[data-snippet-id]");
+        if (snippetCard) {
+          const snippetId = snippetCard.dataset.snippetId;
+          viewSnippet(snippetId);
+        }
+      }
+    });
+  }
+
+  // 14. TEST FUNCTIONS FOR DEBUGGING
+  window.testFavorite = function () {
+    const favoriteBtn = document.querySelector(".action-btn.favorite");
+    if (favoriteBtn) {
+      console.log("🧪 Testing favorite button:", favoriteBtn);
+      handleFavoriteToggle(favoriteBtn);
+    } else {
+      console.log("❌ No favorite button found");
+    }
+  };
+
+  window.testCopy = function () {
+    const copyBtn = document.querySelector(".action-btn.copy-btn");
+    if (copyBtn) {
+      console.log("🧪 Testing copy button:", copyBtn);
+      handleCopyCode(copyBtn);
+    } else {
+      console.log("❌ No copy button found");
+    }
+  };
+
+  // Initialize everything
+  addListViewStyles();
+
+  console.log(
+    "✅ Recent page JavaScript loaded successfully with all functionalities"
+  );
+  console.log("🧪 Test functions available: testFavorite(), testCopy()");
+</script>
+<!-- Add this line before the closing </script> tag in recent.html -->
+
+{% endblock %}

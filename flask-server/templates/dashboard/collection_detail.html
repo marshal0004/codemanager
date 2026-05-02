@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontend Utilities - Code Snippets</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --bg-primary: #0a0a0f;
+        --bg-secondary: #1a1a2e;
+        --bg-tertiary: #16213e;
+        --accent-primary: #00d4ff;
+        --accent-secondary: #7c3aed;
+        --accent-gradient: linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%);
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+        --border-color: rgba(255, 255, 255, 0.1);
+        --glass-bg: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      body {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* Animated background */
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 20% 80%,
+            rgba(0, 212, 255, 0.15) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(124, 58, 237, 0.15) 0%,
+            transparent 50%
+          );
+        animation: bgMove 20s ease-in-out infinite;
+        z-index: -1;
+      }
+
+      @keyframes bgMove {
+        0%,
+        100% {
+          transform: translateX(0) translateY(0);
+        }
+        25% {
+          transform: translateX(10px) translateY(-10px);
+        }
+        50% {
+          transform: translateX(-5px) translateY(10px);
+        }
+        75% {
+          transform: translateX(-10px) translateY(-5px);
+        }
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        min-height: 100vh;
+      }
+
+      /* Breadcrumb Navigation */
+      .breadcrumb {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        padding: 1rem 1.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        backdrop-filter: blur(20px);
+        font-size: 0.9rem;
+      }
+
+      .breadcrumb a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+        position: relative;
+      }
+
+      .breadcrumb a:hover {
+        color: var(--accent-primary);
+      }
+
+      .breadcrumb a::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: var(--accent-gradient);
+        transition: width 0.3s ease;
+      }
+
+      .breadcrumb a:hover::after {
+        width: 100%;
+      }
+
+      .breadcrumb-separator {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+      }
+
+      /* Loading state */
+      .loading-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--glass-border);
+        border-top: 4px solid var(--accent-primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 1rem;
+      }
+
+      /* Empty state styles */
+      .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+      }
+
+      .empty-state p {
+        color: var(--text-muted);
+        margin-bottom: 2rem;
+      }
+
+      .empty-state-action {
+        padding: 1rem 2rem;
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .empty-state-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+      }
+
+      .breadcrumb-current {
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+
+      /* Collection Header */
+      .collection-header {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .collection-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          left: -100%;
+        }
+        100% {
+          left: 100%;
+        }
+      }
+
+      .collection-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+      }
+
+      .collection-description {
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        max-width: 600px;
+      }
+
+      .collection-stats {
+        display: flex;
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .stat-number {
+        font-size: 2rem;
+        font-weight: 700;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .collection-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .action-button {
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.95rem;
+      }
+
+      .btn-primary {
+        background: var(--accent-gradient);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.4);
+      }
+
+      .btn-secondary {
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        backdrop-filter: blur(20px);
+      }
+
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(255, 255, 255, 0.1);
+      }
+
+      /* Search and Filter Bar */
+      .search-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 15px;
+        color: var(--text-primary);
+        font-size: 1rem;
+        backdrop-filter: blur(20px);
+        transition: all 0.3s ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+      }
+
+      .filter-chip {
+        padding: 0.75rem 1.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(20px);
+        white-space: nowrap;
+      }
+
+      .filter-chip:hover,
+      .filter-chip.active {
+        background: var(--accent-gradient);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+      }
+
+      /* Snippet Grid */
+      .snippets-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .snippet-card {
+        height: 480px;
+        display: flex;
+        flex-direction: column;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        padding: 1.5rem;
+        backdrop-filter: blur(20px);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+      }
+
+      .snippet-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .snippet-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        border-color: var(--accent-primary);
+      }
+
+      .snippet-card:hover::before {
+        transform: scaleX(1);
+      }
+
+      .snippet-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .snippet-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .snippet-meta {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+      }
+
+      .meta-chip {
+        padding: 0.25rem 0.75rem;
+        background: rgba(124, 58, 237, 0.2);
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        border-radius: 8px;
+        font-size: 0.75rem;
+        color: #a855f7;
+      }
+
+      .snippet-code {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+        font-family: "Fira Code", "Consolas", monospace;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        position: relative;
+        height: 150px;
+        max-height: 150px;
+        overflow-y: auto;
+        overflow-x: auto;
+        flex-shrink: 0;
+      }
+      .snippet-code pre {
+        margin: 0;
+        white-space: pre;
+        word-wrap: normal;
+        min-width: max-content;
+      }
+
+      .snippet-code::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      .snippet-code::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      .snippet-code::-webkit-scrollbar-thumb {
+        background: var(--accent-primary);
+        border-radius: 4px;
+      }
+
+      .snippet-actions {
+        display: flex;
+        gap: 0.5rem;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        margin-top: auto;
+        flex-shrink: 0;
+      }
+
+      .snippet-card:hover .snippet-actions {
+        opacity: 1;
+      }
+
+      .action-btn {
+        padding: 0.5rem;
+        background: var(--glass-bg);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+        background: var(--accent-primary);
+        color: white;
+        transform: scale(1.1);
+      }
+
+      /* Floating Action Button */
+      .fab {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: var(--accent-gradient);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+      }
+
+      .fab:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 15px 40px rgba(0, 212, 255, 0.5);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-muted);
+      }
+
+      .empty-state-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+      }
+
+      .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-secondary);
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          padding: 1rem;
+        }
+
+        .collection-header {
+          padding: 1.5rem;
+        }
+
+        .collection-title {
+          font-size: 2rem;
+        }
+
+        .collection-stats {
+          gap: 1rem;
+        }
+
+        .collection-actions {
+          justify-content: center;
+        }
+
+        .snippets-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .search-bar {
+          flex-direction: column;
+        }
+
+        .search-input {
+          min-width: auto;
+        }
+
+        .breadcrumb {
+          font-size: 0.8rem;
+          padding: 0.75rem 1rem;
+        }
+      }
+
+      /* Loading States */
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 2px solid var(--glass-border);
+        border-radius: 50%;
+        border-top-color: var(--accent-primary);
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Toast Animation */
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Epic Modal Styles */
+      /* Modal backdrop */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        z-index: 99999 !important;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        animation: modalFadeIn 0.3s ease;
+      }
+
+      /* Fix textarea height */
+      .epic-input[type="textarea"],
+      textarea.epic-input {
+        min-height: 100px;
+        resize: vertical;
+      }
+
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .epic-modal {
+        z-index: 100000 !important;
+        background: linear-gradient(
+          145deg,
+          var(--bg-secondary) 0%,
+          var(--bg-tertiary) 100%
+        );
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        max-width: 600px;
+        width: 90%;
+        backdrop-filter: blur(20px);
+        border-radius: 20px;
+        overflow: hidden;
+        animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          transform: translateY(50px) scale(0.9);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .epic-header {
+        background: linear-gradient(
+          90deg,
+          rgba(0, 212, 255, 0.1) 0%,
+          rgba(124, 58, 237, 0.1) 100%
+        );
+        border-bottom: 1px solid var(--border-color);
+        padding: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .modal-icon {
+        width: 50px;
+        height: 50px;
+        background: var(--accent-gradient);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: white;
+      }
+
+      .epic-header h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .epic-header p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      .epic-close {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .epic-close:hover {
+        background: rgba(239, 68, 68, 0.2);
+        border-color: #ef4444;
+        color: #ef4444;
+        transform: scale(1.1);
+      }
+
+      .epic-form {
+        padding: 2rem;
+      }
+
+      .form-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .epic-input-group {
+        position: relative;
+      }
+
+      .epic-input-group label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.9rem;
+      }
+
+      .epic-input {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1rem;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-family: inherit;
+      }
+
+      .epic-input:focus {
+        outline: none;
+        border-color: var(--accent-primary);
+        background: rgba(0, 212, 255, 0.05);
+        box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .epic-input:focus + .input-border {
+        transform: scaleX(1);
+      }
+
+      .input-border {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--accent-gradient);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+      }
+
+      .color-picker-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .epic-color-input {
+        width: 60px;
+        height: 60px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .epic-color-input:hover {
+        transform: scale(1.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .color-preview {
+        flex: 1;
+        height: 40px;
+        border-radius: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: #3b82f6;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.8rem;
+      }
+
+      .epic-toggle-group {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .toggle-wrapper {
+        display: flex;
+        align-items: center;
+      }
+
+      .epic-toggle {
+        display: none;
+      }
+
+      .toggle-label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      .toggle-switch {
+        width: 60px;
+        height: 30px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .toggle-slider {
+        width: 26px;
+        height: 26px;
+        background: white;
+        border-radius: 50%;
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .epic-toggle:checked + .toggle-label .toggle-switch {
+        background: var(--accent-gradient);
+      }
+
+      .epic-toggle:checked + .toggle-label .toggle-slider {
+        transform: translateX(30px);
+      }
+
+      .toggle-text {
+        flex: 1;
+      }
+
+      .toggle-title {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .toggle-desc {
+        display: block;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+      }
+
+      .epic-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      .btn-ghost {
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        color: var(--text-secondary);
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
+        color: var(--text-primary);
+        transform: translateY(-2px);
+      }
+
+      .btn-epic {
+        background: var(--accent-gradient);
+        border: none;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.875rem 1.75rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-epic:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+      }
+
+      .btn-glow {
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.3),
+          transparent
+        );
+        transition: left 0.6s;
+      }
+
+      .btn-epic:hover .btn-glow {
+        left: 100%;
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .epic-modal {
+          max-width: 95%;
+          margin: 1rem;
+        }
+
+        .epic-header {
+          padding: 1.5rem;
+        }
+
+        .epic-form {
+          padding: 1.5rem;
+        }
+      }
+
+      /* Enhanced loading spinner */
+      .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 1s ease-in-out infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Pulse animation for updated elements */
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* Favorite button styles */
+      .action-button.favorite {
+        background: linear-gradient(
+          135deg,
+          #ffd700 0%,
+          #ffed4e 100%
+        ) !important;
+        color: #000 !important;
+      }
+
+      .action-button.favorite:hover {
+        background: linear-gradient(
+          135deg,
+          #ffed4e 0%,
+          #ffd700 100%
+        ) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255, 215, 0, 0.4);
+      }
+
+      /* Enhanced Card Layout for Variable Tag Counts */
+      .snippet-card {
+        transition: height 0.3s ease;
+        position: relative;
+      }
+
+      .snippet-meta,
+      .tags,
+      .snippet-tags {
+        max-height: none; /* Allow tags to expand */
+        overflow: visible;
+      }
+
+      /* Ensure action buttons are always accessible */
+      .snippet-actions,
+      .card-actions {
+        position: relative;
+        z-index: 10;
+        margin-top: auto;
+      }
+
+      /* Tag wrapping improvements */
+      .meta-chip,
+      .tag {
+        margin-bottom: 0.25rem;
+        flex-shrink: 0;
+      }
+
+      /* Smooth scrolling for cards with many tags */
+      .card-with-scrollbar {
+        scroll-behavior: smooth;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Breadcrumb Navigation -->
+      <nav class="breadcrumb">
+        <a href="/dashboard">Dashboard</a>
+        <span class="breadcrumb-separator">›</span>
+        <a href="/dashboard/collections">Collections</a>
+        <span class="breadcrumb-separator">›</span>
+        <span class="breadcrumb-current" id="breadcrumbTitle"
+          >{{ collection.name if collection else 'Collection' }}</span
+        >
+      </nav>
+
+      <!-- Collection Header -->
+      <div class="collection-header">
+        <h1 class="collection-title" id="collectionTitle">
+          {{ collection.name if collection else 'Loading...' }}
+        </h1>
+        <p class="collection-description" id="collectionDescription">
+          {{ collection.description if collection else 'Loading collection
+          details...' }}
+        </p>
+
+        <div class="collection-stats">
+          <div class="stat-item">
+            <div class="stat-number" id="snippetCount">
+              {{ collection_stats.snippet_count if collection_stats else 0 }}
+            </div>
+            <div class="stat-label">Snippets</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="languageCount">
+              {{ collection_stats.language_count if collection_stats else 0 }}
+            </div>
+            <div class="stat-label">Languages</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="viewCount">
+              {{ collection_stats.view_count if collection_stats else 0 }}
+            </div>
+            <div class="stat-label">Views</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number" id="forkCount">
+              {{ collection_stats.fork_count if collection_stats else 0 }}
+            </div>
+            <div class="stat-label">Forks</div>
+          </div>
+        </div>
+
+        <div class="collection-actions">
+          <button class="action-button btn-primary" data-action="edit">
+            <span>✏️</span>
+            Edit Collection
+          </button>
+          <button
+            class="action-button btn-primary"
+            data-action="add-snippet"
+            id="addSnippetToCollectionBtn">
+            <span>➕</span>
+            Add Snippet
+          </button>
+          <button class="action-button btn-secondary" data-action="share">
+            <span>🔗</span>
+            Share Collection
+          </button>
+          <button class="action-button btn-secondary" data-action="export">
+            <span>📥</span>
+            Export All
+          </button>
+          <button
+            class="action-button btn-secondary"
+            data-action="favorite"
+            id="favoriteBtn"
+            class="{{ 'favorite' if collection_stats.is_favorited else '' }}">
+            <span>⭐</span>
+            <span id="favoriteText"
+              >{{ 'Remove from Favorites' if collection_stats.is_favorited else
+              'Add to Favorites' }}</span
+            >
+          </button>
+        </div>
+      </div>
+
+      <!-- Search and Filter Bar -->
+      <div class="search-bar">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="🔍 Search snippets in this collection..."
+          id="searchInput" />
+        <div class="filter-chip active" data-filter="all">All</div>
+        <div class="filter-chip" data-filter="javascript">JavaScript</div>
+        <div class="filter-chip" data-filter="css">CSS</div>
+        <div class="filter-chip" data-filter="html">HTML</div>
+        <div class="filter-chip" data-filter="recent">Recent</div>
+        <div class="filter-chip" data-filter="favorites">⭐ Favorites</div>
+      </div>
+
+      <!-- Snippets Grid -->
+      <!-- Snippets Grid -->
+      <div class="snippets-grid" id="snippetsGrid">
+        <!-- Real snippets will be loaded here by JavaScript -->
+        <div class="loading-state">
+          <div class="loading-spinner"></div>
+          <p>Loading snippets...</p>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <button class="fab" id="addSnippetBtn" title="Add New Snippet">+</button>
+    </div>
+    <!-- Epic Edit Collection Modal -->
+    <!-- Epic Edit Collection Modal -->
+    <div id="editCollectionModal" class="modal">
+      <div class="epic-modal">
+        <div class="epic-header">
+          <div class="header-content">
+            <div class="modal-icon">✏️</div>
+            <div>
+              <h2>Edit Collection</h2>
+              <p>Customize your collection settings</p>
+            </div>
+          </div>
+          <button class="epic-close" onclick="closeEditModal()">×</button>
+        </div>
+
+        <form id="editCollectionForm" class="epic-form">
+          <div class="form-grid">
+            <div class="epic-input-group">
+              <label for="editCollectionName"> 📝 Collection Name </label>
+              <input
+                type="text"
+                id="editCollectionName"
+                class="epic-input"
+                required />
+              <div class="input-border"></div>
+            </div>
+
+            <div class="epic-input-group">
+              <label for="editCollectionDescription"> 📄 Description </label>
+              <textarea
+                id="editCollectionDescription"
+                class="epic-input"
+                placeholder="Describe your collection..."></textarea>
+              <div class="input-border"></div>
+            </div>
+
+            <div class="form-row">
+              <div class="epic-input-group">
+                <label for="editCollectionColor"> 🎨 Theme Color </label>
+                <div class="color-picker-wrapper">
+                  <input
+                    type="color"
+                    id="editCollectionColor"
+                    class="epic-color-input"
+                    value="#3B82F6" />
+                  <div class="color-preview" id="colorPreview">#3B82F6</div>
+                </div>
+              </div>
+
+              <div class="epic-toggle-group">
+                <div class="toggle-wrapper">
+                  <input
+                    type="checkbox"
+                    id="editCollectionPublic"
+                    class="epic-toggle" />
+                  <label for="editCollectionPublic" class="toggle-label">
+                    <div class="toggle-switch">
+                      <div class="toggle-slider"></div>
+                    </div>
+                    <div class="toggle-text">
+                      <span class="toggle-title">Public Collection</span>
+                      <span class="toggle-desc">Allow others to discover</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="epic-actions">
+            <button type="button" class="btn-ghost" onclick="closeEditModal()">
+              ❌ Cancel
+            </button>
+            <button type="submit" class="btn-epic">
+              💾 <span>Update Collection</span>
+              <div class="btn-glow"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Add Snippet Modal -->
+    <div id="addSnippetModal" class="modal">
+      <div class="epic-modal">
+        <div class="epic-header">
+          <div class="header-content">
+            <div class="modal-icon">➕</div>
+            <div>
+              <h2>Add Snippet to Collection</h2>
+              <p>Create a new code snippet</p>
+            </div>
+          </div>
+          <button class="epic-close" onclick="closeSnippetModal()">×</button>
+        </div>
+
+        <form id="addSnippetForm" class="epic-form">
+          <div class="form-grid">
+            <div class="epic-input-group">
+              <label for="snippetTitle">📝 Snippet Title</label>
+              <input
+                type="text"
+                id="snippetTitle"
+                class="epic-input"
+                placeholder="Enter snippet title..."
+                required />
+              <div class="input-border"></div>
+            </div>
+
+            <div class="form-row">
+              <div class="epic-input-group">
+                <label for="snippetLanguage">🔤 Language</label>
+                <input
+                  type="text"
+                  id="snippetLanguage"
+                  class="epic-input"
+                  placeholder="javascript, python, css..."
+                  required />
+                <div class="input-border"></div>
+              </div>
+
+              <div class="epic-input-group">
+                <label for="snippetTags">🏷️ Tags</label>
+                <input
+                  type="text"
+                  id="snippetTags"
+                  class="epic-input"
+                  placeholder="api, utility, async..." />
+                <div class="input-border"></div>
+              </div>
+            </div>
+
+            <div class="epic-input-group">
+              <label for="snippetCode">💻 Code</label>
+              <textarea
+                id="snippetCode"
+                class="epic-input"
+                placeholder="Paste your code here..."
+                rows="10"
+                required></textarea>
+              <div class="input-border"></div>
+            </div>
+
+            <div class="epic-input-group">
+              <label for="snippetDescription">📄 Description (Optional)</label>
+              <textarea
+                id="snippetDescription"
+                class="epic-input"
+                placeholder="What does this snippet do?"
+                rows="3"></textarea>
+              <div class="input-border"></div>
+            </div>
+          </div>
+
+          <div class="epic-actions">
+            <button
+              type="button"
+              class="btn-ghost"
+              onclick="closeSnippetModal()">
+              ❌ Cancel
+            </button>
+            <button type="submit" class="btn-epic">
+              💾 <span>Add Snippet</span>
+              <div class="btn-glow"></div>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      // Dynamic Card Height Adjustment Based on Tags
+      function adjustCardHeightsForTags() {
+        console.log(
+          "🏷️ TAG HEIGHT ADJUSTER - Starting dynamic height adjustment"
+        );
+
+        const cards = document.querySelectorAll(".snippet-card");
+        let adjustmentsMade = 0;
+
+        cards.forEach((card, index) => {
+          try {
+            // Find tags container (different selectors for different pages)
+            const tagsContainer = card.querySelector(
+              ".snippet-meta, .tags, .snippet-tags"
+            );
+            const actionButtons = card.querySelector(
+              ".snippet-actions, .card-actions, .action-buttons"
+            );
+
+            if (!tagsContainer) {
+              console.log(`⚠️ Card ${index + 1}: No tags container found`);
+              return;
+            }
+
+            // Count tags (handle different tag structures)
+            let tagCount = 0;
+            const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+            const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+            if (metaChips.length > 0) {
+              // Count meta-chips but exclude language chip (usually first one)
+              tagCount = Math.max(0, metaChips.length - 1);
+            } else if (tagSpans.length > 0) {
+              tagCount = tagSpans.length;
+            }
+
+            console.log(`🏷️ Card ${index + 1}: Found ${tagCount} tags`);
+
+            // Calculate new height based on tag count
+            let newHeight = 420; // Base height
+            let needsScroll = false;
+
+            if (tagCount <= 5) {
+              // No adjustment needed
+              newHeight = 420;
+            } else if (tagCount <= 9) {
+              // Slight increase
+              newHeight = 460;
+              console.log(
+                `📏 Card ${index + 1}: Slight height increase to ${newHeight}px`
+              );
+            } else {
+              // Many tags - add scrollbar to card
+              newHeight = 420;
+              needsScroll = true;
+              console.log(
+                `📜 Card ${index + 1}: Adding scrollbar for ${tagCount} tags`
+              );
+            }
+
+            // Apply height adjustment
+            card.style.height = `${newHeight}px`;
+
+            // Add scrollbar if needed
+            if (needsScroll) {
+              card.style.overflowY = "auto";
+              card.style.paddingRight = "8px"; // Account for scrollbar
+
+              // Add custom scrollbar styles
+              card.style.scrollbarWidth = "thin";
+              card.classList.add("card-with-scrollbar");
+            } else {
+              card.style.overflowY = "visible";
+              card.style.paddingRight = "1.5rem"; // Reset to original
+              card.classList.remove("card-with-scrollbar");
+            }
+
+            // Ensure action buttons are always visible
+            if (actionButtons) {
+              actionButtons.style.position = "sticky";
+              actionButtons.style.bottom = "0";
+              actionButtons.style.backgroundColor = "inherit";
+              actionButtons.style.zIndex = "10";
+            }
+
+            adjustmentsMade++;
+          } catch (error) {
+            console.error(`❌ Error adjusting card ${index + 1}:`, error);
+          }
+        });
+
+        console.log(
+          `✅ TAG HEIGHT ADJUSTER - Completed ${adjustmentsMade} adjustments`
+        );
+
+        // Add scrollbar styles if not already present
+        addScrollbarStyles();
+      }
+
+      // Add custom scrollbar styles for cards
+      function addScrollbarStyles() {
+        const existingStyle = document.getElementById("cardScrollbarStyles");
+        if (existingStyle) return; // Already added
+
+        const style = document.createElement("style");
+        style.id = "cardScrollbarStyles";
+        style.textContent = `
+    /* Enhanced Custom scrollbar for snippet cards */
+    .snippet-card::-webkit-scrollbar,
+    .card-with-scrollbar::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-track,
+    .card-with-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb,
+    .card-with-scrollbar::-webkit-scrollbar-thumb {
+      background: var(--accent-primary, #00d4ff);
+      border-radius: 4px;
+      transition: background 0.3s ease;
+    }
+    
+    .snippet-card::-webkit-scrollbar-thumb:hover,
+    .card-with-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: var(--accent-secondary, #7c3aed);
+    }
+    
+    /* Enhanced Firefox support */
+    .snippet-card,
+    .card-with-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: var(--accent-primary, #00d4ff) rgba(255, 255, 255, 0.1);
+    }
+  `;
+
+        document.head.appendChild(style);
+        console.log("🎨 Added custom scrollbar styles for cards");
+      }
+
+      // Enhanced logging for tag detection
+      function logTagAnalysis() {
+        console.log("🔍 TAG ANALYSIS - Analyzing tag distribution");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const tagStats = {
+          noTags: 0,
+          fewTags: 0, // 1-5 tags
+          mediumTags: 0, // 6-9 tags
+          manyTags: 0, // 10+ tags
+        };
+
+        cards.forEach((card, index) => {
+          const tagsContainer = card.querySelector(
+            ".snippet-meta, .tags, .snippet-tags"
+          );
+          if (!tagsContainer) {
+            tagStats.noTags++;
+            return;
+          }
+
+          const metaChips = tagsContainer.querySelectorAll(".meta-chip");
+          const tagSpans = tagsContainer.querySelectorAll(".tag");
+
+          let tagCount = 0;
+          if (metaChips.length > 0) {
+            tagCount = Math.max(0, metaChips.length - 1); // Exclude language chip
+          } else if (tagSpans.length > 0) {
+            tagCount = tagSpans.length;
+          }
+
+          if (tagCount === 0) tagStats.noTags++;
+          else if (tagCount <= 5) tagStats.fewTags++;
+          else if (tagCount <= 9) tagStats.mediumTags++;
+          else tagStats.manyTags++;
+
+          console.log(`🏷️ Card ${index + 1}: ${tagCount} tags`);
+        });
+
+        console.log("📊 TAG DISTRIBUTION:", tagStats);
+        return tagStats;
+      }
+
+      // Initialize tag-based height adjustment
+      function initializeTagHeightAdjustment() {
+        console.log("🚀 Initializing tag-based height adjustment system");
+
+        // Wait for DOM to be fully loaded
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+              logTagAnalysis();
+              adjustCardHeightsForTags();
+            }, 500);
+          });
+        } else {
+          setTimeout(() => {
+            logTagAnalysis();
+            adjustCardHeightsForTags();
+          }, 500);
+        }
+
+        // Re-adjust when new content is loaded
+        const observer = new MutationObserver((mutations) => {
+          let shouldReadjust = false;
+
+          mutations.forEach((mutation) => {
+            if (mutation.type === "childList") {
+              const addedNodes = Array.from(mutation.addedNodes);
+              if (
+                addedNodes.some(
+                  (node) =>
+                    node.nodeType === 1 &&
+                    (node.classList?.contains("snippet-card") ||
+                      node.querySelector?.(".snippet-card"))
+                )
+              ) {
+                shouldReadjust = true;
+              }
+            }
+          });
+
+          if (shouldReadjust) {
+            console.log("🔄 New snippet cards detected, re-adjusting heights");
+            setTimeout(adjustCardHeightsForTags, 100);
+          }
+        });
+
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+        });
+
+        console.log("✅ Tag height adjustment system initialized");
+      }
+
+      // Manual adjustment function for testing
+      window.adjustCardHeights = adjustCardHeightsForTags;
+      window.analyzeTagDistribution = logTagAnalysis;
+
+      // Auto-initialize
+      initializeTagHeightAdjustment();
+      // Enhanced Card Height Logging
+      function logCardHeights() {
+        console.log("🔍 CARD HEIGHT DEBUG - Checking snippet card dimensions");
+
+        const cards = document.querySelectorAll(".snippet-card");
+        const codeBlocks = document.querySelectorAll(
+          ".snippet-code, .code-preview"
+        );
+
+        console.log(
+          `📊 Found ${cards.length} snippet cards and ${codeBlocks.length} code blocks`
+        );
+
+        cards.forEach((card, index) => {
+          const rect = card.getBoundingClientRect();
+          const codeBlock = card.querySelector(".snippet-code, .code-preview");
+          const codeRect = codeBlock ? codeBlock.getBoundingClientRect() : null;
+
+          console.log(`📏 Card ${index + 1}:`, {
+            height: rect.height,
+            codeHeight: codeRect ? codeRect.height : "N/A",
+            hasScrollY: codeBlock
+              ? codeBlock.scrollHeight > codeBlock.clientHeight
+              : false,
+            hasScrollX: codeBlock
+              ? codeBlock.scrollWidth > codeBlock.clientWidth
+              : false,
+          });
+        });
+      }
+
+      // Call after DOM loads
+      document.addEventListener("DOMContentLoaded", function () {
+        setTimeout(logCardHeights, 1000);
+      });
+      // Initialize syntax highlighting
+      hljs.highlightAll();
+
+      // Global variables
+      let collectionData = {};
+      let currentFilter = "all";
+      let searchQuery = "";
+
+      // Wait for DOM to be fully loaded
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🚀 DOM loaded, initializing...");
+
+        // Initialize all functionality
+        initializeEventListeners();
+        initializeEditModal();
+        loadCollectionData();
+
+        console.log("✅ All systems initialized!");
+      });
+
+      // Load collection data from server - FIXED VERSION
+      async function loadCollectionData() {
+        console.log("🔄 Loading collection data...");
+
+        try {
+          // Get collection ID from URL - IMPROVED METHOD
+          const pathParts = window.location.pathname.split("/");
+          const collectionId = pathParts[pathParts.length - 1];
+
+          console.log("📋 Collection ID:", collectionId);
+          console.log("📋 Full URL path:", window.location.pathname);
+
+          if (!collectionId || collectionId === "collections") {
+            throw new Error("Invalid collection ID in URL");
+          }
+
+          // Show loading state
+          showLoadingState();
+
+          // Make API request
+          const response = await fetch(`/api/collections/${collectionId}`, {
+            method: "GET",
+            headers: {
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            credentials: "same-origin",
+          });
+
+          console.log("📡 Response status:", response.status);
+          console.log("📡 Response headers:", response.headers);
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ Response error:", errorText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const result = await response.json();
+          console.log("📊 Full API response:", result);
+
+          if (result.success) {
+            // Use either 'data' or 'collection' from response
+            collectionData = result.data || result.collection;
+            console.log("📊 Collection data extracted:", collectionData);
+
+            if (collectionData) {
+              updatePageWithRealData(collectionData);
+              loadRealSnippets(collectionData.snippets || []);
+            } else {
+              throw new Error("No collection data in response");
+            }
+          } else {
+            throw new Error(result.message || "Failed to load collection data");
+          }
+        } catch (error) {
+          console.error("❌ Error loading collection:", error);
+          showToast(`Failed to load collection: ${error.message}`, "error");
+          showEmptySnippetsState();
+        }
+      }
+
+      // Show loading state
+      function showLoadingState() {
+        const snippetsGrid = document.getElementById("snippetsGrid");
+        if (snippetsGrid) {
+          snippetsGrid.innerHTML = `
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading snippets...</p>
+            </div>
+        `;
+        }
+      }
+
+      // Update page with real data - ENHANCED VERSION
+      function updatePageWithRealData(data) {
+        console.log("🔄 Updating page with real data:", data);
+
+        try {
+          // Update title and description
+          const titleEl = document.getElementById("collectionTitle");
+          const descEl = document.getElementById("collectionDescription");
+          const breadcrumbEl = document.getElementById("breadcrumbTitle");
+
+          if (titleEl) {
+            titleEl.textContent = data.name || "Untitled Collection";
+            console.log("✅ Title updated:", data.name);
+          }
+
+          if (descEl) {
+            descEl.textContent = data.description || "No description available";
+            console.log("✅ Description updated");
+          }
+
+          if (breadcrumbEl) {
+            breadcrumbEl.textContent = data.name || "Collection";
+            console.log("✅ Breadcrumb updated");
+          }
+
+          // Update stats with safe fallbacks
+          updateStat("snippetCount", data.snippet_count || 0);
+          updateStat("languageCount", data.language_count || 0);
+          updateStat("viewCount", formatNumber(data.view_count || 0));
+          updateStat("forkCount", formatNumber(data.fork_count || 0));
+
+          // Update favorite button
+          updateFavoriteButton(data.is_favorited || false);
+
+          // Update page title
+          document.title = `${data.name || "Collection"} - Code Snippets`;
+
+          console.log("✅ Page updated with real data");
+        } catch (error) {
+          console.error("❌ Error updating page:", error);
+        }
+      }
+
+      // Helper function to update stats safely
+      function updateStat(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.textContent = value;
+          console.log(`✅ ${elementId} updated to:`, value);
+        } else {
+          console.warn(`⚠️ Element ${elementId} not found`);
+        }
+      }
+
+      // Update favorite button state
+      function updateFavoriteButton(isFavorited) {
+        const favoriteBtn = document.getElementById("favoriteBtn");
+        const favoriteText = document.getElementById("favoriteText");
+
+        if (favoriteBtn && favoriteText) {
+          if (isFavorited) {
+            favoriteBtn.classList.add("favorite");
+            favoriteText.textContent = "Remove from Favorites";
+          } else {
+            favoriteBtn.classList.remove("favorite");
+            favoriteText.textContent = "Add to Favorites";
+          }
+          console.log("✅ Favorite button updated:", isFavorited);
+        }
+      }
+
+      // Load real snippets - ENHANCED VERSION
+      function loadRealSnippets(snippets) {
+        console.log("🔄 Loading real snippets:", snippets);
+
+        const snippetsGrid = document.getElementById("snippetsGrid");
+        if (!snippetsGrid) {
+          console.error("❌ Snippets grid not found");
+          return;
+        }
+
+        // Clear existing content
+        snippetsGrid.innerHTML = "";
+
+        if (!snippets || snippets.length === 0) {
+          showEmptySnippetsState();
+          return;
+        }
+
+        // Create snippet cards with staggered animation
+        snippets.forEach((snippet, index) => {
+          try {
+            const card = createSnippetCard(snippet);
+            snippetsGrid.appendChild(card);
+
+            // Add staggered animation
+            setTimeout(() => {
+              card.style.opacity = "1";
+              card.style.transform = "translateY(0)";
+            }, index * 100);
+
+            console.log(`✅ Snippet card created: ${snippet.title}`);
+          } catch (error) {
+            console.error(
+              `❌ Error creating card for snippet ${snippet.id}:`,
+              error
+            );
+          }
+        });
+
+        // Re-initialize syntax highlighting
+        setTimeout(() => {
+          hljs.highlightAll();
+          console.log("✅ Syntax highlighting applied");
+        }, 500);
+
+        console.log(`✅ ${snippets.length} snippets loaded successfully`);
+      }
+
+      // Show empty state when no snippets
+      function showEmptySnippetsState() {
+        const snippetsGrid = document.getElementById("snippetsGrid");
+        if (!snippetsGrid) return;
+
+        snippetsGrid.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <h3>No snippets yet</h3>
+            <p>Start building your collection by adding your first snippet!</p>
+            <button class="empty-state-action" onclick="openAddSnippetModal()">
+                ✨ Add Your First Snippet
+            </button>
+        </div>
+    `;
+      }
+
+      // Create snippet card element - ENHANCED VERSION
+      function createSnippetCard(snippet) {
+        const card = document.createElement("div");
+        card.className = "snippet-card";
+        card.dataset.language = snippet.language || "text";
+        card.dataset.created = snippet.created_at || "";
+        card.dataset.snippetId = snippet.id || "";
+
+        // Initial animation state
+        card.style.opacity = "0";
+        card.style.transform = "translateY(20px)";
+        card.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+
+        // Process tags safely
+        const tags = Array.isArray(snippet.tags)
+          ? snippet.tags
+          : typeof snippet.tags === "string"
+          ? snippet.tags.split(",").map((t) => t.trim())
+          : [];
+
+        const tagChips = tags
+          .filter((tag) => tag && tag.length > 0)
+          .map((tag) => `<span class="meta-chip">${escapeHtml(tag)}</span>`)
+          .join("");
+
+        // Create card HTML
+        card.innerHTML = `
+        <div class="snippet-header">
+            <div>
+                <h3 class="snippet-title">${escapeHtml(
+                  snippet.title || "Untitled Snippet"
+                )}</h3>
+                <div class="snippet-meta">
+                    <span class="meta-chip">${escapeHtml(
+                      snippet.language || "Text"
+                    )}</span>
+                    ${tagChips}
+                </div>
+            </div>
+        </div>
+        <div class="snippet-code">
+            <pre><code class="language-${
+              snippet.language || "text"
+            }">${escapeHtml(snippet.code || "")}</code></pre>
+        </div>
+        <div class="snippet-actions">
+            <button class="action-btn" title="Copy" data-action="copy">📋</button>
+            <button class="action-btn" title="Edit" data-action="edit">✏️</button>
+            <button class="action-btn" title="Share" data-action="share">🔗</button>
+            <button class="action-btn" title="Favorite" data-action="favorite">⭐</button>
+            <button class="action-btn" title="Delete" data-action="delete">🗑️</button>
+        </div>
+    `;
+
+        return card;
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(text) {
+        if (!text) return "";
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Format numbers (e.g., 1234 -> 1.2k)
+      function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+        if (num >= 1000) return (num / 1000).toFixed(1) + "k";
+        return num.toString();
+      }
+
+      // Initialize all event listeners - CLEANED UP VERSION
+      function initializeEventListeners() {
+        console.log("🔧 Initializing event listeners...");
+
+        // Add snippet buttons
+        const addSnippetBtn = document.getElementById("addSnippetBtn");
+        const addSnippetToCollectionBtn = document.getElementById(
+          "addSnippetToCollectionBtn"
+        );
+
+        if (addSnippetBtn) {
+          addSnippetBtn.addEventListener("click", openAddSnippetModal);
+          console.log("✅ FAB add snippet button listener added");
+        }
+
+        if (addSnippetToCollectionBtn) {
+          addSnippetToCollectionBtn.addEventListener(
+            "click",
+            openAddSnippetModal
+          );
+          console.log("✅ Collection add snippet button listener added");
+        }
+
+        // Search input
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+          searchInput.addEventListener("input", handleSearch);
+          console.log("✅ Search input listener added");
+        }
+
+        // Filter chips
+        const filterChips = document.querySelectorAll(".filter-chip");
+        filterChips.forEach((chip) => {
+          chip.addEventListener("click", () => {
+            filterChips.forEach((c) => c.classList.remove("active"));
+            chip.classList.add("active");
+            currentFilter = chip.dataset.filter;
+            filterSnippets();
+          });
+        });
+        console.log("✅ Filter chips listeners added");
+
+        // Collection actions
+        const collectionActions = document.querySelector(".collection-actions");
+        if (collectionActions) {
+          collectionActions.addEventListener("click", handleCollectionActions);
+          console.log("✅ Collection actions listener added");
+        }
+
+        // Snippet form
+        const snippetForm = document.getElementById("addSnippetForm");
+        if (snippetForm) {
+          snippetForm.addEventListener("submit", handleSnippetSubmission);
+          console.log("✅ Snippet form listener added");
+        }
+
+        // Global event listeners
+        document.addEventListener("click", handleSnippetActions);
+        document.addEventListener("keydown", handleKeyboardShortcuts);
+        document.addEventListener("click", handleModalClose);
+        document.addEventListener("keydown", handleEscapeKey);
+
+        console.log("✅ All event listeners initialized");
+      }
+
+      // Handle collection actions - FIXED VERSION
+      function handleCollectionActions(e) {
+        const button = e.target.closest(".action-button");
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const buttonText = button.textContent.trim();
+
+        console.log("🎯 Collection action:", action, buttonText);
+
+        // Handle by data-action first
+        if (action === "add-snippet") {
+          openAddSnippetModal();
+          return;
+        }
+
+        // Handle by button text
+        if (buttonText.includes("Edit Collection")) {
+          editCollection();
+        } else if (buttonText.includes("Share Collection")) {
+          shareCollection();
+        } else if (buttonText.includes("Export All")) {
+          exportCollection();
+        } else if (buttonText.includes("Favorites")) {
+          toggleCollectionFavorite(button);
+        }
+      }
+
+      // Modal functions
+      function openAddSnippetModal() {
+        console.log("🚀 Opening add snippet modal");
+        const modal = document.getElementById("addSnippetModal");
+        if (modal) {
+          modal.classList.add("active");
+          setTimeout(() => {
+            document.getElementById("snippetTitle")?.focus();
+          }, 300);
+        }
+      }
+
+      function closeSnippetModal() {
+        console.log("🚪 Closing snippet modal");
+        const modal = document.getElementById("addSnippetModal");
+        if (modal) {
+          modal.classList.remove("active");
+          document.getElementById("addSnippetForm")?.reset();
+        }
+      }
+
+      // Handle snippet form submission - ENHANCED VERSION
+      async function handleSnippetSubmission(e) {
+        e.preventDefault();
+        console.log("📝 Submitting snippet form");
+
+        // Get collection ID from URL
+        const pathParts = window.location.pathname.split("/");
+        const collectionId = pathParts[pathParts.length - 1];
+
+        // Get form data
+        const formData = {
+          title: document.getElementById("snippetTitle")?.value?.trim() || "",
+          content: document.getElementById("snippetCode")?.value || "",
+          language:
+            document
+              .getElementById("snippetLanguage")
+              ?.value?.trim()
+              ?.toLowerCase() || "",
+          description:
+            document.getElementById("snippetDescription")?.value?.trim() || "",
+          tags:
+            document
+              .getElementById("snippetTags")
+              ?.value?.split(",")
+              .map((tag) => tag.trim())
+              .filter((tag) => tag) || [],
+          collection_id: collectionId,
+          is_public: false,
+        };
+
+        console.log("📊 Snippet data:", formData);
+
+        // Validate form
+        if (!formData.title) {
+          showToast("Snippet title is required! ❌", "error");
+          return;
+        }
+
+        if (!formData.content) {
+          showToast("Snippet code is required! ❌", "error");
+          return;
+        }
+
+        // Show loading state
+        const submitBtn = document.querySelector("#addSnippetForm .btn-epic");
+        const originalText = submitBtn?.innerHTML || "";
+        if (submitBtn) {
+          submitBtn.innerHTML = '<div class="loading"></div> Adding...';
+          submitBtn.disabled = true;
+        }
+
+        try {
+          const response = await fetch("/api/snippets/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+          console.log("📊 Server response:", result);
+
+          if (response.ok && result.success) {
+            closeSnippetModal();
+            showToast("Snippet added successfully! ✅", "success");
+
+            // Reload collection data to show new snippet
+            setTimeout(() => {
+              loadCollectionData();
+            }, 1000);
+          } else {
+            throw new Error(result.message || "Failed to add snippet");
+          }
+        } catch (error) {
+          console.error("❌ Error adding snippet:", error);
+          showToast(`Failed to add snippet: ${error.message} ❌`, "error");
+        } finally {
+          if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        }
+      }
+
+      // Initialize edit modal functionality
+      function initializeEditModal() {
+        console.log("🔧 Initializing edit modal...");
+
+        const colorPicker = document.getElementById("editCollectionColor");
+        if (colorPicker) {
+          colorPicker.addEventListener("change", function (e) {
+            updateColorPreview(e.target.value);
+          });
+        }
+
+        const editForm = document.getElementById("editCollectionForm");
+        if (editForm) {
+          editForm.addEventListener("submit", handleFormSubmission);
+        }
+
+        console.log("✅ Edit modal initialized");
+      }
+
+      // Edit collection function - ENHANCED VERSION
+      function editCollection() {
+        console.log("🚀 Opening edit collection modal");
+
+        const modal = document.getElementById("editCollectionModal");
+        if (!modal) {
+          console.error("❌ Edit modal not found!");
+          showToast("Edit modal not found! ❌", "error");
+          return;
+        }
+
+        // Populate form with current data
+        const nameInput = document.getElementById("editCollectionName");
+        const descInput = document.getElementById("editCollectionDescription");
+        const colorInput = document.getElementById("editCollectionColor");
+        const publicInput = document.getElementById("editCollectionPublic");
+
+        if (nameInput) nameInput.value = collectionData.name || "";
+        if (descInput) descInput.value = collectionData.description || "";
+        if (colorInput) colorInput.value = collectionData.color || "#3B82F6";
+        if (publicInput)
+          publicInput.checked = collectionData.is_public || false;
+
+        // Update color preview
+        updateColorPreview(collectionData.color || "#3B82F6");
+
+        // Show modal
+        modal.classList.add("active");
+
+        // Focus on first input
+        setTimeout(() => {
+          nameInput?.focus();
+        }, 300);
+      }
+
+      function closeEditModal() {
+        const modal = document.getElementById("editCollectionModal");
+        if (modal) {
+          modal.classList.remove("active");
+        }
+      }
+
+      function updateColorPreview(color) {
+        const preview = document.getElementById("colorPreview");
+        if (preview) {
+          preview.style.background = color;
+          preview.textContent = color.toUpperCase();
+        }
+      }
+
+      // Handle form submission for edit modal
+      async function handleFormSubmission(e) {
+        e.preventDefault();
+        console.log("📝 Submitting edit form");
+
+        const formData = {
+          name:
+            document.getElementById("editCollectionName")?.value?.trim() || "",
+          description:
+            document
+              .getElementById("editCollectionDescription")
+              ?.value?.trim() || "",
+          color:
+            document.getElementById("editCollectionColor")?.value || "#3B82F6",
+          is_public:
+            document.getElementById("editCollectionPublic")?.checked || false,
+        };
+
+        if (!formData.name) {
+          showToast("Collection name is required! ❌", "error");
+          return;
+        }
+
+        const submitBtn = document.querySelector(
+          "#editCollectionForm .btn-epic"
+        );
+        const originalText = submitBtn?.innerHTML || "";
+        if (submitBtn) {
+          submitBtn.innerHTML = '<div class="loading"></div> Updating...';
+          submitBtn.disabled = true;
+        }
+
+        try {
+          const pathParts = window.location.pathname.split("/");
+          const collectionId = pathParts[pathParts.length - 1];
+
+          const response = await fetch(`/api/collections/${collectionId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Requested-With": "XMLHttpRequest",
+            },
+            body: JSON.stringify(formData),
+          });
+
+          const result = await response.json();
+
+          if (response.ok && result.success) {
+            updatePageContent(formData);
+            closeEditModal();
+            showToast("Collection updated successfully! ✅", "success");
+
+            setTimeout(() => {
+              loadCollectionData();
+            }, 1000);
+          } else {
+            throw new Error(result.message || "Failed to update collection");
+          }
+        } catch (error) {
+          console.error("❌ Update error:", error);
+          showToast(
+            `Failed to update collection: ${error.message} ❌`,
+            "error"
+          );
+        } finally {
+          if (submitBtn) {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+          }
+        }
+      }
+
+      // Update page content after successful edit
+      function updatePageContent(data) {
+        collectionData = { ...collectionData, ...data };
+
+        const titleElement = document.getElementById("collectionTitle");
+        if (titleElement) {
+          titleElement.textContent = data.name;
+          titleElement.style.animation = "pulse 0.6s ease";
+        }
+
+        const descElement = document.getElementById("collectionDescription");
+        if (descElement) {
+          descElement.textContent =
+            data.description || "No description available";
+          descElement.style.animation = "pulse 0.6s ease";
+        }
+
+        const breadcrumbCurrent = document.getElementById("breadcrumbTitle");
+        if (breadcrumbCurrent) {
+          breadcrumbCurrent.textContent = data.name;
+        }
+
+        document.title = `${data.name} - Code Snippets`;
+      }
+
+      // Handle snippet actions
+      function handleSnippetActions(e) {
+        if (e.target.classList.contains("action-btn")) {
+          const action = e.target.dataset.action;
+          const card = e.target.closest(".snippet-card");
+
+          switch (action) {
+            case "copy":
+              copyToClipboard(card);
+              break;
+            case "edit":
+              editSnippet(card);
+              break;
+            case "share":
+              shareSnippet(card);
+              break;
+            case "favorite":
+              toggleFavorite(card);
+              break;
+            case "delete":
+              deleteSnippet(card);
+              break;
+          }
+        }
+      }
+
+      // Snippet action functions
+      function copyToClipboard(card) {
+        const code = card.querySelector("code")?.textContent || "";
+        navigator.clipboard
+          .writeText(code)
+          .then(() => {
+            showToast("Code copied to clipboard! 📋", "success");
+          })
+          .catch(() => {
+            showToast("Failed to copy code", "error");
+          });
+      }
+
+      function editSnippet(card) {
+        const title = card.querySelector(".snippet-title")?.textContent || "";
+        showToast(`Editing "${title}"... ✏️`, "info");
+      }
+
+      function shareSnippet(card) {
+        const title = card.querySelector(".snippet-title")?.textContent || "";
+        showToast(`Sharing "${title}"... 🔗`, "info");
+      }
+
+      function toggleFavorite(card) {
+        card.classList.toggle("favorite");
+        const isFavorite = card.classList.contains("favorite");
+        const title = card.querySelector(".snippet-title")?.textContent || "";
+
+        if (isFavorite) {
+          showToast(`Added "${title}" to favorites! ⭐`, "success");
+        } else {
+          showToast(`Removed "${title}" from favorites`, "info");
+        }
+      }
+
+      async function deleteSnippet(card) {
+        const title = card.querySelector(".snippet-title")?.textContent || "";
+        const snippetId = card.dataset.snippetId;
+
+        if (!snippetId) {
+          showToast("Snippet ID not found", "error");
+          return;
+        }
+
+        if (confirm(`Are you sure you want to delete "${title}"?`)) {
+          try {
+            card.style.opacity = "0.5";
+            card.style.pointerEvents = "none";
+
+            const response = await fetch(`/api/snippets/${snippetId}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                "X-Requested-With": "XMLHttpRequest",
+              },
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+              card.style.animation = "fadeOut 0.5s ease forwards";
+              setTimeout(() => {
+                card.remove();
+                showToast(`Deleted "${title}" permanently! 🗑️`, "success");
+                filterSnippets();
+                loadCollectionData();
+              }, 500);
+            } else {
+              throw new Error(result.message || "Failed to delete snippet");
+            }
+          } catch (error) {
+            console.error("❌ Error deleting snippet:", error);
+            showToast(`Failed to delete snippet: ${error.message}`, "error");
+            card.style.opacity = "1";
+            card.style.pointerEvents = "auto";
+          }
+        }
+      }
+
+      // Collection action functions
+      function shareCollection() {
+        const url = window.location.href;
+        navigator.clipboard
+          .writeText(url)
+          .then(() => {
+            showToast("Collection link copied to clipboard! 🔗", "success");
+          })
+          .catch(() => {
+            showToast("Failed to copy link", "error");
+          });
+      }
+
+      function exportCollection() {
+        showToast("Exporting collection... 📥", "info");
+      }
+
+      function toggleCollectionFavorite(button) {
+        const isFavorite = button.classList.contains("favorite");
+
+        if (isFavorite) {
+          button.classList.remove("favorite");
+          button.innerHTML = "<span>⭐</span> Add to Favorites";
+          showToast("Removed from favorites", "info");
+        } else {
+          button.classList.add("favorite");
+          button.innerHTML = "<span>⭐</span> Remove from Favorites";
+          showToast("Added to favorites! ⭐", "success");
+        }
+      }
+
+      // Search and filter functions
+      function handleSearch(e) {
+        searchQuery = e.target.value.toLowerCase();
+        filterSnippets();
+      }
+
+      function filterSnippets() {
+        const cards = document.querySelectorAll(".snippet-card");
+        let visibleCount = 0;
+
+        cards.forEach((card) => {
+          const title =
+            card.querySelector(".snippet-title")?.textContent?.toLowerCase() ||
+            "";
+          const language = card.dataset.language || "";
+          const code =
+            card.querySelector(".snippet-code")?.textContent?.toLowerCase() ||
+            "";
+
+          const matchesSearch =
+            !searchQuery ||
+            title.includes(searchQuery) ||
+            code.includes(searchQuery) ||
+            language.includes(searchQuery);
+
+          const matchesFilter =
+            currentFilter === "all" ||
+            language === currentFilter ||
+            (currentFilter === "recent" && isRecent(card.dataset.created)) ||
+            (currentFilter === "favorites" &&
+              card.classList.contains("favorite"));
+
+          if (matchesSearch && matchesFilter) {
+            card.style.display = "block";
+            visibleCount++;
+          } else {
+            card.style.display = "none";
+          }
+        });
+
+        // Update visible count in stats
+        updateStat("snippetCount", visibleCount);
+      }
+
+      function isRecent(dateString) {
+        if (!dateString) return false;
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays <= 7;
+      }
+
+      // Keyboard shortcuts
+      function handleKeyboardShortcuts(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+          e.preventDefault();
+          const searchInput = document.getElementById("searchInput");
+          if (searchInput) {
+            searchInput.focus();
+            showToast("Search activated! 🔍", "info");
+          }
+        }
+
+        if (e.key === "Escape") {
+          const searchInput = document.getElementById("searchInput");
+          if (document.activeElement === searchInput) {
+            searchInput.value = "";
+            searchQuery = "";
+            filterSnippets();
+            searchInput.blur();
+          }
+        }
+      }
+
+      // Modal close handlers
+      function handleModalClose(e) {
+        const editModal = document.getElementById("editCollectionModal");
+        const snippetModal = document.getElementById("addSnippetModal");
+
+        if (e.target === editModal) {
+          closeEditModal();
+        } else if (e.target === snippetModal) {
+          closeSnippetModal();
+        }
+      }
+
+      function handleEscapeKey(e) {
+        if (e.key === "Escape") {
+          const editModal = document.getElementById("editCollectionModal");
+          const snippetModal = document.getElementById("addSnippetModal");
+
+          if (editModal && editModal.classList.contains("active")) {
+            closeEditModal();
+          } else if (
+            snippetModal &&
+            snippetModal.classList.contains("active")
+          ) {
+            closeSnippetModal();
+          }
+        }
+      }
+
+      // Toast notification system
+      function showToast(message, type = "info") {
+        const existingToasts = document.querySelectorAll(".toast-notification");
+        existingToasts.forEach((toast) => toast.remove());
+
+        const toast = document.createElement("div");
+        toast.className = "toast-notification";
+
+        const colors = {
+          success: "#10b981",
+          error: "#ef4444",
+          info: "#3b82f6",
+          warning: "#f59e0b",
+        };
+
+        toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${colors[type] || colors.info};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        z-index: 10000;
+        animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.1);
+        max-width: 400px;
+    `;
+
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+          toast.style.animation = "fadeOut 0.4s ease forwards";
+          setTimeout(() => {
+            if (toast.parentNode) {
+              toast.remove();
+            }
+          }, 400);
+        }, 3000);
+      }
+
+      // Add required CSS animations
+      const additionalStyles = document.createElement("style");
+      additionalStyles.textContent = `
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.02); }
+        100% { transform: scale(1); }
+    }
+    
+    @keyframes fadeOut {
+        to {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    .loading {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: #ffffff;
+        animation: spin 1s ease-in-out infinite;
+    }
+    
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    .snippet-card.favorite {
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+    }
+`;
+      document.head.appendChild(additionalStyles);
+
+      console.log("✅ All functions loaded successfully!");
+    </script>
+  </body>
+</html>

@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Code Snippet Manager</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/dashboard.css') }}" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet" />
+
+    <!-- ADD THIS STYLE IN THE <head> SECTION -->
+    <style>
+      .user-avatar {
+        transition: all 0.3s ease;
+      }
+
+      /* Dark Theme Collection Dropdown Styling */
+      #snippetCollection {
+        background: var(--bg-secondary, #1a1a2e) !important;
+        color: var(--text-primary, #ffffff) !important;
+        border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1)) !important;
+        border-radius: 12px !important;
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        backdrop-filter: blur(20px) !important;
+      }
+
+      #snippetCollection:focus {
+        outline: none !important;
+        border-color: var(--accent-primary, #00d4ff) !important;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3) !important;
+        background: var(--bg-secondary, #1a1a2e) !important;
+      }
+
+      #snippetCollection option {
+        background: var(--bg-secondary, #1a1a2e) !important;
+        color: var(--text-primary, #ffffff) !important;
+        padding: 0.75rem !important;
+        border: none !important;
+      }
+
+      /* Webkit browsers specific fixes */
+      #snippetCollection {
+        -webkit-appearance: none !important;
+        -moz-appearance: none !important;
+        appearance: none !important;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+        background-repeat: no-repeat !important;
+        background-position: right 1rem center !important;
+        background-size: 1rem !important;
+        padding-right: 3rem !important;
+      }
+
+      .user-avatar:hover {
+        transform: scale(1.1);
+        box-shadow: 0 0 15px rgba(0, 245, 255, 0.5);
+      }
+
+      /* Avatar update animation */
+      @keyframes avatarUpdate {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+          box-shadow: 0 0 20px #00ff41;
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .user-avatar.updating {
+        animation: avatarUpdate 0.6s ease-in-out;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="bg-blur bg-blur-1"></div>
+    <div class="bg-blur bg-blur-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <i class="fas fa-code"></i>
+        </div>
+        <span class="brand-text">SnippetFlow</span>
+      </div>
+
+      <div class="nav-search">
+        <div class="search-container">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            placeholder="Search snippets, collections..."
+            class="search-input" />
+          <div class="search-shortcut">⌘K</div>
+        </div>
+      </div>
+
+      <div class="nav-actions">
+        <button class="action-btn" data-tooltip="Add Snippet">
+          <i class="fas fa-plus"></i>
+        </button>
+        <button
+          class="action-btn"
+          data-tooltip="Notifications"
+          id="notificationBtn">
+          <i class="fas fa-bell"></i>
+          <span
+            class="notification-dot"
+            id="notificationDot"
+            style="display: none"></span>
+          <span
+            class="notification-count"
+            id="notificationCount"
+            style="display: none"
+            >0</span
+          >
+        </button>
+
+        <!-- ADD NOTIFICATION DROPDOWN AFTER THE BUTTON -->
+        <div
+          class="notification-dropdown"
+          id="notificationDropdown"
+          style="display: none">
+          <div class="notification-header">
+            <h3>Notifications</h3>
+            <span class="notification-count-text" id="notificationCountText"
+              >0 new</span
+            >
+          </div>
+          <div class="notification-list" id="notificationList">
+            <div class="no-notifications">Loading notifications...</div>
+          </div>
+        </div>
+        <button class="action-btn theme-toggle" data-tooltip="Toggle Theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <div class="user-menu">
+          <img
+            src="{% if user.avatar_url %}{{ user.avatar_url }}{% elif user.profile_settings and user.profile_settings.get('avatar_url') %}{{ user.profile_settings.get('avatar_url') }}{% else %}https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face{% endif %}"
+            alt="User"
+            class="user-avatar"
+            id="dashboardAvatar"
+            onerror="this.src='https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face'; console.log('Dashboard avatar fallback triggered');" />
+          <!-- REPLACE WITH THIS -->
+          <div class="user-dropdown">
+            <div class="dropdown-item" onclick="navigateToProfile()">
+              <i class="fas fa-user"></i>
+              <span>Profile</span>
+            </div>
+            <div class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              <span>Settings</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout" id="logoutBtn">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Log Out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <button class="sidebar-toggle" data-tooltip="">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <div class="sidebar-content">
+        <div class="sidebar-section">
+          <div class="section-title">Overview</div>
+          <a
+            href="{{ url_for('dashboard.index') }}"
+            class="sidebar-link active"
+            data-page="dashboard">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+          <a
+            href="{{ url_for('dashboard.snippets') }}"
+            class="sidebar-link"
+            data-page="snippets">
+            <i class="fas fa-code"></i>
+            <span>All Snippets</span>
+            <span class="count">{{ stats.total_snippets }}</span>
+          </a>
+          <a
+            href="{{ url_for('dashboard.collections') }}"
+            class="sidebar-link collection-link"
+            data-page="collections">
+            <i class="fas fa-folder"></i>
+            <span>Collections</span>
+            <span class="count">{{ stats.total_collections }}</span>
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-title">Quick Access</div>
+          <a
+            href="{{ url_for('dashboard.favorites') }}"
+            class="sidebar-link"
+            data-page="favorites">
+            <i class="fas fa-star"></i>
+            <span>Favorites</span>
+          </a>
+          <!-- Replace the Recent link in sidebar -->
+          <a
+            href="{{ url_for('dashboard.recent') }}"
+            class="sidebar-link"
+            data-page="recent">
+            <i class="fas fa-clock"></i>
+            <span>Recent</span>
+          </a>
+          <a
+            href="{{ url_for('dashboard.shared') }}"
+            class="sidebar-link"
+            data-page="shared">
+            <i class="fas fa-share-alt"></i>
+            <span>Shared</span>
+            <span class="count" id="sharedCount"
+              >{{ stats.shared_count or 0 }}</span
+            >
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-title">Advanced</div>
+          <a
+            href="{{ url_for('dashboard.integrations') }}"
+            class="sidebar-link"
+            data-page="integrations">
+            <i class="fas fa-plug"></i>
+            <span>Integrations</span>
+          </a>
+          <a href="#" class="sidebar-link">
+            <i class="fas fa-key"></i>
+            <span>API Keys</span>
+          </a>
+        </div>
+
+        <!-- ADD THIS NEW SECTION AFTER THE "Advanced" SECTION -->
+        <div class="sidebar-section">
+          <div class="section-title">Collaboration</div>
+          <a href="/dashboard/teams" class="sidebar-link" data-page="teams">
+            <i class="fas fa-users"></i>
+            <span>Teams</span>
+            <span class="count">0</span>
+          </a>
+          <a href="#" class="sidebar-link" data-page="team-activity">
+            <i class="fas fa-comments"></i>
+            <span>Team Activity</span>
+          </a>
+        </div>
+
+        <div class="sidebar-section">
+          <div class="section-title">Languages</div>
+          <div class="language-tags">
+            <span class="lang-tag javascript">JavaScript</span>
+            <span class="lang-tag python">Python</span>
+            <span class="lang-tag css">CSS</span>
+            <span class="lang-tag sql">SQL</span>
+            <span class="lang-tag more">+8 more</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="usage-card">
+          <div class="usage-header">
+            <i class="fas fa-database"></i>
+            <span>Storage Used</span>
+          </div>
+          <div class="usage-bar">
+            <div class="usage-fill" style="width: 68%"></div>
+          </div>
+          <div class="usage-text">68% of 1GB used</div>
+          <button class="upgrade-btn">Upgrade Plan</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Stats Cards -->
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon javascript">
+            <i class="fas fa-code"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.total_snippets }}</div>
+            <div class="stat-label">Total Snippets</div>
+            <div class="stat-change positive">
+              +{{ stats.snippets_this_week }} this week
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon python">
+            <i class="fas fa-folder"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.total_collections }}</div>
+            <div class="stat-label">Collections</div>
+            <div class="stat-change positive">
+              +{{ stats.collections_this_month or 0 }} this month
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon css">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.views_today or 0 }}</div>
+            <div class="stat-label">Views Today</div>
+            <div class="stat-change positive">
+              {{ '+' + (stats.views_change or '0') + '%' if stats.views_change
+              else 'No data' }}
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon sql">
+            <i class="fas fa-share-alt"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-number">{{ stats.shared_count or 0 }}</div>
+            <div class="stat-label">Shared</div>
+            <div class="stat-change neutral">
+              {{ 'No change' if not stats.shared_change else stats.shared_change
+              }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="section-header">
+        <h2 class="section-title">Quick Actions</h2>
+      </div>
+
+      <div class="quick-actions">
+        <button
+          class="action-card"
+          data-action="new-snippet"
+          id="newSnippetBtn">
+          <div class="action-icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="action-content">
+            <h3>New Snippet</h3>
+            <p>Create a new code snippet</p>
+          </div>
+        </button>
+
+        <button
+          class="action-card"
+          data-action="new-collection"
+          data-url="{{ url_for('dashboard.collections') }}?new=true">
+          <div class="action-icon">
+            <i class="fas fa-folder-plus"></i>
+          </div>
+          <div class="action-content">
+            <h3>New Collection</h3>
+            <p>Organize your snippets</p>
+          </div>
+        </button>
+
+        <button class="action-card" data-action="import">
+          <div class="action-icon">
+            <i class="fas fa-file-import"></i>
+          </div>
+          <div class="action-content">
+            <h3>Import</h3>
+            <p>Import from GitHub, files</p>
+          </div>
+        </button>
+
+        <button class="action-card" data-action="extension">
+          <div class="action-icon">
+            <i class="fas fa-puzzle-piece"></i>
+          </div>
+          <div class="action-content">
+            <h3>Browser Extension</h3>
+            <p>Capture code from web</p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="section-header">
+        <h2 class="section-title">Recent Activity</h2>
+        <button class="btn-secondary">View All</button>
+      </div>
+
+      <div class="activity-grid">
+        <div class="activity-card">
+          <div class="activity-icon javascript">
+            <i class="fab fa-js-square"></i>
+          </div>
+          <div class="activity-content">
+            <h3>React useEffect Hook</h3>
+            <p>Updated 2 hours ago</p>
+            <div class="activity-tags">
+              <span class="tag">React</span>
+              <span class="tag">Hooks</span>
+            </div>
+          </div>
+          <div class="activity-actions">
+            <button class="btn-icon" data-tooltip="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Share">
+              <i class="fas fa-share"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="activity-card">
+          <div class="activity-icon python">
+            <i class="fab fa-python"></i>
+          </div>
+          <div class="activity-content">
+            <h3>Data Processing Pipeline</h3>
+            <p>Created 5 hours ago</p>
+            <div class="activity-tags">
+              <span class="tag">Python</span>
+              <span class="tag">Pandas</span>
+            </div>
+          </div>
+          <div class="activity-actions">
+            <button class="btn-icon" data-tooltip="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Share">
+              <i class="fas fa-share"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="activity-card">
+          <div class="activity-icon css">
+            <i class="fab fa-css3-alt"></i>
+          </div>
+          <div class="activity-content">
+            <h3>Glassmorphism Card</h3>
+            <p>Added to favorites yesterday</p>
+            <div class="activity-tags">
+              <span class="tag">CSS</span>
+              <span class="tag">UI</span>
+            </div>
+          </div>
+          <div class="activity-actions">
+            <button class="btn-icon" data-tooltip="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Edit">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="btn-icon" data-tooltip="Share">
+              <i class="fas fa-share"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div class="fab-container">
+      <button class="fab" data-tooltip="Quick Add">
+        <i class="fas fa-plus"></i>
+      </button>
+      <div class="fab-menu">
+        <button class="fab-item" data-action="snippet">
+          <i class="fas fa-code"></i>
+          <span>Snippet</span>
+        </button>
+        <button class="fab-item" data-action="collection">
+          <i class="fas fa-folder"></i>
+          <span>Collection</span>
+        </button>
+        <button class="fab-item" data-action="import">
+          <i class="fas fa-file-import"></i>
+          <span>Import</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading your snippets...</p>
+      </div>
+    </div>
+    <!-- Add/Edit Snippet Modal -->
+    <div class="modal" id="snippetModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 id="modalTitle">Add New Snippet</h2>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <form id="snippetForm">
+          <div class="form-group">
+            <label class="form-label" for="snippetTitle">Title</label>
+            <input
+              type="text"
+              class="form-input"
+              id="snippetTitle"
+              placeholder="Enter snippet title..."
+              required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetLanguage">Language</label>
+            <input
+              type="text"
+              class="form-input"
+              id="snippetLanguage"
+              placeholder="e.g., javascript, python, css..."
+              required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetTags"
+              >Tags (comma separated)</label
+            >
+            <input
+              type="text"
+              class="form-input"
+              id="snippetTags"
+              placeholder="api, async, utility..." />
+          </div>
+          <!-- 🎯 ADD THIS NEW COLLECTION DROPDOWN HERE -->
+          <div class="form-group">
+            <label class="form-label" for="snippetCollection"
+              >Add to Collection (Optional)</label
+            >
+            <select class="form-input" id="snippetCollection">
+              <option value="">-- No Collection --</option>
+              <!-- Collections will be loaded here -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetCode">Code</label>
+            <textarea
+              class="form-textarea"
+              id="snippetCode"
+              placeholder="Paste your code here..."
+              required></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="snippetDescription"
+              >Description (optional)</label
+            >
+            <textarea
+              class="form-input"
+              id="snippetDescription"
+              placeholder="What does this snippet do?"
+              rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Save Snippet</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/collection-modal-service.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <!-- ADD THIS SCRIPT BEFORE THE CLOSING </body> TAG -->
+    <script>
+      // Enhanced avatar synchronization for dashboard
+      console.log("🔍 DASHBOARD AVATAR - Initializing avatar sync");
+
+      // Function to update dashboard avatar
+      function updateDashboardAvatar(avatarUrl) {
+        console.log("🔍 DASHBOARD AVATAR - Updating with URL:", avatarUrl);
+
+        const dashboardAvatar = document.getElementById("dashboardAvatar");
+        if (dashboardAvatar && avatarUrl) {
+          const newSrc = avatarUrl + "?t=" + Date.now();
+          dashboardAvatar.src = newSrc;
+          console.log("✅ DASHBOARD AVATAR - Updated successfully");
+
+          // Add success visual feedback
+          dashboardAvatar.style.border = "2px solid #00ff41";
+          setTimeout(() => {
+            dashboardAvatar.style.border = "";
+          }, 2000);
+        }
+      }
+
+      // Listen for avatar updates from profile page
+      window.addEventListener("avatarUpdated", function (event) {
+        console.log(
+          "🔍 DASHBOARD AVATAR - Received avatarUpdated event:",
+          event.detail
+        );
+        updateDashboardAvatar(event.detail.avatarUrl);
+      });
+
+      // Check localStorage for avatar updates on page load and focus
+      function checkAvatarUpdate() {
+        const storedAvatarUrl = localStorage.getItem("user_avatar_url");
+        const storedTimestamp = localStorage.getItem("avatar_updated_at");
+
+        if (storedAvatarUrl && storedTimestamp) {
+          const updateTime = parseInt(storedTimestamp);
+          const currentTime = Date.now();
+
+          // If avatar was updated in the last 5 minutes, use it
+          if (currentTime - updateTime < 5 * 60 * 1000) {
+            console.log(
+              "🔍 DASHBOARD AVATAR - Found recent avatar update in localStorage"
+            );
+            updateDashboardAvatar(storedAvatarUrl);
+          }
+        }
+      }
+
+      // Check for avatar updates when page loads
+      document.addEventListener("DOMContentLoaded", checkAvatarUpdate);
+
+      // Check for avatar updates when window gains focus (user returns from profile page)
+      window.addEventListener("focus", checkAvatarUpdate);
+
+      // Periodic check every 30 seconds (optional)
+      setInterval(checkAvatarUpdate, 30000);
+
+      console.log("✅ DASHBOARD AVATAR - Avatar sync initialized");
+
+      // Add navigation function
+      function navigateToProfile() {
+        console.log("🔍 NAVIGATION - Navigating to profile");
+        window.location.href = "{{ url_for('dashboard.profile') }}";
+      }
+
+      // Enhanced dropdown functionality
+      document.addEventListener("DOMContentLoaded", function () {
+        const userMenu = document.querySelector(".user-menu");
+        const dropdown = document.querySelector(".user-dropdown");
+
+        if (userMenu && dropdown) {
+          userMenu.addEventListener("click", function (e) {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+          });
+
+          // Close dropdown when clicking outside
+          document.addEventListener("click", function () {
+            dropdown.classList.remove("show");
+          });
+        }
+      });
+      // Notification System
+      document.addEventListener("DOMContentLoaded", function () {
+        console.log("🔔 NOTIFICATIONS: Initializing notification system");
+
+        const notificationBtn = document.getElementById("notificationBtn");
+        const notificationDropdown = document.getElementById(
+          "notificationDropdown"
+        );
+        const notificationDot = document.getElementById("notificationDot");
+        const notificationCount = document.getElementById("notificationCount");
+
+        if (!notificationBtn) {
+          console.error("❌ NOTIFICATIONS: Notification button not found");
+          return;
+        }
+
+        // Load notifications on page load
+        loadNotifications();
+
+        // Check for new notifications every 30 seconds
+        setInterval(loadNotifications, 30000);
+
+        // Toggle notification dropdown
+        notificationBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          const isVisible = notificationDropdown.style.display !== "none";
+          notificationDropdown.style.display = isVisible ? "none" : "block";
+          console.log("🔔 NOTIFICATIONS: Dropdown toggled", !isVisible);
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener("click", function () {
+          notificationDropdown.style.display = "none";
+        });
+
+        async function loadNotifications() {
+          try {
+            console.log("🔔 NOTIFICATIONS: Loading notifications...");
+            const response = await fetch("/api/teams/notifications");
+            const data = await response.json();
+
+            console.log("🔔 NOTIFICATIONS: Response:", data);
+
+            if (data.success) {
+              updateNotificationUI(data.notifications, data.count);
+            } else {
+              console.error("❌ NOTIFICATIONS: Failed to load:", data.error);
+            }
+          } catch (error) {
+            console.error("❌ NOTIFICATIONS: Network error:", error);
+          }
+        }
+
+        function updateNotificationUI(notifications, count) {
+          console.log(
+            `🔔 NOTIFICATIONS: Updating UI with ${count} notifications`
+          );
+
+          const notificationList = document.getElementById("notificationList");
+          const notificationCountText = document.getElementById(
+            "notificationCountText"
+          );
+
+          // Update count
+          if (count > 0) {
+            notificationDot.style.display = "block";
+            notificationCount.style.display = "block";
+            notificationCount.textContent = count;
+            notificationCountText.textContent = `${count} new`;
+            console.log("✅ NOTIFICATIONS: Showing notification badge");
+          } else {
+            notificationDot.style.display = "none";
+            notificationCount.style.display = "none";
+            notificationCountText.textContent = "0 new";
+            console.log("✅ NOTIFICATIONS: Hiding notification badge");
+          }
+
+          // Update notification list
+          if (notifications.length === 0) {
+            notificationList.innerHTML =
+              '<div class="no-notifications">No new notifications</div>';
+          } else {
+            notificationList.innerHTML = notifications
+              .map(
+                (notification) => `
+                <div class="notification-item" onclick="handleNotificationClick('${
+                  notification.url
+                }')">
+                    <div class="notification-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${
+                          notification.title
+                        }</div>
+                        <div class="notification-message">${
+                          notification.message
+                        }</div>
+                        <div class="notification-time">${formatTime(
+                          notification.created_at
+                        )}</div>
+                    </div>
+                </div>
+            `
+              )
+              .join("");
+          }
+        }
+
+        function formatTime(dateString) {
+          const date = new Date(dateString);
+          const now = new Date();
+          const diff = now - date;
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+
+          if (hours < 1) return "Just now";
+          if (hours < 24) return `${hours}h ago`;
+          return `${Math.floor(hours / 24)}d ago`;
+        }
+
+        console.log("✅ NOTIFICATIONS: Notification system initialized");
+      });
+
+      function handleNotificationClick(url) {
+        console.log(
+          "🔔 NOTIFICATIONS: Clicking notification, navigating to:",
+          url
+        );
+        window.location.href = url;
+      }
+    </script>
+  </body>
+</html>
